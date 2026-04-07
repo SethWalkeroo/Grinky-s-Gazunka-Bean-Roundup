@@ -10,7 +10,7 @@ extends CanvasLayer
 var heart_png = 'res://heart.png'
 var heart_gradient_tex: GradientTexture1D
 
-# --- NEW: PARTICLE SAVE STATE VARIABLES ---
+# --- PARTICLE SAVE STATE VARIABLES ---
 var orig_vel_min: float = 0.0
 var orig_vel_max: float = 0.0
 var orig_color_ramp: Texture2D = null
@@ -26,7 +26,7 @@ var is_easter_egg_active: bool = false
 
 var sarah_quote = '[color=black]"[/color][color=cyan][i]Don[color=black]\'[/color]t you know[color=black]?[/color] She[color=black]\'[/color]s been here all along[color=black],[/color] in a [color=pink]d[/color][color=white]r[/color][color=pink]e[/color][color=white]a[/color][color=pink]m[/color][color=black],[/color] she belongs in a [color=pink]d[/color][color=white]r[/color][color=pink]e[/color][color=white]a[/color][color=pink]m[/color][/i][/color][color=black]."[/color] [color=brown]-Alex G[/color]'
 
-# --- EXACT AUDIO TIMESTAMP TRACKERS ---
+# --- AUDIO TIMESTAMP TRACKERS ---
 var sarah_playback_position: float = 0.0
 var menu_music_playback_position: float = 0.0
 
@@ -34,7 +34,7 @@ var menu_music_playback_position: float = 0.0
 const MAX_CHAR_LIMIT = 12
 const BANNED_WORDS = [
 	"nigger", "beaner", "gook", "chink", "nigga", "faggot", "fag", "nickgurs", "fuck", "shit", "bitch", "cunt",
-	"coon", "spook", "fuck"
+	"coon", "spook"
 ]
 
 @onready var menu_background: TextureRect = $menu_background
@@ -88,7 +88,6 @@ var motds = [
 	'“[i]The secret of getting [color=cyan]ahead[/color] is getting [color=green]started[/color].[/i]” [color=red]–Mark Twain[/color]',
 ]
 
-# --- NEW: ANTI-REPEAT VARIABLE ---
 var last_motd_index: int = -1
 
 @export var rainbow_speed: float = 0.1 
@@ -161,14 +160,16 @@ var sarah_bus = AudioServer.get_bus_index("sarah")
 func _ready() -> void:
 	randomize()
 	
-	# --- NEW: Enhanced Fade-In/Out Gradient ---
+	# Connect the Enter Key Signal for the Name Input
+	name_input.text_submitted.connect(_on_name_input_submitted)
+	
 	var grad = Gradient.new()
-	grad.offsets = [0.0, 0.2, 0.8, 1.0] # Control where the colors transition
+	grad.offsets = [0.0, 0.2, 0.8, 1.0]
 	grad.colors = [
-		Color(1, 1, 1, 0),       # Start completely transparent
-		Color(1, 1, 1, 1),       # Fade into solid white
-		Color("ff6bb5"),         # Transition to solid pink
-		Color("ff6bb5", 0)       # Fade out completely transparent
+		Color(1, 1, 1, 0),
+		Color(1, 1, 1, 1),
+		Color("ff6bb5"),
+		Color("ff6bb5", 0)
 	]
 	heart_gradient_tex = GradientTexture1D.new()
 	heart_gradient_tex.gradient = grad
@@ -293,7 +294,6 @@ func setup_profile_creation():
 	if controls_btn: controls_btn.visible = false
 	name_input.grab_focus()
 
-# --- MOTD LOGIC & EASTER EGG ---
 func set_motd():
 	var random_text = ""
 	
@@ -308,18 +308,15 @@ func set_motd():
 		random_text = motds[new_index]
 
 	if random_text == sarah_quote:
-		# AUDIO LOGIC
 		if menu_music and menu_music.playing:
 			menu_music_playback_position = menu_music.get_playback_position()
 			menu_music.stop()
 		if sarah and not sarah.playing:
 			sarah.play(sarah_playback_position)
 			
-		# PARTICLE LOGIC
 		if gpu_particles_2d and gpu_particles_2d.process_material is ParticleProcessMaterial:
 			var mat = gpu_particles_2d.process_material as ParticleProcessMaterial
 			
-			# Snapshot the original settings before changing them
 			if not particles_saved:
 				orig_vel_min = mat.initial_velocity_min
 				orig_vel_max = mat.initial_velocity_max
@@ -334,43 +331,32 @@ func set_motd():
 				particles_saved = true
 				
 			gpu_particles_2d.texture = load(heart_png)
-			
-			# Overwrite all color settings so ONLY the pink gradient shows
 			mat.color = Color.WHITE
 			mat.color_initial_ramp = null
 			mat.color_ramp = heart_gradient_tex
 			mat.hue_variation_max = 0.0
 			mat.hue_variation_min = 0.0
-			
-			# Set a slow floating velocity
 			mat.initial_velocity_min = 2.0
 			mat.initial_velocity_max = 8.0
-			mat.gravity = Vector3(0, -8, 0) # Gentle upward drift
-			
-			# Spread the particles evenly across the entire screen
+			mat.gravity = Vector3(0, -8, 0)
 			var vp_size = get_viewport().get_visible_rect().size
-			gpu_particles_2d.position = Vector2(vp_size.x / 2, vp_size.y / 2) # Center it
+			gpu_particles_2d.position = Vector2(vp_size.x / 2, vp_size.y / 2)
 			mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
 			mat.emission_box_extents = Vector3(vp_size.x / 2, vp_size.y / 2, 1)
 
-			# Clear out the old particles and start fresh
 			if not is_easter_egg_active:
 				gpu_particles_2d.restart()
 				is_easter_egg_active = true
 
 	else:
-		# AUDIO LOGIC
 		if sarah and sarah.playing:
 			sarah_playback_position = sarah.get_playback_position()
 			sarah.stop()
 		if menu_music and not menu_music.playing:
 			menu_music.play(menu_music_playback_position)
 			
-		# RESTORE PARTICLE LOGIC
 		if gpu_particles_2d and gpu_particles_2d.process_material is ParticleProcessMaterial and is_easter_egg_active:
 			gpu_particles_2d.texture = null
-			
-			# If we altered the material previously, revert it!
 			if particles_saved:
 				var mat = gpu_particles_2d.process_material as ParticleProcessMaterial
 				mat.initial_velocity_min = orig_vel_min
@@ -384,11 +370,9 @@ func set_motd():
 				mat.gravity = orig_gravity
 				gpu_particles_2d.position = orig_particle_pos
 
-			# Clear out the old hearts and start fresh
 			gpu_particles_2d.restart()
 			is_easter_egg_active = false
 
-	# Display the MOTD text
 	motd.text = '[wave amp=20.0 freq=5.0 connected=1]%s[/wave]' % random_text
 
 func check_and_apply_rank_colors():
@@ -497,16 +481,32 @@ func _on_ambient_noise_slider_value_changed(value: float) -> void:
 	AudioServer.set_bus_volume_db(ambient_noise_bus, linear_to_db(value))
 	if test_ambient_noise and not test_ambient_noise.playing: test_ambient_noise.play()
 
+# Enter Key Support: This function calls the creation logic when Enter is pressed
+func _on_name_input_submitted(_new_text: String) -> void:
+	_on_create_button_pressed()
+
 func _on_create_button_pressed() -> void:
 	var chosen_name = name_input.text.strip_edges()
+	
+	# Empty Name Check
 	if chosen_name == "" or chosen_name == null:
 		creation_warning_label.text = "[wave amp=30 freq=10][color=yellow]You gotta have a name![/color][/wave]"
 		everyone_has_name_noise.play()
 		return 
 	
+	# Banned Words Filter
+	var lower_name = chosen_name.to_lower()
+	for word in BANNED_WORDS:
+		if word in lower_name:
+			creation_warning_label.text = "[wave amp=30 freq=10][color=red]No bad words![/color][/wave]"
+			bad_word_noise.play()
+			name_input.text = "" 
+			return
+
 	create_btn.disabled = true
 	create_btn.text = "Checking..."
 	
+	# SilentWolf Name Check
 	var sweep_check = await SilentWolf.Scores.get_scores(1000, "main").sw_get_scores_complete
 	if sweep_check.has("scores"):
 		for s in sweep_check.scores:
