@@ -34,7 +34,7 @@ var menu_music_playback_position: float = 0.0
 const MAX_CHAR_LIMIT = 12
 const BANNED_WORDS = [
 	"nigger", "beaner", "gook", "chink", "nigga", "faggot", "fag", "nickgurs", "fuck", "shit", "bitch", "cunt",
-	"coon", "spook"
+	"coon", "spook", "fuck"
 ]
 
 @onready var menu_background: TextureRect = $menu_background

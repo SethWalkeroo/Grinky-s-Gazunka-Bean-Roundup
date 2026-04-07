@@ -6,9 +6,9 @@
 [ext_resource type="Texture2D" uid="uid://bj38ibpvoe6x0" path="res://heaven_assets/ground.png" id="5_nnobs"]
 [ext_resource type="AudioStream" uid="uid://dl3kjckdncm8x" path="res://audio/heaven_music.wav" id="6_nnobs"]
 [ext_resource type="Texture2D" uid="uid://ciu0jy0hwh15t" path="res://heaven_assets/ground_n.png" id="6_puekj"]
+[ext_resource type="AudioStream" uid="uid://bq3wlb10ukrjd" path="res://audio/ambeint_sound_smol.ogg" id="7_bcqvh"]
 [ext_resource type="PackedScene" uid="uid://bw05diy2v87dy" path="res://scenes/foliage.tscn" id="8_fd24p"]
 [ext_resource type="PackedScene" uid="uid://ouqyu3850dyf" path="res://scenes/campfire.tscn" id="9_sbrvq"]
-[ext_resource type="AudioStream" uid="uid://dqa16jp6vyuof" path="res://audio/ambiancenoise.wav" id="11_axnk8"]
 [ext_resource type="PackedScene" uid="uid://cqku5lnqphg1e" path="res://scenes/tree.tscn" id="11_uqftx"]
 [ext_resource type="AudioStream" uid="uid://bkboj65mdnc05" path="res://audio/circkets.wav" id="12_uqftx"]
 [ext_resource type="Texture2D" uid="uid://ckpwvjjnkl4vx" path="res://goblin.png" id="13_kmqmy"]
@@ -139,7 +139,7 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -11.801533637694694
+shader_parameter/star_rotation = -11.773673117141941
 shader_parameter/star_tilt = -1.2915436464758039
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("34_ipkb0")
@@ -155,8 +155,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.1477498, 0.1477498)
-shader_parameter/cirrus_position2 = Vector2(0.1477498, 0.1477498)
+shader_parameter/cirrus_position1 = Vector2(0.006340401, 0.006340401)
+shader_parameter/cirrus_position2 = Vector2(0.006340401, 0.006340401)
 shader_parameter/cirrus_texture = ExtResource("30_01rup")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -166,7 +166,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.7386411, 0.7386411)
+shader_parameter/cumulus_position = Vector2(0.031702, 0.031702)
 shader_parameter/cumulus_texture = ExtResource("31_8g5uk")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -176,7 +176,7 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(-1.4901159e-08, -0.9464444, 0.32286665, -0.54387355, -0.27093908, -0.79422504, 0.8391671, -0.17559865, -0.5147461)
+shader_parameter/moon_matrix = Basis(-1.4901161e-08, -0.70018494, 0.71396154, -0.9433229, -0.23694699, -0.23237486, 0.3318764, -0.67349625, -0.66050047)
 
 [sub_resource type="Sky" id="Sky_7niei"]
 sky_material = SubResource("ShaderMaterial_p7nha")
@@ -300,7 +300,7 @@ transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -7.623439, 0.32530147, 1.2064
 [node name="campfire" parent="." unique_id=2050365091 instance=ExtResource("9_sbrvq")]
 
 [node name="ambiance" type="AudioStreamPlayer" parent="." unique_id=1391867292]
-stream = ExtResource("11_axnk8")
+stream = ExtResource("7_bcqvh")
 volume_db = -30.952
 autoplay = true
 bus = &"ambient_noise"
@@ -720,32 +720,32 @@ bus = &"game_voicelines"
 environment = SubResource("Environment_nxiix")
 camera_attributes = SubResource("CameraAttributesPractical_by87i")
 script = ExtResource("36_j5lsf")
-current_time = 13.523146666664527
+current_time = 13.220426666657016
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1726463381]
-transform = Transform3D(0.8436956, 0.38263196, -0.37652442, 0, 0.7013954, 0.71277255, 0.53682196, -0.60136306, 0.59176415, -0.3765244, 0.7127725, 0.5917641)
+transform = Transform3D(0.88932896, 0.34084284, -0.30482787, 0, 0.6666286, 0.74538994, 0.45726782, -0.6628969, 0.59285223, -0.30482787, 0.74538994, 0.59285223)
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=433551366]
-transform = Transform3D(0, -0.5438736, 0.8391672, -0.9464445, -0.2709391, -0.17559865, 0.32286668, -0.79422516, -0.5147461, 0.8391672, -0.17559865, -0.5147461)
+transform = Transform3D(0, -0.9433229, 0.3318764, -0.70018494, -0.23694699, -0.67349625, 0.71396154, -0.23237486, -0.66050047, 0.3318764, -0.67349625, -0.66050047)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 
 [node name="SkyDome" type="Node" parent="Sky3D" unique_id=1682473994]
 script = ExtResource("37_5dglg")
-sun_azimuth = -3.7082584
-sun_altitude = -0.77735317
-moon_azimuth = -1.0205812
-moon_altitude = -1.7473102
+sun_azimuth = -3.6165133
+sun_altitude = -0.7296767
+moon_azimuth = -0.46561527
+moon_altitude = -2.3097248
 wind_direction = 2.35619451204804
 
 [node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=2110156679]
 script = ExtResource("38_qxbhr")
 dome_path = NodePath("../SkyDome")
-current_time = 13.523146666664527
-day = 10
+current_time = 13.220426666657016
+day = 13
 
 [connection signal="body_entered" from="convo_zone" to="." method="_on_convo_zone_body_entered"]
 [connection signal="body_exited" from="convo_zone" to="." method="_on_convo_zone_body_exited"]
