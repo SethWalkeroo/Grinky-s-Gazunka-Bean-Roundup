@@ -1,0 +1,73 @@
+[gd_scene format=3 uid="uid://b3j3xbhcuetq5"]
+
+[ext_resource type="Texture2D" uid="uid://1crwerctghg5" path="res://assets/assets/textures/dev/grids/Dark/texture_07.png" id="1_0wfyh"]
+[ext_resource type="Texture2D" uid="uid://cwtmvwma1ubuo" path="res://assets/assets/hdris/kloofendal_48d_partly_cloudy_puresky_2k.hdr" id="2_sugp2"]
+[ext_resource type="Script" uid="uid://ci6d846ekar5o" path="res://scripts/player.gd" id="3_sugp2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jyhfs"]
+albedo_texture = ExtResource("1_0wfyh")
+uv1_triplanar = true
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_tbgi4"]
+panorama = ExtResource("2_sugp2")
+
+[sub_resource type="Sky" id="Sky_tefeu"]
+sky_material = SubResource("PanoramaSkyMaterial_tbgi4")
+
+[sub_resource type="Environment" id="Environment_o6xl0"]
+background_mode = 2
+sky = SubResource("Sky_tefeu")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jyhfs"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sugp2"]
+height = 1.2
+
+[node name="world" type="Node3D" unique_id=1393580645]
+
+[node name="stage" type="Node3D" parent="." unique_id=1692116904]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="stage" unique_id=1200857926]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+use_collision = true
+size = Vector3(20, 1, 20)
+material = SubResource("StandardMaterial3D_jyhfs")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="stage" unique_id=2034351685]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2013288, 12.922577)
+use_collision = true
+size = Vector3(20, 1, 20)
+material = SubResource("StandardMaterial3D_jyhfs")
+
+[node name="env" type="Node3D" parent="." unique_id=1713156838]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="env" unique_id=9061214]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="env" unique_id=1554179693]
+environment = SubResource("Environment_o6xl0")
+
+[node name="player" type="CharacterBody3D" parent="." unique_id=709770441]
+script = ExtResource("3_sugp2")
+
+[node name="standing_collision_shape" type="CollisionShape3D" parent="player" unique_id=1930467297]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_jyhfs")
+
+[node name="crouching_collision_shape" type="CollisionShape3D" parent="player" unique_id=659655607]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60792595, 0)
+shape = SubResource("CapsuleShape3D_sugp2")
+
+[node name="ceiling_detection" type="RayCast3D" parent="player" unique_id=1754071714]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0612693, 0)
+target_position = Vector3(0, 1, 0)
+
+[node name="neck" type="Node3D" parent="player" unique_id=777096448]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+
+[node name="head" type="Node3D" parent="player/neck" unique_id=155609629]
+
+[node name="Camera3D" type="Camera3D" parent="player/neck/head" unique_id=1924101698]

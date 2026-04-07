@@ -1,0 +1,553 @@
+[gd_scene format=3 uid="uid://cgoyj63c3ygiv"]
+
+[ext_resource type="Script" uid="uid://b18wx8m8c4nkj" path="res://scripts/main_menu.gd" id="1_l6cm7"]
+[ext_resource type="Shader" uid="uid://bwqjpcvtgthvl" path="res://shaders/title.gdshader" id="2_bqqt6"]
+[ext_resource type="Texture2D" uid="uid://ckpwvjjnkl4vx" path="res://scenes/goblin.png" id="2_wu84c"]
+[ext_resource type="AudioStream" uid="uid://dvabuy57yn207" path="res://audio/menu_music.wav" id="3_bqqt6"]
+[ext_resource type="AudioStream" uid="uid://88ut83bhnox2" path="res://audio/gazunka_pickup_noise.wav" id="5_rtw2f"]
+[ext_resource type="AudioStream" uid="uid://bb5puy8mjg5bf" path="res://audio/byeah.wav" id="6_rtw2f"]
+[ext_resource type="AudioStream" uid="uid://cks72bjuhemok" path="res://audio/SNAP.wav" id="6_tbmy8"]
+[ext_resource type="AudioStream" uid="uid://dqa16jp6vyuof" path="res://audio/ambiancenoise.wav" id="7_oa1go"]
+[ext_resource type="AudioStream" uid="uid://dm21taa0wukn8" path="res://audio/excellent_choice.wav" id="8_jk1qb"]
+[ext_resource type="AudioStream" uid="uid://bqrg4ljgojii7" path="res://audio/name_taken.wav" id="10_5dd4i"]
+[ext_resource type="AudioStream" uid="uid://bkl2s4v2btsqe" path="res://audio/oh_my.wav" id="11_lgwnu"]
+[ext_resource type="AudioStream" uid="uid://cr1qyvlq8oost" path="res://audio/everyone_has_a_name.wav" id="12_flqon"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_rtw2f"]
+particle_flag_disable_z = true
+emission_shape_offset = Vector3(-120, 250, 0)
+emission_shape = 1
+emission_sphere_radius = 128.0
+spread = 155.496
+angular_velocity_min = 33.029984
+angular_velocity_max = 33.029984
+orbit_velocity_min = 9.49949e-08
+orbit_velocity_max = 0.3000001
+gravity = Vector3(0, -1000, 0)
+scale_min = 0.01
+scale_max = 0.19999999
+hue_variation_min = 0.09999997
+hue_variation_max = 0.54999995
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wu84c"]
+shader = ExtResource("2_bqqt6")
+shader_parameter/wave_speed = 3.0
+shader_parameter/wave_freq = 10.0
+shader_parameter/wave_width = 1.0
+shader_parameter/smoothing = 0.1
+
+[node name="MainMenu" type="CanvasLayer" unique_id=1981684158]
+script = ExtResource("1_l6cm7")
+
+[node name="ColorRect2" type="TextureRect" parent="." unique_id=355167862]
+modulate = Color(0, 0, 0, 1)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -9.0
+offset_right = 14046.0
+offset_bottom = 8981.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.04, 0.04)
+texture = ExtResource("2_wu84c")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="." unique_id=1693766728]
+modulate = Color(0.9827944, 1, 0, 1)
+position = Vector2(240, 101)
+amount = 6
+process_material = SubResource("ParticleProcessMaterial_rtw2f")
+
+[node name="ProfilePanel" type="Panel" parent="." unique_id=311814924]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="ProfilePanel" unique_id=674901167]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="LineEdit" type="LineEdit" parent="ProfilePanel" unique_id=869248234]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -91.0
+offset_top = -26.5
+offset_right = 101.0
+offset_bottom = 4.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CreateButton" type="Button" parent="ProfilePanel" unique_id=973297790]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = 45.0
+offset_right = 30.0
+offset_bottom = 76.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Create"
+
+[node name="Label" type="Label" parent="ProfilePanel" unique_id=401658518]
+layout_mode = 0
+offset_left = 193.0
+offset_top = 123.0
+offset_right = 286.0
+offset_bottom = 146.0
+text = "Enter Name"
+
+[node name="creation_warning_label" type="RichTextLabel" parent="ProfilePanel" unique_id=1252888467]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 107.0
+offset_top = 160.0
+offset_right = 370.0
+offset_bottom = 178.0
+grow_horizontal = 2
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+text = "(max 12 characters)"
+scroll_active = false
+autowrap_mode = 0
+
+[node name="number_1_player" type="RichTextLabel" parent="." unique_id=64674322]
+top_level = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.34552
+offset_top = 15.0
+offset_right = 60.34552
+offset_bottom = 39.20999
+grow_horizontal = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+
+[node name="MenuButtons" type="VBoxContainer" parent="." unique_id=916260971]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 43.0
+offset_right = 150.0
+offset_bottom = 43.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.75, 0.75)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="title" type="Label" parent="MenuButtons" unique_id=1050270009]
+material = SubResource("ShaderMaterial_wu84c")
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.97651577, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "Grinky's Gazunka Bean Roundup!"
+
+[node name="Label" type="Label" parent="MenuButtons" unique_id=1838933839]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Welcome back, dude!"
+
+[node name="StartButton" type="Button" parent="MenuButtons" unique_id=185173099]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 25
+text = "Start"
+
+[node name="SettingsButton" type="Button" parent="MenuButtons" unique_id=38875611]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Sound Settings"
+
+[node name="Video Settings" type="Button" parent="MenuButtons" unique_id=1335990328]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Video Settings"
+
+[node name="LeaderboardButton" type="Button" parent="MenuButtons" unique_id=522287614]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Leaderboard"
+
+[node name="QuitButton" type="Button" parent="MenuButtons" unique_id=796711506]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Quit"
+
+[node name="settings_panel" type="ColorRect" parent="." unique_id=986785153]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="settings_panel" unique_id=267299598]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -182.5
+offset_top = -69.5
+offset_right = 182.5
+offset_bottom = 69.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="settings_panel/VBoxContainer" unique_id=298508162]
+layout_mode = 2
+
+[node name="master_volume" type="Label" parent="settings_panel/VBoxContainer/HBoxContainer" unique_id=493391602]
+layout_mode = 2
+text = "Master Volume"
+
+[node name="master_slider" type="HSlider" parent="settings_panel/VBoxContainer/HBoxContainer" unique_id=1903874743]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="settings_panel/VBoxContainer" unique_id=925392139]
+layout_mode = 2
+
+[node name="menu_music" type="Label" parent="settings_panel/VBoxContainer/HBoxContainer2" unique_id=707368126]
+layout_mode = 2
+text = "Menu Music Volume "
+
+[node name="menu_music_slider" type="HSlider" parent="settings_panel/VBoxContainer/HBoxContainer2" unique_id=990520776]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="settings_panel/VBoxContainer" unique_id=424399201]
+layout_mode = 2
+
+[node name="effects" type="Label" parent="settings_panel/VBoxContainer/HBoxContainer3" unique_id=934242542]
+layout_mode = 2
+text = "Effects Volume"
+
+[node name="effects_slider" type="HSlider" parent="settings_panel/VBoxContainer/HBoxContainer3" unique_id=649638663]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="settings_panel/VBoxContainer" unique_id=1872993285]
+layout_mode = 2
+
+[node name="voicelines" type="Label" parent="settings_panel/VBoxContainer/HBoxContainer4" unique_id=1271031668]
+layout_mode = 2
+text = "Voicelines Volume"
+
+[node name="voicelines_slider" type="HSlider" parent="settings_panel/VBoxContainer/HBoxContainer4" unique_id=1979393733]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="settings_panel/VBoxContainer" unique_id=719444944]
+layout_mode = 2
+
+[node name="ambient_noise" type="Label" parent="settings_panel/VBoxContainer/HBoxContainer5" unique_id=2133960203]
+layout_mode = 2
+text = "Ambient Noise Volume"
+
+[node name="ambient_noise_slider" type="HSlider" parent="settings_panel/VBoxContainer/HBoxContainer5" unique_id=1467952512]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="save_settings" type="Button" parent="settings_panel/VBoxContainer" unique_id=2125833950]
+layout_mode = 2
+text = "close (they'll save)"
+
+[node name="Label" type="RichTextLabel" parent="settings_panel" unique_id=494866710]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -58.0
+offset_top = 17.0
+offset_right = 77.25
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "[wave amp=20 freq=5 connect=1][color=orange]Sounds[/color][/wave]"
+
+[node name="video_settings" type="ColorRect" parent="." unique_id=1105296506]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="video_settings" unique_id=1847726431]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -182.5
+offset_top = -69.5
+offset_right = 182.5
+offset_bottom = 69.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=20513621]
+layout_mode = 2
+
+[node name="master_volume" type="Label" parent="video_settings/VBoxContainer/HBoxContainer" unique_id=1936804510]
+layout_mode = 2
+text = "Minimap"
+
+[node name="minimap_checkbox" type="CheckBox" parent="video_settings/VBoxContainer/HBoxContainer" unique_id=2014661602]
+layout_mode = 2
+button_pressed = true
+
+[node name="save_settings" type="Button" parent="video_settings/VBoxContainer" unique_id=2042556007]
+layout_mode = 2
+text = "Save Settings"
+
+[node name="Label" type="RichTextLabel" parent="video_settings" unique_id=1910707991]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -92.0
+offset_top = 17.0
+offset_right = 90.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "[wave amp=20 freq=5 connect=1][rainbow]Vid-e-whoa[/rainbow][/wave]"
+
+[node name="controls_settings" type="ColorRect" parent="." unique_id=1565406869]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="controls_settings" unique_id=954300901]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 102.0
+offset_top = 25.0
+offset_right = -127.0
+offset_bottom = -89.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="GridContainer" parent="controls_settings/ScrollContainer" unique_id=1436154686]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.0
+columns = 2
+
+[node name="ForwardBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1098536784]
+layout_mode = 2
+text = "Forwards"
+
+[node name="BackwardBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=480923333]
+layout_mode = 2
+text = "Backwards"
+
+[node name="LeftBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1964220207]
+layout_mode = 2
+text = "Left"
+
+[node name="RightBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=781178453]
+layout_mode = 2
+text = "Right"
+
+[node name="JumpBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1926160361]
+layout_mode = 2
+text = "Jump"
+
+[node name="SprintBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1285467931]
+layout_mode = 2
+text = "Sprint"
+
+[node name="CrouchBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=990626451]
+layout_mode = 2
+text = "Crouch"
+
+[node name="InteractBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1692260942]
+layout_mode = 2
+text = "Interact"
+
+[node name="FreelookBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1255134482]
+layout_mode = 2
+text = "Freelook"
+
+[node name="TorchBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1092119810]
+layout_mode = 2
+text = "Torch"
+
+[node name="LeanleftBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1148870367]
+layout_mode = 2
+text = "Lean Left"
+
+[node name="LeanrightBtn" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1663683763]
+layout_mode = 2
+text = "Lean Right"
+
+[node name="save_settings" type="Button" parent="controls_settings/ScrollContainer/VBoxContainer" unique_id=1409489092]
+layout_mode = 2
+text = "Save Settings"
+
+[node name="Label" type="RichTextLabel" parent="controls_settings" unique_id=1567852371]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -83.0
+offset_top = -69.0
+offset_right = 99.0
+offset_bottom = -22.0
+grow_horizontal = 2
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "[wave amp=20 freq=5 connect=1][rainbow]Vid-e-whoa[/rainbow][/wave]"
+
+[node name="test_audio" type="Control" parent="." unique_id=75629100]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="effects_test" type="AudioStreamPlayer" parent="test_audio" unique_id=1755371850]
+stream = ExtResource("5_rtw2f")
+volume_db = -37.143
+bus = &"effects"
+
+[node name="voiceline_test" type="AudioStreamPlayer" parent="test_audio" unique_id=478067248]
+stream = ExtResource("6_rtw2f")
+volume_db = -37.143
+bus = &"game_voicelines"
+
+[node name="motd" type="RichTextLabel" parent="." unique_id=895595451]
+top_level = true
+offset_left = 18.0
+offset_top = 294.0
+offset_right = 461.0
+offset_bottom = 369.0
+bbcode_enabled = true
+text = "\"You’ll never find a [rainbow]rainbow[/rainbow] if you’re looking [color=gray]down[/color].\" [color=gold]-Charlie Chaplin[/color]"
+horizontal_alignment = 1
+
+[node name="menu_noises" type="Control" parent="." unique_id=377298535]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="button_hover_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=868690126]
+volume_db = -43.588
+
+[node name="button_click_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1530758440]
+stream = ExtResource("6_tbmy8")
+volume_db = -36.706
+
+[node name="test_ambient_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1686792697]
+stream = ExtResource("7_oa1go")
+volume_db = -41.296
+autoplay = true
+bus = &"ambient_noise"
+
+[node name="profile_creation_voiceline" type="AudioStreamPlayer" parent="menu_noises" unique_id=816392301]
+stream = ExtResource("8_jk1qb")
+volume_db = -37.471
+
+[node name="main_music" type="AudioStreamPlayer" parent="menu_noises" unique_id=350473728]
+stream = ExtResource("3_bqqt6")
+volume_db = -32.118
+autoplay = true
+bus = &"menu_music"
+
+[node name="name_taken" type="AudioStreamPlayer" parent="menu_noises" unique_id=817649156]
+stream = ExtResource("10_5dd4i")
+volume_db = -30.588
+
+[node name="bad_word_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1112392016]
+stream = ExtResource("11_lgwnu")
+volume_db = -32.882
+
+[node name="everyone_has_name_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=2034853343]
+stream = ExtResource("12_flqon")
+volume_db = -32.882
+
+[node name="Button" type="Button" parent="." unique_id=1088281270]
+offset_left = 34.999996
+offset_top = 205.0
+offset_right = 137.87077
+offset_bottom = 239.5
+rotation = -0.429351
+text = "Controls
+"
+
+[connection signal="pressed" from="ProfilePanel/CreateButton" to="." method="_on_create_button_pressed"]
+[connection signal="pressed" from="MenuButtons/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="MenuButtons/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="MenuButtons/Video Settings" to="." method="_on_video_settings_pressed"]
+[connection signal="pressed" from="MenuButtons/LeaderboardButton" to="." method="_on_leaderboard_button_pressed"]
+[connection signal="pressed" from="MenuButtons/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer/master_slider" to="." method="_on_master_slider_value_changed"]
+[connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer2/menu_music_slider" to="." method="_on_menu_music_slider_value_changed"]
+[connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer3/effects_slider" to="." method="_on_effects_slider_value_changed"]
+[connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
+[connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
+[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
+[connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
+[connection signal="pressed" from="video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

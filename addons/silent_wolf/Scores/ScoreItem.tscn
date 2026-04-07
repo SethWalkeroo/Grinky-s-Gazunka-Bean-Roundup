@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://2wy4d8d5av0l"]
+
+[node name="ScoreItem" type="Panel" unique_id=1646850666]
+custom_minimum_size = Vector2(600, 50)
+offset_left = -500.0
+offset_top = -50.0
+
+[node name="PlayerName" type="RichTextLabel" parent="." unique_id=56451572]
+custom_minimum_size = Vector2(100, 25)
+layout_mode = 0
+offset_left = 8.0
+offset_right = 340.0
+offset_bottom = 58.0
+theme_override_font_sizes/normal_font_size = 40
+text = "1. Godzilla"
+
+[node name="Score" type="Label" parent="." unique_id=287265617]
+layout_mode = 0
+offset_left = 342.0
+offset_top = 4.0
+offset_right = 468.0
+offset_bottom = 59.0
+theme_override_font_sizes/font_size = 40
+text = "13"
+horizontal_alignment = 2

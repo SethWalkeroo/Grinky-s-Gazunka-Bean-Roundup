@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://b0tr43lxl3yaa"]
+
+[ext_resource type="Script" uid="uid://c8wdk2gkpikmm" path="res://scripts/icon_component.gd" id="1_klo45"]
+[ext_resource type="Texture2D" uid="uid://bjgskj4yoirps" path="res://assets/assets/textures/outside/bush.png" id="2_naunl"]
+
+[node name="IconComponent" type="Node3D" unique_id=798463184]
+script = ExtResource("1_klo45")
+
+[node name="icon_sprite" type="Sprite3D" parent="." unique_id=2002580906]
+layers = 524288
+pixel_size = 0.0001
+axis = 1
+no_depth_test = true
+fixed_size = true
+texture = ExtResource("2_naunl")

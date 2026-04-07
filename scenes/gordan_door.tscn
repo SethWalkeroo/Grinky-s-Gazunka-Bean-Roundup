@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://c38fopnhn8ep2"]
+
+[ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="1_j3yyj"]
+[ext_resource type="Script" uid="uid://b22cm0y3d7731" path="res://scripts/gordan_door.gd" id="1_ujt5t"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k4sej"]
+size = Vector3(3.055191, 2.414795, 0.5215454)
+
+[sub_resource type="BoxMesh" id="BoxMesh_16k6b"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ysx5l"]
+albedo_color = Color(0.21484375, 0.10988885, 0, 1)
+albedo_texture = ExtResource("1_j3yyj")
+
+[node name="door" type="StaticBody3D" unique_id=23201105]
+collision_layer = 13
+collision_mask = 13
+script = ExtResource("1_ujt5t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1208419991]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -1.113245, 0.19946289, 0.0119018555)
+shape = SubResource("BoxShape3D_k4sej")
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="." unique_id=1358031352]
+transform = Transform3D(5.9578366, 0, 0, 0, 5.0406017, 0, 0, 0, 1, -1.2398167, 0, 0)
+mesh = SubResource("BoxMesh_16k6b")
+material = SubResource("StandardMaterial3D_ysx5l")
+
+[node name="Node3D" type="Node3D" parent="." unique_id=688600243]

@@ -1,0 +1,84 @@
+[gd_scene format=3 uid="uid://b2h8ok8yfc7wb"]
+
+[ext_resource type="Script" uid="uid://bkgpnjf2p5f2m" path="res://addons/silent_wolf/Scores/leaderboard.gd" id="1_5pbpo"]
+[ext_resource type="Theme" uid="uid://d2eakbmaefnt6" path="res://addons/silent_wolf/assets/themes/sw_theme.tres" id="2_ixaq4"]
+[ext_resource type="PackedScene" uid="uid://clllbf6am8qdf" path="res://addons/silent_wolf/common/SWButton.tscn" id="4"]
+
+[sub_resource type="Theme" id="Theme_j1gah"]
+
+[node name="Leaderboard" type="CanvasLayer" unique_id=2101891784]
+scale = Vector2(0.33, 0.33)
+transform = Transform2D(0.33, 0, 0, 0.33, 0, 0)
+script = ExtResource("1_5pbpo")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=892718658]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 646.66656
+offset_bottom = 499.39386
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="OldBoard" type="MarginContainer" parent="." unique_id=796887771]
+visible = false
+
+[node name="HighScores" type="TextureRect" parent="OldBoard" unique_id=886532410]
+layout_mode = 2
+
+[node name="Board" type="VBoxContainer" parent="." unique_id=1057465742]
+offset_left = -203.03029
+offset_top = -172.72726
+offset_right = 1152.9697
+offset_bottom = 845.2727
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("2_ixaq4")
+theme_override_constants/separation = 48
+alignment = 1
+
+[node name="TitleContainer" type="CenterContainer" parent="Board" unique_id=1359019130]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Board/TitleContainer" unique_id=1144211044]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "Leaderboard"
+horizontal_alignment = 1
+
+[node name="MessageContainer" type="CenterContainer" parent="Board" unique_id=1967579418]
+visible = false
+layout_mode = 2
+
+[node name="TextMessage" type="Label" parent="Board/MessageContainer" unique_id=1604709039]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Loading scores..."
+
+[node name="HighScores" type="ScrollContainer" parent="Board" unique_id=82928175]
+custom_minimum_size = Vector2(600, 400)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = SubResource("Theme_j1gah")
+
+[node name="ScoreItemContainer" type="VBoxContainer" parent="Board/HighScores" unique_id=1621450093]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="CloseButtonContainer" type="CenterContainer" parent="Board" unique_id=1111239091]
+layout_mode = 2
+
+[node name="CloseButton" parent="Board/CloseButtonContainer" unique_id=1812055796 instance=ExtResource("4")]
+modulate = Color(0.9447573, 0.958568, 1, 1)
+custom_minimum_size = Vector2(600, 80)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0.97982836, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 1, 0.9147115, 1)
+theme_override_colors/icon_pressed_color = Color(0, 1, 0.9802456, 1)
+theme_override_font_sizes/font_size = 32
+text = "Close Leaderboard"
+
+[connection signal="pressed" from="Board/CloseButtonContainer/CloseButton" to="." method="_on_CloseButton_pressed"]

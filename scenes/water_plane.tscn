@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://cl1uq78jtu77o"]
+
+[ext_resource type="Shader" uid="uid://bflyup57pcym0" path="res://shaders/water.gdshader" id="1_rp6n3"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_anwgj"]
+subdivide_width = 128
+subdivide_depth = 128
+orientation = 1
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rp6n3"]
+noise_type = 3
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_anwgj"]
+noise = SubResource("FastNoiseLite_rp6n3")
+seamless = true
+as_normal_map = true
+bump_strength = 1.5
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_anwgj"]
+noise_type = 3
+seed = 10
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_u3852"]
+noise = SubResource("FastNoiseLite_anwgj")
+seamless = true
+as_normal_map = true
+bump_strength = 1.5
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_u3852"]
+noise_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_d8yhx"]
+noise = SubResource("FastNoiseLite_u3852")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u3852"]
+render_priority = 0
+shader = ExtResource("1_rp6n3")
+shader_parameter/albedo = Color(0, 0.32156864, 0.43137255, 1)
+shader_parameter/albedo2 = Color(0, 0.4745098, 0.7647059, 1)
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.02
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_anwgj")
+shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_u3852")
+shader_parameter/wave_direction = Vector2(2, 0)
+shader_parameter/wave_direction2 = Vector2(0, 1)
+shader_parameter/time_scale = 0.0
+shader_parameter/wave = SubResource("NoiseTexture2D_d8yhx")
+shader_parameter/noise_scale = 10.0
+shader_parameter/height_scale = 0.15
+shader_parameter/color_deep = Color(0, 0.26643574, 0.28125, 1)
+shader_parameter/color_shallow = Color(0, 0.41415024, 1, 1)
+shader_parameter/beers_law = 2.0
+shader_parameter/depth_offset = 1.5
+shader_parameter/edge_scale = 0.05
+shader_parameter/edge_color = Color(1, 1, 1, 1)
+
+[node name="water_plane" type="MeshInstance3D" unique_id=1458784962]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0028299466, 0, 0.0007555783)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_anwgj")
+surface_material_override/0 = SubResource("ShaderMaterial_u3852")

@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://cgoyj63c3ygiv"]
+
+[ext_resource type="Script" uid="uid://b18wx8m8c4nkj" path="res://scripts/main_menu.gd" id="1_l6cm7"]
+
+[node name="MainMenu" type="CanvasLayer" unique_id=1981684158]
+script = ExtResource("1_l6cm7")
+
+[node name="ProfilePanel" type="Panel" parent="." unique_id=311814924]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LineEdit" type="LineEdit" parent="ProfilePanel" unique_id=869248234]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -91.0
+offset_top = -15.5
+offset_right = 101.0
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CreateButton" type="Button" parent="ProfilePanel" unique_id=973297790]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = 28.0
+offset_right = 30.0
+offset_bottom = 59.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Create"
+
+[node name="Label" type="Label" parent="ProfilePanel" unique_id=401658518]
+layout_mode = 0
+offset_left = 275.0
+offset_top = 131.0
+offset_right = 368.0
+offset_bottom = 154.0
+text = "Enter Name"
+
+[node name="MenuButtons" type="VBoxContainer" parent="." unique_id=916260971]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -126.5
+offset_top = -23.5
+offset_right = 126.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="MenuButtons" unique_id=1838933839]
+layout_mode = 2
+text = "Grinky's Gazunka Bean Roundup"
+
+[node name="StartButton" type="Button" parent="MenuButtons" unique_id=185173099]
+layout_mode = 2
+text = "Start"
+
+[node name="QuitButton" type="Button" parent="MenuButtons" unique_id=796711506]
+layout_mode = 2
+text = "Quit"
+
+[node name="profile_voiceline" type="AudioStreamPlayer" parent="." unique_id=478067248]

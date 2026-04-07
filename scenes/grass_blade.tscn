@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://btk6o5qwt36gr"]
+
+[ext_resource type="PlaneMesh" uid="uid://dycm3qajy3q47" path="res://assets/grass_plane_mesh.tres" id="1_8g5ix"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" unique_id=1660949772]
+mesh = ExtResource("1_8g5ix")

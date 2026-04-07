@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://dflwsyrxdx1ii"]
+
+[ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="1_syxuu"]
+[ext_resource type="AudioStream" uid="uid://bmkiw6p6xo7le" path="res://audio/open_door.wav" id="2_yk4m6"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m23ym"]
+size = Vector3(3.50177, 4.005829, 0.78271484)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yk4m6"]
+albedo_texture = ExtResource("1_syxuu")
+
+[sub_resource type="BoxMesh" id="BoxMesh_m23ym"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_syxuu"]
+size = Vector3(3.4274902, 3.9038086, 0.63194275)
+
+[node name="exit_door" type="Area3D" unique_id=1886768539]
+
+[node name="cube" type="CollisionShape3D" parent="." unique_id=220903057]
+shape = SubResource("BoxShape3D_m23ym")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=403085497]
+transform = Transform3D(3.524869, 0, 0, 0, 3.952277, 0, 0, 0, 0.650337, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_yk4m6")
+mesh = SubResource("BoxMesh_m23ym")
+
+[node name="light" type="OmniLight3D" parent="." unique_id=291940332]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26985502, 0.9002377)
+light_color = Color(1, 0, 0.20651436, 1)
+light_energy = 0.18
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 0.0
+light_specular = 0.0
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=947635985]
+collision_layer = 9
+collision_mask = 9
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=754864041]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021118164, 0.08325195, 0.0060653687)
+shape = SubResource("BoxShape3D_syxuu")
+
+[node name="open_noise" type="AudioStreamPlayer3D" parent="." unique_id=278241681]
+stream = ExtResource("2_yk4m6")
+volume_db = -23.385
+bus = &"effects"

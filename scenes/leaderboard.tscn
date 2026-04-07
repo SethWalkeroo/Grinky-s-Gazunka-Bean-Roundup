@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://byi13mqxxc8vm"]
+
+[ext_resource type="PackedScene" uid="uid://b2h8ok8yfc7wb" path="res://addons/silent_wolf/Scores/Leaderboard.tscn" id="1_mrg81"]
+[ext_resource type="Shader" uid="uid://dqbdaipvb2viv" path="res://shaders/exit_warning.gdshader" id="2_8lgqg"]
+[ext_resource type="Shader" uid="uid://bwqjpcvtgthvl" path="res://shaders/title.gdshader" id="2_wgq7h"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8lgqg"]
+shader = ExtResource("2_8lgqg")
+shader_parameter/wave_speed = 3.0
+shader_parameter/wave_freq = 10.0
+shader_parameter/wave_width = 2.0
+shader_parameter/bounce_x = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wgq7h"]
+shader = ExtResource("2_wgq7h")
+shader_parameter/wave_speed = 3.0
+shader_parameter/wave_freq = 10.0
+shader_parameter/wave_width = 2.0
+shader_parameter/smoothing = 0.1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_e4dr1"]
+shader = ExtResource("2_wgq7h")
+shader_parameter/wave_speed = 3.0
+shader_parameter/wave_freq = 10.0
+shader_parameter/wave_width = 2.0
+shader_parameter/smoothing = 0.1
+
+[node name="Leaderboard" unique_id=1935176127 instance=ExtResource("1_mrg81")]
+
+[node name="ColorRect" parent="." index="0" unique_id=892718658]
+offset_left = -9.090909
+offset_top = -21.212128
+offset_right = 992.7272
+offset_bottom = 767.2726
+
+[node name="Board" parent="." index="2" unique_id=1057465742]
+offset_left = -15.151516
+offset_top = -130.30302
+offset_right = 1460.606
+offset_bottom = 975.7575
+size_flags_horizontal = 6
+
+[node name="Label" parent="Board/TitleContainer" parent_id_path=PackedInt32Array(1359019130) index="0" unique_id=1144211044]
+material = SubResource("ShaderMaterial_8lgqg")
+text = "Global Leaderboard"
+uppercase = true
+
+[node name="MessageContainer" parent="Board" index="1" unique_id=1967579418]
+visible = true
+
+[node name="TextMessage" parent="Board/MessageContainer" index="0" unique_id=1604709039]
+material = SubResource("ShaderMaterial_wgq7h")
+
+[node name="HighScores" parent="Board" index="2" unique_id=82928175]
+custom_minimum_size = Vector2(600, 300)
+
+[node name="ScoreItemContainer" parent="Board/HighScores" index="0" unique_id=1621450093]
+material = SubResource("ShaderMaterial_e4dr1")
+
+[node name="CloseButton" parent="Board/CloseButtonContainer" parent_id_path=PackedInt32Array(1111239091) index="0" unique_id=1812055796]
+modulate = Color(0, 0.74609375, 0.58193976, 1)
+mouse_default_cursor_shape = 2
+theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
+theme_override_colors/icon_focus_color = Color(0, 1, 0.12804985, 1)
+theme_override_font_sizes/font_size = 40
+
+[node name="RichTextLabel" type="RichTextLabel" parent="." index="3" unique_id=1115020977]
+offset_left = 524.24243
+offset_top = 787.8787
+offset_right = 948.4848
+offset_bottom = 890.909
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/normal_font_size = 72
+theme_override_font_sizes/italics_font_size = 72
+bbcode_enabled = true
+text = "[i][wave amp=20 freq=5 connect=1][color=00be94]Toothpaste[/color][/wave][/i]"
+fit_content = true

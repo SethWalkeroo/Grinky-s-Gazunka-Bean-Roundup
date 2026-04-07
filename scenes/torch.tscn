@@ -1,0 +1,435 @@
+[gd_scene format=3 uid="uid://dpvag4pgyip2y"]
+
+[ext_resource type="Texture2D" uid="uid://dauntgypo0wyy" path="res://assets/assets/textures/T_fire01.png" id="1_o2tjn"]
+[ext_resource type="Script" uid="uid://dlloklwpefmse" path="res://scripts/torch.gd" id="1_r3k50"]
+[ext_resource type="Texture2D" uid="uid://2yhnnf0g0u78" path="res://assets/assets/textures/T_VFX_Glow_1.PNG" id="2_r3k50"]
+[ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="3_ndh0a"]
+[ext_resource type="AudioStream" uid="uid://bewtxiowj8jds" path="res://audio/barefoot.wav" id="5_ndh0a"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ktql7"]
+rough = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gybtl"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+vertex_color_is_srgb = true
+albedo_texture = ExtResource("1_o2tjn")
+albedo_texture_force_srgb = true
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="Curve" id="Curve_21l5o"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1e-05, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_eb6dy"]
+texture_mode = 1
+curve = SubResource("Curve_21l5o")
+
+[sub_resource type="Gradient" id="Gradient_wjrvc"]
+offsets = PackedFloat32Array(0.14910026, 0.3933162, 0.62982005)
+colors = PackedColorArray(1, 1, 1, 1, 0.79296875, 0.52086115, 0.35693097, 1, 0.12109375, 0.12109375, 0.12109375, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_85g3d"]
+gradient = SubResource("Gradient_wjrvc")
+
+[sub_resource type="Curve" id="Curve_2bkw1"]
+_data = [Vector2(0.014457829, 0.3943727), 0.0, 0.0, 0, 0, Vector2(0.25301206, 0.7721402), 1.0109402, 1.0109402, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ya4ey"]
+curve = SubResource("Curve_2bkw1")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_etrdt"]
+lifetime_randomness = 1.0
+particle_flag_rotate_y = true
+emission_shape = 1
+emission_sphere_radius = 0.2
+angle_min = -179.99998
+angle_max = 180.00002
+direction = Vector3(0, 1, 0)
+spread = 15.7
+initial_velocity_min = 1.0
+initial_velocity_max = 2.0
+radial_velocity_min = -2.2351742e-05
+radial_velocity_max = 0.49997765
+gravity = Vector3(0, 1, 0)
+scale_min = 0.5
+scale_curve = SubResource("CurveTexture_ya4ey")
+color = Color(1, 0.8862745, 0.6901961, 1)
+color_ramp = SubResource("GradientTexture1D_85g3d")
+alpha_curve = SubResource("CurveTexture_eb6dy")
+collision_use_scale = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_x1r1x"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o1df0"]
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+vertex_color_is_srgb = true
+albedo_texture = ExtResource("2_r3k50")
+billboard_mode = 1
+billboard_keep_scale = true
+
+[sub_resource type="Curve" id="Curve_e6wph"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.18072289, 0.9340406), 0.0, 0.0, 0, 0, Vector2(0.24578315, 0.670203), 0.0, 0.0, 0, 0, Vector2(0.45783135, 1), 0.0, 0.0, 0, 0, Vector2(0.5831325, 0), 0.0, 0.0, 0, 0, Vector2(0.62891567, 1), 0.0, 0.0, 0, 0, Vector2(0.8240964, 0.0705719), 0.0, 0.0, 0, 0, Vector2(0.8819277, 0.68219554), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 9
+
+[sub_resource type="CurveTexture" id="CurveTexture_ndh0a"]
+curve = SubResource("Curve_e6wph")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_if6sk"]
+lifetime_randomness = 1.0
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 1.0
+emission_ring_radius = 0.6
+emission_ring_inner_radius = 0.4
+emission_ring_cone_angle = 90.0
+direction = Vector3(0, 1, 0)
+spread = 25.0
+initial_velocity_min = 0.5
+initial_velocity_max = 2.0
+gravity = Vector3(0, 1, 0)
+scale_min = 0.04
+scale_max = 0.089999996
+scale_curve = SubResource("CurveTexture_ndh0a")
+color = Color(1, 0.75600576, 0, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_xugk2"]
+
+[sub_resource type="Animation" id="Animation_85g3d"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("torchlight:light_energy")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.694]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("fire:process_material:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0.5, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("sparks:process_material:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0.04, 0.089999996)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("torchlight:omni_range")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [5.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("CSGCylinder3D:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.0014818311, -0.4084103, -0.00053441525)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("CSGCylinder3D:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(8.202509e-06, 3.1405008, -3.1268787)]
+}
+
+[sub_resource type="Animation" id="Animation_choun"]
+resource_name = "init"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("torchlight:light_energy")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.26666668, 0.6, 0.93333334, 1.3, 1.6666666, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 0.85, 0.9, 1.0, 0.9, 0.85, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("torchlight:omni_range")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.26666668, 0.6, 0.93333334, 1.3, 1.6666666, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [5.0, 4.7, 4.85, 5.0, 4.85, 4.7, 5.0]
+}
+
+[sub_resource type="Animation" id="Animation_ya4ey"]
+resource_name = "pull_out"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("torchlight:light_energy")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("fire:process_material:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0.5, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("sparks:process_material:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0.04, 0.089999996)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("torchlight:omni_range")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 5.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("CSGCylinder3D:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.001, -1.228, -1.436), Vector3(0.0014818311, -0.4084103, -0.00053441525)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("CSGCylinder3D:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-1.4590952, 3.1398473, -3.12763), Vector3(8.202509e-06, 3.1405008, -3.1268787)]
+}
+
+[sub_resource type="Animation" id="Animation_eb6dy"]
+resource_name = "put_away"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("torchlight:light_energy")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("fire:process_material:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.5, 1), Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("sparks:process_material:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.04, 0.089999996), Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("torchlight:omni_range")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [5.0, 0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("CSGCylinder3D:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, -0.375, 0), Vector3(0.001, -1.228, -1.436)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("CSGCylinder3D:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 3.1398473, -3.12763), Vector3(-1.4590952, 3.1398473, -3.12763)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_1cq4k"]
+_data = {
+&"RESET": SubResource("Animation_85g3d"),
+&"init": SubResource("Animation_choun"),
+&"pull_out": SubResource("Animation_ya4ey"),
+&"put_away": SubResource("Animation_eb6dy")
+}
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8ldo8"]
+albedo_color = Color(0.3203125, 0.111237444, 0, 1)
+albedo_texture = ExtResource("3_ndh0a")
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_gdit3"]
+
+[node name="torch2" type="RigidBody3D" unique_id=154612220]
+transform = Transform3D(0.9999728, -0.007356844, 0.0005459388, 0.0073581766, 0.99996984, -0.0024821616, -0.00052767195, 0.002486109, 0.9999968, 0, 0, 0)
+collision_layer = 4
+collision_mask = 4
+mass = 0.113
+physics_material_override = SubResource("PhysicsMaterial_ktql7")
+contact_monitor = true
+max_contacts_reported = 1
+linear_damp = 0.5
+angular_damp = 2.0
+script = ExtResource("1_r3k50")
+
+[node name="fire" type="GPUParticles3D" parent="." unique_id=75582458]
+transform = Transform3D(0.99999994, -5.215952e-10, 0, -8.310508e-11, 0.99999994, 0, 0, -2.3283064e-10, 0.9999999, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_gybtl")
+amount = 50
+lifetime = 1.2
+process_material = SubResource("ParticleProcessMaterial_etrdt")
+draw_pass_1 = SubResource("QuadMesh_x1r1x")
+
+[node name="sparks" type="GPUParticles3D" parent="." unique_id=221754983]
+transform = Transform3D(0.9999999, -9.870291e-10, 0, -8.299139e-11, 0.9999999, -2.3283064e-10, 5.820766e-11, -6.9849193e-10, 0.99999976, -5.4240227e-05, -0.007370472, 1.8239021e-05)
+material_override = SubResource("StandardMaterial3D_o1df0")
+amount = 7
+process_material = SubResource("ParticleProcessMaterial_if6sk")
+draw_pass_1 = SubResource("QuadMesh_xugk2")
+
+[node name="torchlight" type="OmniLight3D" parent="." unique_id=1621173894]
+light_color = Color(1, 0.9265426, 0.6850681, 1)
+light_energy = 0.694
+
+[node name="light_animation" type="AnimationPlayer" parent="." unique_id=1330501846]
+libraries/ = SubResource("AnimationLibrary_1cq4k")
+autoplay = &"init"
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="." unique_id=1773947644]
+transform = Transform3D(0.998364, -0.011688584, 0.0010923943, -0.014690911, -0.79433244, -8.206453e-06, 0.0010902043, -6.2468916e-06, -1.0004802, 0.0014818311, -0.4084103, -0.00053441525)
+radius = 0.063
+height = 0.797
+sides = 7
+material = SubResource("StandardMaterial3D_8ldo8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=150583471]
+transform = Transform3D(0.3, -1.6132165e-10, 0, 1.6132165e-10, 0.3, 5.820767e-11, -3.130052e-20, -5.820767e-11, 0.3, -0.0029451847, -0.40024245, 0.0009937286)
+shape = SubResource("CylinderShape3D_gdit3")
+
+[node name="Torch" type="Node3D" parent="." unique_id=785138163]
+
+[node name="Timer" type="Timer" parent="." unique_id=1904886349]
+wait_time = 30.0
+autostart = true
+
+[node name="collision_noise" type="AudioStreamPlayer3D" parent="." unique_id=1205068268]
+transform = Transform3D(0.99999994, 8.7538865e-10, 1.0477379e-08, -8.310508e-11, 0.99999994, 1.6298145e-09, 0, -2.3283064e-10, 0.9999999, -0.0024037673, -0.3266699, 0.0008108712)
+stream = ExtResource("5_ndh0a")
+volume_db = -22.857
+bus = &"effects"
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

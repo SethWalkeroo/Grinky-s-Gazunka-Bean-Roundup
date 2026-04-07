@@ -1,0 +1,9 @@
+# Godot 4+ specific ignores
+.godot/
+*.translation
+
+# Imported translations (if using custom types)
+*.csv.import
+
+# Exported games
+export_presets.cfg

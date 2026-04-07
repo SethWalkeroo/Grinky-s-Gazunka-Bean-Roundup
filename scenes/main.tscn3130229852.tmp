@@ -1,0 +1,236 @@
+[gd_scene format=3 uid="uid://b3j3xbhcuetq5"]
+
+[ext_resource type="Script" uid="uid://khhbd7lmaaok" path="res://scripts/main.gd" id="1_jyhfs"]
+[ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="2_jyhfs"]
+[ext_resource type="Script" uid="uid://ci6d846ekar5o" path="res://scripts/player.gd" id="3_sugp2"]
+[ext_resource type="AudioStream" uid="uid://dqa16jp6vyuof" path="res://audio/ambiancenoise.wav" id="4_jyhfs"]
+[ext_resource type="AudioStream" uid="uid://n2wqnggckd6a" path="res://audio/testvoiceline.wav" id="4_tefeu"]
+[ext_resource type="AudioStream" uid="uid://b5fk37kty28t5" path="res://audio/footstep.wav" id="5_o6xl0"]
+[ext_resource type="MeshLibrary" uid="uid://bt8e37v1kpmqo" path="res://tileset.tres" id="6_tefeu"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jyhfs"]
+albedo_texture = ExtResource("2_jyhfs")
+uv1_triplanar = true
+
+[sub_resource type="Environment" id="Environment_o6xl0"]
+background_mode = 2
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.58431375, 0.60784316, 0.4627451, 1)
+fog_light_energy = 0.2
+volumetric_fog_density = 0.0541
+volumetric_fog_albedo = Color(0.96102715, 0.9370136, 1, 1)
+volumetric_fog_gi_inject = 1.96
+volumetric_fog_anisotropy = -0.21
+volumetric_fog_length = 36.32
+volumetric_fog_detail_spread = 1.7838115
+volumetric_fog_ambient_inject = 0.15
+volumetric_fog_sky_affect = 0.0
+adjustment_enabled = true
+adjustment_saturation = 1.7
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jyhfs"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sugp2"]
+height = 1.2
+
+[sub_resource type="Animation" id="Animation_sugp2"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_jyhfs"]
+resource_name = "jumping"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-0.034906585, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0.05, 0), Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_tbgi4"]
+resource_name = "landing"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-0.034906585, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tbgi4"]
+_data = {
+&"RESET": SubResource("Animation_sugp2"),
+&"jumping": SubResource("Animation_jyhfs"),
+&"landing": SubResource("Animation_tbgi4")
+}
+
+[node name="world" type="Node3D" unique_id=1393580645]
+script = ExtResource("1_jyhfs")
+
+[node name="stage" type="Node3D" parent="." unique_id=1692116904]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="stage" unique_id=1200857926]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+visible = false
+use_collision = true
+size = Vector3(20, 1, 20)
+material = SubResource("StandardMaterial3D_jyhfs")
+
+[node name="env" type="Node3D" parent="." unique_id=1713156838]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="env" unique_id=1554179693]
+environment = SubResource("Environment_o6xl0")
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="env" unique_id=1178919212]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8455198, 2.8886442)
+visible = false
+light_color = Color(1, 0.97489196, 0.7937441, 1)
+omni_range = 13.055
+
+[node name="OmniLight3D6" type="OmniLight3D" parent="env" unique_id=642339475]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.106185, 2.8455198, 8.255405)
+visible = false
+light_color = Color(1, 0.97489196, 0.7937441, 1)
+omni_range = 11.735
+
+[node name="OmniLight3D7" type="OmniLight3D" parent="env" unique_id=379642039]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.090066, 2.8455198, 8.255405)
+visible = false
+light_color = Color(1, 0.97489196, 0.7937441, 1)
+omni_range = 11.735
+
+[node name="OmniLight3D9" type="OmniLight3D" parent="env" unique_id=1051401255]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.057844, 2.8455198, 8.255405)
+visible = false
+light_color = Color(1, 0.97489196, 0.7937441, 1)
+omni_range = 11.735
+
+[node name="OmniLight3D10" type="OmniLight3D" parent="env" unique_id=1647488359]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.057844, 2.8455198, 22.605885)
+visible = false
+light_color = Color(1, 0.97489196, 0.7937441, 1)
+omni_range = 11.735
+
+[node name="player" type="CharacterBody3D" parent="." unique_id=709770441]
+transform = Transform3D(-1, 0, -8.940697e-08, 0, 1, 0, 8.940697e-08, 0, -1, 0, 0, 0)
+script = ExtResource("3_sugp2")
+walking_speed = 4.0
+sprinting_speed = 7.0
+jump_velocity = 4.3
+lerp_speed = 9.0
+slide_speed = 9
+
+[node name="standing_collision_shape" type="CollisionShape3D" parent="player" unique_id=1930467297]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_jyhfs")
+
+[node name="crouching_collision_shape" type="CollisionShape3D" parent="player" unique_id=659655607]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60792595, 0)
+shape = SubResource("CapsuleShape3D_sugp2")
+
+[node name="ceiling_detection" type="RayCast3D" parent="player" unique_id=1754071714]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0612693, 0)
+target_position = Vector3(0, 1, 0)
+
+[node name="neck" type="Node3D" parent="player" unique_id=777096448]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+
+[node name="head" type="Node3D" parent="player/neck" unique_id=155609629]
+
+[node name="eyes" type="Node3D" parent="player/neck/head" unique_id=1028520389]
+
+[node name="Camera3D" type="Camera3D" parent="player/neck/head/eyes" unique_id=1924101698]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="player/neck/head/eyes" unique_id=950290305]
+libraries/ = SubResource("AnimationLibrary_tbgi4")
+
+[node name="flashlight" type="OmniLight3D" parent="player/neck/head/eyes" unique_id=2038985222]
+visible = false
+light_color = Color(1, 0.92151475, 0.7071615, 1)
+light_energy = 4.692
+light_size = 0.218
+
+[node name="test_voiceline" type="AudioStreamPlayer3D" parent="player/neck/head/eyes" unique_id=1969565725]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8034322e-09, -0.23581624, 0.031355858)
+stream = ExtResource("4_tefeu")
+volume_db = -54.028
+bus = &"reverb"
+
+[node name="footsteps" type="AudioStreamPlayer3D" parent="player" unique_id=352502278]
+stream = ExtResource("5_o6xl0")
+volume_db = -49.524
+bus = &"reverb"
+
+[node name="background_noise" type="AudioStreamPlayer" parent="." unique_id=1359529749]
+stream = ExtResource("4_jyhfs")
+volume_db = -39.619
+pitch_scale = 0.53
+
+[node name="GridMap" type="GridMap" parent="." unique_id=901268745]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+mesh_library = ExtResource("6_tefeu")
+cell_size = Vector3(1, 1, 1)
+cell_center_y = false
+data = {
+"cells": PackedInt32Array(0, 65535, 2, 0, 0, 2, 65535, 0, 2, 65535, 65535, 2, 65534, 65534, 1441793, 65535, 65533, 1441793, 0, 65533, 655361, 1, 65534, 655361, 0, 65534, 655363, 65535, 65534, 1441795, 65534, 65535, 1441792, 65534, 0, 1441792, 1, 65535, 1048576, 1, 0, 1048576, 1, 1, 1048576, 1, 2, 1048576, 65534, 1, 1441792, 65534, 2, 1441792, 65534, 3, 1441792, 1, 3, 1048576, 65535, 1, 1048578, 0, 1, 1048578, 0, 2, 1048578, 65535, 2, 1048578, 65535, 3, 1048578, 0, 3, 1048578, 65533, 4, 655360, 65534, 4, 1441795, 2, 4, 655360, 1, 4, 655363, 65535, 4, 655362, 0, 4, 655362, 65533, 5, 655362, 65534, 5, 655362, 65535, 5, 655362, 0, 5, 655362, 1, 5, 655362, 2, 5, 655362, 65533, 6, 0, 65534, 6, 0, 65535, 6, 0, 0, 6, 0, 1, 6, 0, 2, 6, 0, 3, 6, 0, 4, 6, 0, 3, 4, 655360, 4, 4, 655360, 5, 4, 655360, 5, 6, 0, 6, 6, 0, 7, 6, 0, 8, 6, 0, 9, 6, 0, 10, 6, 0, 6, 4, 655360, 7, 4, 655360, 8, 4, 655360, 9, 4, 655360, 10, 4, 655360, 65532, 4, 655360, 65531, 4, 655360, 65530, 4, 655360, 65529, 4, 655360, 65532, 6, 0, 65531, 6, 0, 65530, 6, 0, 65529, 6, 0, 65532, 5, 2, 65531, 5, 2, 65530, 5, 2, 65529, 5, 2, 3, 5, 2, 4, 5, 2, 5, 5, 2, 6, 5, 2, 7, 5, 2, 8, 5, 2, 9, 5, 2, 10, 5, 2, 11, 3, 1441793, 12, 2, 1441793, 13, 1, 1441793, 11, 7, 1, 12, 8, 1, 13, 9, 1, 13, 8, 3, 12, 7, 3, 12, 3, 1441795, 13, 2, 1441795, 12, 5, 1441794, 12, 6, 1441794, 13, 6, 1441794, 13, 7, 1441794, 13, 5, 1441794, 13, 4, 1441794, 13, 3, 1441794, 14, 1, 655360, 15, 1, 655360, 16, 1, 655360, 14, 9, 0, 15, 9, 0, 16, 9, 0, 17, 9, 1048577, 18, 8, 1048577, 19, 7, 1048577, 17, 1, 655361, 18, 2, 655361, 19, 3, 655361, 19, 6, 1048576, 19, 5, 1048576, 19, 4, 1048576, 18, 7, 1048579, 17, 8, 1048579, 18, 3, 655363, 17, 2, 655363, 14, 8, 655362, 14, 7, 655362, 14, 6, 655362, 14, 5, 655362, 14, 4, 655362, 14, 3, 655362, 14, 2, 655362, 15, 2, 655362, 15, 3, 655362, 15, 4, 655362, 15, 5, 655362, 15, 6, 655362, 15, 7, 655362, 15, 8, 655362, 16, 8, 655362, 16, 7, 655362, 16, 6, 655362, 16, 5, 655362, 16, 4, 655362, 16, 3, 655362, 16, 2, 655362, 17, 7, 655362, 17, 6, 655362, 17, 5, 655362, 17, 4, 655362, 17, 3, 655362, 18, 6, 655362, 18, 5, 655362, 18, 4, 655362, 11, 6, 3, 11, 4, 1441795, 12, 4, 1441794, 11, 5, 1441794, 65528, 6, 0, 65528, 4, 1441793, 65527, 5, 655360, 65528, 5, 1441795, 65527, 6, 0, 65526, 6, 0, 65526, 5, 655360, 65525, 5, 655360, 65525, 6, 0, 65523, 5, 1441793, 65524, 5, 655360, 65523, 6, 1441792, 65524, 7, 1048576, 65524, 8, 1048576, 65524, 9, 1048576, 65524, 10, 1048576, 65523, 7, 1441792, 65523, 8, 1441792, 65523, 9, 1441792, 65523, 10, 1441792, 65524, 6, 1048579, 65525, 11, 655360, 65526, 11, 655360, 65527, 11, 655360, 65522, 11, 655360, 65520, 11, 655360, 65521, 11, 655360, 65523, 11, 1441795, 65524, 11, 655363, 65523, 12, 655362, 65522, 12, 655362, 65521, 12, 655362, 65520, 12, 655362, 65524, 12, 655362, 65525, 12, 655362, 65526, 12, 655362, 65526, 13, 655362, 65527, 12, 655362, 65527, 13, 655362, 65525, 13, 655362, 65524, 13, 655362, 65523, 13, 655362, 65523, 14, 655362, 65522, 14, 655362, 65522, 13, 655362, 65521, 13, 655362, 65520, 13, 655362, 65520, 14, 655362, 65521, 14, 655362, 65521, 15, 655362, 65522, 15, 655362, 65523, 15, 655362, 65524, 15, 655362, 65524, 14, 655362, 65525, 14, 655362, 65525, 15, 655362, 65526, 15, 655362, 65526, 14, 655362, 65527, 14, 655362, 65527, 15, 655362, 65520, 15, 655362, 65519, 11, 1441793, 65519, 12, 1441792, 65519, 13, 1441792, 65519, 14, 1441792, 65519, 15, 1441792, 65528, 12, 1048576, 65528, 13, 1048576, 65528, 14, 1048576, 65528, 15, 1048576, 65528, 16, 1048576, 65528, 17, 1048576, 65528, 18, 1048576, 65528, 19, 1048576, 65528, 20, 1048576, 65528, 21, 1048576, 65519, 16, 1441792, 65519, 17, 1441792, 65519, 18, 1441792, 65519, 19, 1441792, 65519, 20, 1441792, 65519, 21, 1441792, 65528, 22, 1048576, 65528, 11, 655361, 65520, 16, 1441794, 65521, 16, 1441794, 65522, 16, 1441794, 65523, 16, 1441794, 65524, 17, 1441794, 65525, 17, 1441794, 65526, 17, 1441794, 65526, 16, 1441794, 65527, 16, 1441794, 65525, 16, 1441794, 65524, 16, 1441794, 65522, 17, 1441794, 65522, 18, 1441794, 65521, 18, 1441794, 65520, 18, 1441794, 65520, 17, 1441794, 65521, 17, 1441794, 65523, 17, 1441794, 65523, 18, 1441794, 65522, 19, 1441794, 65520, 19, 1441794, 65521, 19, 1441794, 65523, 19, 1441794, 65524, 18, 1441794, 65525, 18, 1441794, 65526, 18, 1441794, 65526, 19, 1441794, 65526, 20, 1441794, 65525, 20, 1441794, 65525, 19, 1441794, 65527, 18, 1441794, 65527, 17, 1441794, 65527, 20, 1441794, 65527, 19, 1441794, 65524, 19, 1441794, 65524, 20, 1441794, 65524, 21, 1441794, 65523, 20, 1441794, 65522, 20, 1441794, 65521, 20, 1441794, 65520, 20, 1441794, 65520, 21, 1441794, 65525, 21, 1441794, 65526, 21, 1441794, 65527, 21, 1441794, 65527, 22, 1441794, 65526, 22, 1441794, 65525, 22, 1441794, 65525, 23, 1441794, 65524, 23, 1441794, 65524, 22, 1441794, 65523, 22, 1441794, 65523, 21, 1441794, 65522, 21, 1441794, 65521, 21, 1441794, 65521, 22, 1441794, 65520, 22, 1441794, 65522, 22, 1441794, 65523, 23, 1441794, 65522, 23, 1441794, 65521, 23, 1441794, 65520, 23, 1441794, 65526, 23, 1441794, 65527, 23, 1441794, 65528, 23, 1048576, 65519, 22, 1441792, 65519, 23, 1441792)
+}
