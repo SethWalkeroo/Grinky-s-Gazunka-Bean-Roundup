@@ -38,6 +38,9 @@ func _ready() -> void:
 		player.bean_collected.connect(_on_player_bean_collected)
 	if exit_door:
 		exit_door.body_entered.connect(_on_exit_door_body_entered)
+		
+	if world_environment and world_environment.environment:
+		world_environment.environment.fog_light_color = Color('ffefc5')
 
 func distribute_beans() -> void:
 	var nav_map = get_world_3d().get_navigation_map()

@@ -1082,3 +1082,7 @@ func _on_resume_pressed() -> void:
 		menu_vbox.visible = false
 		settings_panel.visible = false
 		paused = false
+
+
+func _on_minimap_checkbox_toggled(toggled_on: bool) -> void:
+	GlobalStats.play_click()

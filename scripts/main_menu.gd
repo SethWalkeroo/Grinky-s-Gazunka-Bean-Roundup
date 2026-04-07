@@ -586,3 +586,7 @@ func _update_button_text(btn: Button, action: String) -> void:
 		btn.add_child(rcl)
 	rcl.text = bbcode_text
 	rcl.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+
+
+func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
+	GlobalStats.play_click()

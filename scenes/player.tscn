@@ -167,6 +167,18 @@ fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_oprun"]
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dt7fs"]
+shader = ExtResource("8_pf23h")
+shader_parameter/intensity = 0.0
+shader_parameter/max_color_offset = 0.02
+shader_parameter/wave_speed = 15.0
+shader_parameter/wave_frequency = 25.0
+shader_parameter/max_wave_amplitude = 0.02
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_smehm"]
+shader = ExtResource("3_fjrip")
+shader_parameter/spread = 0.02
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_oprun"]
 shader = ExtResource("3_f1ej7")
 shader_parameter/wave_speed = 5.0
@@ -179,18 +191,6 @@ bg_color = Color(0, 0, 0, 0.25490198)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fjrip"]
 bg_color = Color(0.96862745, 1, 0.9372549, 0.37254903)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_smehm"]
-shader = ExtResource("3_fjrip")
-shader_parameter/spread = 0.02
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_dt7fs"]
-shader = ExtResource("8_pf23h")
-shader_parameter/intensity = 0.0
-shader_parameter/max_color_offset = 0.02
-shader_parameter/wave_speed = 15.0
-shader_parameter/wave_frequency = 25.0
-shader_parameter/max_wave_amplitude = 0.02
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_31cv2"]
 shader = ExtResource("6_ujl30")
@@ -632,22 +632,6 @@ bus = &"game_voicelines"
 script = ExtResource("3_a8ls1")
 minimap_rect = NodePath("circle_clip/minimap_rect")
 
-[node name="win_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=2120576221]
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -55.5
-offset_top = -11.5
-offset_right = 55.5
-offset_bottom = 11.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0, 1, 0.03929758, 1)
-text = "(winning time)"
-
 [node name="circle_clip" type="TextureRect" parent="neck/head/eyes/CanvasLayer" unique_id=140204631]
 visible = false
 clip_children = 2
@@ -668,6 +652,40 @@ offset_right = 113.0
 offset_bottom = 100.0
 size_flags_vertical = 8
 texture = SubResource("PlaceholderTexture2D_oprun")
+
+[node name="ProximityDistortion" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=2014365186]
+material = SubResource("ShaderMaterial_dt7fs")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DitherShader" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=1899935609]
+material = SubResource("ShaderMaterial_smehm")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="win_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=2120576221]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -55.5
+offset_top = -11.5
+offset_right = 55.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 1, 0.03929758, 1)
+text = "(winning time)"
 
 [node name="exit_warning_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=1506904690]
 material = SubResource("ShaderMaterial_oprun")
@@ -757,15 +775,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
-
-[node name="DitherShader" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=1899935609]
-material = SubResource("ShaderMaterial_smehm")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 
 [node name="torch_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=531316526]
 anchors_preset = 3
@@ -1106,15 +1115,6 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Restore Default Bindings"
 
-[node name="ProximityDistortion" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=2014365186]
-material = SubResource("ShaderMaterial_dt7fs")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
 [node name="SpeedLines" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=434578485]
 material = SubResource("ShaderMaterial_31cv2")
 anchors_preset = 15
@@ -1276,6 +1276,7 @@ volume_db = -38.095
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
+[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_check_box_toggled"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
