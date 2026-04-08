@@ -6,6 +6,39 @@ class_name Player
 var is_hidden = false
 @onready var shh: AudioStreamPlayer3D = $shh
 
+#fps rig
+@onready var view_model_camera: Camera3D = $neck/head/eyes/Camera3D/SubViewportContainer/SubViewport/view_model_camera
+
+# --- INVENTORY & HOTBAR STATE ---
+var inventory = ["shotgun", "empty", "empty", "empty"]
+var active_slot_index: int = -1 # -1 means your hands are empty
+var is_switching_weapons: bool = false # Prevents animation glitching if you spam numbers
+var inventory_open: bool = false
+
+# This stores items that aren't on your hotbar
+var backpack: Dictionary = {
+	"shotgun_shells": 12,
+	"gazunka_beans": 0,
+	"medkit": 1
+}
+var shotgun_ammo: int = 5 # What is currently loaded in the gun
+
+@onready var slot_0: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot0
+@onready var slot_1: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot1
+@onready var slot_2: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot2
+@onready var slot_3: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot3
+@onready var inventory_menu: ColorRect = $neck/head/eyes/CanvasLayer/inventory_menu
+
+@onready var hotbar_slots: Array = [
+	slot_0,
+	slot_1,
+	slot_2,
+	slot_3
+]
+
+# Adjust these paths to point exactly to your shotgun model and its AnimationPlayer!
+@onready var shotgun_model: Node3D = view_model_camera.get_node('shotgun_rig')
+@onready var shotgun_animator: AnimationPlayer = view_model_camera.get_node('shotgun_rig/shotgun/AnimationPlayer')
 
 # --- B-HOP STATE ---
 var bhop_jump_buffer: float = 0.0
@@ -71,7 +104,6 @@ var bean_count = 0
 var win = false
 var paused: bool = false
 var dead: bool = false
-var torch_visible: bool = true
 var in_heaven = false
 
 var current_speed: float = 5.0
@@ -132,7 +164,6 @@ var is_left_foot: bool = true
 @onready var leaderboard_button: Button = $neck/head/eyes/CanvasLayer/VBoxContainer/leaderboard_button
 @onready var main_menu_button: Button = $neck/head/eyes/CanvasLayer/VBoxContainer/main_menu
 @onready var restart_button: Button = $neck/head/eyes/CanvasLayer/VBoxContainer/restart_button
-@onready var torch_label: Label = $neck/head/eyes/CanvasLayer/torch_label
 @onready var settings_panel: ColorRect = $neck/head/eyes/CanvasLayer/settings_panel
 
 @onready var master_slider: HSlider = $neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer/master_slider
@@ -156,11 +187,7 @@ var is_left_foot: bool = true
 @onready var camera_3d: Camera3D = $neck/head/eyes/Camera3D
 @onready var eyes: Node3D = $neck/head/eyes
 @onready var animation_player: AnimationPlayer = $neck/head/eyes/AnimationPlayer
-@onready var flashlight: OmniLight3D = $neck/head/eyes/flashlight
 
-@onready var torch: Node3D = $torch
-@onready var light_animation: AnimationPlayer = $torch/light_animation
-@onready var torchlight: OmniLight3D = $torch/torchlight
 @onready var start_voiceline: AudioStreamPlayer3D = $neck/head/eyes/test_voiceline
 @onready var footsteps: AudioStreamPlayer3D = $footsteps
 
@@ -191,6 +218,8 @@ var action_to_rebind: String = ""
 var button_to_rebind: Button = null
 
 func _ready() -> void:
+	$neck/head/eyes/Camera3D/SubViewportContainer/SubViewport.size = DisplayServer.window_get_size()
+
 	minimap_checkbox.button_pressed = GlobalStats.minimap_on
 	minimap.visible = GlobalStats.minimap_on
 	grab_spring_arm.add_excluded_object(self)
@@ -236,9 +265,7 @@ func _ready() -> void:
 	fade_tween.tween_property(fade_rect, "modulate:a", 0.0, 2.0)
 	fade_tween.tween_callback(fade_rect.hide)
 	
-	light_animation.play('init')
 	stamina_bar.value = 100
-	torch.visible = true
 	
 	if crosshair:
 		crosshair.pivot_offset = crosshair.size / 2
@@ -249,6 +276,12 @@ func _ready() -> void:
 		setup_heaven()
 	else:
 		setup_level()
+		
+	# --- INITIALIZE HOTBAR & WEAPON STATE ---
+	if inventory_menu: inventory_menu.visible = false
+	update_hotbar_ui()
+	if shotgun_model:
+		shotgun_model.visible = false
 
 func sync_settings_from_global() -> void:
 	mouse_sens = GlobalStats.mouse_sens
@@ -263,14 +296,11 @@ func setup_heaven() -> void:
 	time.visible = false
 	beans_found_label.visible = false
 	stamina_bar.visible = false
-	torch_label.visible = false
 	
 	if GlobalStats.needs_upload:
 		upload_new_best_score()
 		
 	if win_label:
-		torch.visible = false
-		torch_visible = false
 		var report = "Final Time: " + GlobalStats.final_time_string
 		report += "\nPersonal Best: " + GlobalStats.best_time_string
 		if GlobalStats.final_time_string == GlobalStats.best_time_string:
@@ -357,7 +387,7 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 		return
 		
-	if event.is_action_pressed('pause') and !paused and !dead:
+	if event.is_action_pressed('pause') and !paused and !dead and !inventory_open:
 		GlobalStats.play_click()
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		emit_signal('player_paused')
@@ -365,7 +395,7 @@ func _input(event: InputEvent) -> void:
 		menu_vbox.move_to_front()
 		paused = true
 		return
-	elif event.is_action_pressed('pause') and paused and !dead:
+	elif event.is_action_pressed('pause') and paused and !dead and !inventory_open:
 		if settings_panel.visible or video_settings.visible or controls_settings.visible:
 			_on_save_settings_pressed()
 			return 
@@ -377,23 +407,45 @@ func _input(event: InputEvent) -> void:
 			settings_panel.visible = false
 			paused = false
 			return
-		
-	if dead or paused: return
-
-	if event.is_action_pressed('interact'):
-		if grabbed_object:
-			if grabbed_object.has_meta("original_mask"):
-				grabbed_object.collision_mask = grabbed_object.get_meta("original_mask")
-			remove_collision_exception_with(grabbed_object)
 			
-			grabbed_object = null
-			rotating_object = false
-		elif object_grabber_shapecast.is_colliding():
-			for i in object_grabber_shapecast.get_collision_count():
-				var collided = object_grabber_shapecast.get_collider(i)
-				if collided is RigidBody3D and !grabbed_object:
-					try_grabbing(collided)
-					break 
+	# --- INVENTORY TOGGLE (TAB KEY) ---
+	if event is InputEventKey and event.is_pressed() and not event.is_echo() and not paused and not dead:
+		if event.keycode == KEY_TAB:
+			toggle_inventory()
+		
+	if dead or paused or inventory_open: return
+
+	# --- HOTBAR INPUTS ---
+	if event is InputEventKey and event.is_pressed() and not event.is_echo():
+		if event.keycode == KEY_1:
+			equip_slot(0)
+		elif event.keycode == KEY_2:
+			equip_slot(1)
+		elif event.keycode == KEY_3:
+			equip_slot(2)
+		elif event.keycode == KEY_4:
+			equip_slot(3)
+
+	# --- INTERACT & FIRE LOGIC ---
+	if event.is_action_pressed('interact'):
+		# If holding the shotgun, redirect the interact key to FIRE
+		if active_slot_index != -1 and inventory[active_slot_index] == "shotgun":
+			fire_shotgun()
+		else:
+			# --- NORMAL GRAB LOGIC ---
+			if grabbed_object:
+				if grabbed_object.has_meta("original_mask"):
+					grabbed_object.collision_mask = grabbed_object.get_meta("original_mask")
+				remove_collision_exception_with(grabbed_object)
+				
+				grabbed_object = null
+				rotating_object = false
+			elif object_grabber_shapecast.is_colliding():
+				for i in object_grabber_shapecast.get_collision_count():
+					var collided = object_grabber_shapecast.get_collider(i)
+					if collided is RigidBody3D and !grabbed_object:
+						try_grabbing(collided)
+						break 
 
 	if event is InputEventMouseMotion:
 		if rotating_object and grabbed_object:
@@ -409,6 +461,7 @@ func _input(event: InputEvent) -> void:
 				rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
 				head.rotate_x(deg_to_rad(-event.relative.y * mouse_sens))
 				head.rotation.x = clamp(head.rotation.x, deg_to_rad(-98), deg_to_rad(98))
+				view_model_camera.sway(Vector2(event.relative.x, event.relative.y))
 
 	if event is InputEventMouseButton:
 		if grabbed_object:
@@ -418,6 +471,41 @@ func _input(event: InputEvent) -> void:
 				grab_spring_arm.spring_length = clamp(grab_spring_arm.spring_length - scroll_speed, min_grab_distance, max_grab_distance)
 		if event.button_index == MOUSE_BUTTON_MIDDLE:
 			rotating_object = event.pressed
+
+# --- INVENTORY UI LOGIC ---
+func toggle_inventory() -> void:
+	inventory_open = !inventory_open
+	if inventory_open:
+		# Open menu and free mouse
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		if inventory_menu: inventory_menu.visible = true
+		crosshair.visible = false
+	else:
+		# Close menu and capture mouse
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		if inventory_menu: inventory_menu.visible = false
+		crosshair.visible = true
+
+# --- WEAPON LOGIC ---
+func fire_shotgun() -> void:
+	if is_switching_weapons: return
+	
+	# Prevent spamming fire if the animation is still playing
+	if shotgun_animator.is_playing() and shotgun_animator.current_animation == "fire":
+		return
+		
+	if shotgun_ammo > 0:
+		shotgun_ammo -= 1
+		print("BANG! Ammo left: ", shotgun_ammo)
+		if shotgun_animator.has_animation("fire"):
+			shotgun_animator.play("fire")
+			
+		# NOTE: You can add an AudioStreamPlayer play() call here for a gunshot sound!
+		# NOTE: You can add RayCast3D damage logic here later!
+	else:
+		print("Click! Out of ammo.")
+		# Play an empty click sound here if you have one
+
 
 # --- CONTROLS MENU CALLBACKS ---
 func _on_controls_button_pressed() -> void:
@@ -538,7 +626,9 @@ func handle_bean_pickup(collided):
 		grabbed_object = null
 
 func _physics_process(delta: float) -> void:
-	if dead or paused: 
+	$neck/head/eyes/Camera3D/SubViewportContainer/SubViewport/view_model_camera.global_transform = camera_3d.global_transform
+
+	if dead or paused or inventory_open: 
 		if dead:
 			final_time = time.text
 			GlobalStats.final_time = total_time 
@@ -625,21 +715,6 @@ func handle_interaction() -> void:
 		rotating_object = false
 		drop_obj.apply_central_impulse(final_impulse)
 		drop_obj.angular_velocity *= 0.1
-			
-	if Input.is_action_just_pressed('torch') and !in_heaven:
-		var main_node = get_parent()
-		if !torch_visible:
-			if in_heaven or ("torch_count" in main_node and main_node.torch_count > 0): 
-				light_animation.play('pull_out')
-				await get_tree().process_frame
-				torch_visible = true; torch.visible = true
-				await light_animation.animation_finished
-				light_animation.play('init')
-		else:
-			light_animation.play('put_away')
-			await light_animation.animation_finished
-			torch_visible = false; torch.visible = false
-			light_animation.stop()
 
 func handle_movement(delta: float) -> void:
 	var input_dir := Input.get_vector("left", "right", "forward", "backward")
@@ -868,10 +943,6 @@ func hit():
 	if !dead:
 		dead = true; final_time = time.text 
 		stamina_bar.visible = false; time.visible = false; beans_found_label.visible = false
-		
-		var main_node = get_parent()
-		if "torch_label" in main_node and main_node.torch_label:
-			main_node.torch_label.visible = false
 
 		fade_rect.visible = true; fade_rect.modulate = Color(0.8, 0, 0, 0.6) 
 		
@@ -1116,5 +1187,60 @@ func _on_resume_pressed() -> void:
 		paused = false
 
 
-func _on_minimap_checkbox_toggled(toggled_on: bool) -> void:
+func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
 	GlobalStats.play_click()
+	
+
+func equip_slot(slot_index: int) -> void:
+	# Prevent breaking the code by spamming buttons during an animation
+	if is_switching_weapons: return
+	
+	# Determine what slot we are going to. If it's the exact same slot we are holding, we go to empty (-1)
+	var target_slot = slot_index
+	if active_slot_index == slot_index:
+		target_slot = -1
+		
+	# Don't do anything if we are currently holding nothing and pressed the button for an empty slot
+	if active_slot_index == -1 and target_slot == -1: return
+
+	is_switching_weapons = true
+	
+	# --- 1. PUT AWAY CURRENTLY HELD ITEM ---
+	if active_slot_index != -1:
+		var current_item = inventory[active_slot_index]
+		match current_item:
+			"shotgun":
+				if shotgun_animator.has_animation("put_away"):
+					shotgun_animator.play("put_away")
+					await shotgun_animator.animation_finished
+				shotgun_model.visible = false
+			"empty":
+				pass
+	
+	# --- 2. UPDATE STATE & UI ---
+	active_slot_index = target_slot
+	update_hotbar_ui()
+	
+	# --- 3. PULL OUT NEW ITEM ---
+	if active_slot_index != -1:
+		var new_item = inventory[active_slot_index]
+		match new_item:
+			"shotgun":
+				shotgun_model.visible = true
+				if shotgun_animator.has_animation("pull_out"):
+					shotgun_animator.play("pull_out")
+			"empty":
+				pass
+				
+	is_switching_weapons = false
+
+func update_hotbar_ui() -> void:
+	# Loop through all 4 UI slots
+	for i in range(hotbar_slots.size()):
+		var slot_rect = hotbar_slots[i]
+		if i == active_slot_index:
+			# Highlight the active slot (e.g., Bright Yellow)
+			slot_rect.color = Color(0.8, 0.8, 0.2, 0.8)
+		else:
+			# Dim the inactive slots
+			slot_rect.color = Color(0, 0, 0, 0.5)

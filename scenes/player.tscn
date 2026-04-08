@@ -2,17 +2,14 @@
 
 [ext_resource type="Script" uid="uid://ci6d846ekar5o" path="res://scripts/player.gd" id="1_tuyoq"]
 [ext_resource type="AudioStream" uid="uid://n2wqnggckd6a" path="res://audio/testvoiceline.wav" id="2_fjrip"]
+[ext_resource type="PackedScene" uid="uid://c4ab0hpeahjlh" path="res://scenes/view_model.tscn" id="2_ke2ow"]
 [ext_resource type="Script" uid="uid://cw1ahyqhb41tk" path="res://scripts/playergui.gd" id="3_a8ls1"]
 [ext_resource type="Shader" uid="uid://dqbdaipvb2viv" path="res://shaders/exit_warning.gdshader" id="3_f1ej7"]
 [ext_resource type="Shader" uid="uid://b22ys3o215xmt" path="res://shaders/player.gdshader" id="3_fjrip"]
 [ext_resource type="AudioStream" uid="uid://bewtxiowj8jds" path="res://audio/barefoot.wav" id="4_3v2ag"]
-[ext_resource type="Texture2D" uid="uid://dauntgypo0wyy" path="res://assets/assets/textures/T_fire01.png" id="4_ur7pv"]
-[ext_resource type="Texture2D" uid="uid://2yhnnf0g0u78" path="res://assets/assets/textures/T_VFX_Glow_1.PNG" id="5_y4r1p"]
-[ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="6_d2wvv"]
 [ext_resource type="Shader" uid="uid://c5f40aky10is2" path="res://shaders/anime.gdshader" id="6_ujl30"]
 [ext_resource type="Shader" uid="uid://bvt85r5ugbalb" path="res://shaders/exhaust.gdshader" id="7_31cv2"]
 [ext_resource type="Shader" uid="uid://ctcj7f0d1a2x6" path="res://shaders/distortion.gdshader" id="8_pf23h"]
-[ext_resource type="Script" uid="uid://dnmlcugb4btbp" path="res://scripts/torch_flicker.gd" id="8_smehm"]
 [ext_resource type="AudioStream" uid="uid://cedt4y4wht8oq" path="res://audio/delicous.wav" id="9_ur7pv"]
 [ext_resource type="AudioStream" uid="uid://b2xywdwn6ttmi" path="res://audio/scrumptious.wav" id="10_y4r1p"]
 [ext_resource type="AudioStream" uid="uid://gem27cg43ie8" path="res://audio/slide.wav" id="11_d2wvv"]
@@ -179,19 +176,6 @@ shader_parameter/max_wave_amplitude = 0.02
 shader = ExtResource("3_fjrip")
 shader_parameter/spread = 0.02
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_oprun"]
-shader = ExtResource("3_f1ej7")
-shader_parameter/wave_speed = 5.0
-shader_parameter/wave_freq = 8.0
-shader_parameter/wave_width = 3.0
-shader_parameter/bounce_x = 2.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuyoq"]
-bg_color = Color(0, 0, 0, 0.25490198)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fjrip"]
-bg_color = Color(0.96862745, 1, 0.9372549, 0.37254903)
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_31cv2"]
 shader = ExtResource("6_ujl30")
 shader_parameter/line_color = Color(1, 1, 1, 1)
@@ -208,375 +192,21 @@ shader_parameter/desaturation = 0.314000014915
 shader_parameter/pulse_speed = 4.0
 shader_parameter/pulse_intensity = 0.15
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oprun"]
+shader = ExtResource("3_f1ej7")
+shader_parameter/wave_speed = 5.0
+shader_parameter/wave_freq = 8.0
+shader_parameter/wave_width = 3.0
+shader_parameter/bounce_x = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuyoq"]
+bg_color = Color(0, 0, 0, 0.25490198)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fjrip"]
+bg_color = Color(0.96862745, 1, 0.9372549, 0.37254903)
+
 [sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
 radius = 0.25
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oprun"]
-transparency = 1
-shading_mode = 0
-vertex_color_use_as_albedo = true
-vertex_color_is_srgb = true
-albedo_texture = ExtResource("4_ur7pv")
-albedo_texture_force_srgb = true
-billboard_mode = 3
-billboard_keep_scale = true
-particles_anim_h_frames = 1
-particles_anim_v_frames = 1
-particles_anim_loop = false
-use_z_clip_scale = true
-z_clip_scale = 0.77
-
-[sub_resource type="Curve" id="Curve_a8ls1"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1e-05, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="CurveTexture" id="CurveTexture_eb6dy"]
-texture_mode = 1
-curve = SubResource("Curve_a8ls1")
-
-[sub_resource type="Gradient" id="Gradient_qfm1y"]
-offsets = PackedFloat32Array(0.14910026, 0.3933162, 0.62982005)
-colors = PackedColorArray(1, 1, 1, 1, 0.79296875, 0.52086115, 0.35693097, 1, 0.12109375, 0.12109375, 0.12109375, 1)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_85g3d"]
-gradient = SubResource("Gradient_qfm1y")
-
-[sub_resource type="Curve" id="Curve_fulsm"]
-_data = [Vector2(0.014457829, 0.3943727), 0.0, 0.0, 0, 0, Vector2(0.25301206, 0.7721402), 1.0109402, 1.0109402, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="CurveTexture" id="CurveTexture_ya4ey"]
-curve = SubResource("Curve_fulsm")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_4r5pv"]
-lifetime_randomness = 1.0
-particle_flag_rotate_y = true
-emission_shape = 1
-emission_sphere_radius = 0.2
-angle_min = -179.99998
-angle_max = 180.00002
-direction = Vector3(0, 1, 0)
-spread = 15.7
-initial_velocity_min = 1.0
-initial_velocity_max = 2.0
-radial_velocity_min = -2.2351742e-05
-radial_velocity_max = 0.49997765
-gravity = Vector3(0, 1, 0)
-scale_min = 0.5
-scale_curve = SubResource("CurveTexture_ya4ey")
-color = Color(1, 0.8862745, 0.6901961, 1)
-color_ramp = SubResource("GradientTexture1D_85g3d")
-alpha_curve = SubResource("CurveTexture_eb6dy")
-collision_use_scale = true
-
-[sub_resource type="QuadMesh" id="QuadMesh_60mlk"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i4ail"]
-blend_mode = 1
-shading_mode = 0
-vertex_color_use_as_albedo = true
-vertex_color_is_srgb = true
-albedo_texture = ExtResource("5_y4r1p")
-billboard_mode = 1
-billboard_keep_scale = true
-use_z_clip_scale = true
-z_clip_scale = 0.77
-
-[sub_resource type="Curve" id="Curve_a38lo"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.18072289, 0.9340406), 0.0, 0.0, 0, 0, Vector2(0.24578315, 0.670203), 0.0, 0.0, 0, 0, Vector2(0.45783135, 1), 0.0, 0.0, 0, 0, Vector2(0.5831325, 0), 0.0, 0.0, 0, 0, Vector2(0.62891567, 1), 0.0, 0.0, 0, 0, Vector2(0.8240964, 0.0705719), 0.0, 0.0, 0, 0, Vector2(0.8819277, 0.68219554), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 9
-
-[sub_resource type="CurveTexture" id="CurveTexture_trceg"]
-curve = SubResource("Curve_a38lo")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_4ni07"]
-lifetime_randomness = 1.0
-emission_shape = 6
-emission_ring_axis = Vector3(0, 1, 0)
-emission_ring_height = 1.0
-emission_ring_radius = 0.6
-emission_ring_inner_radius = 0.4
-emission_ring_cone_angle = 90.0
-direction = Vector3(0, 1, 0)
-spread = 25.0
-initial_velocity_min = 0.5
-initial_velocity_max = 2.0
-gravity = Vector3(0, 1, 0)
-scale_min = 0.04
-scale_max = 0.089999996
-scale_curve = SubResource("CurveTexture_trceg")
-color = Color(1, 0.75600576, 0, 1)
-
-[sub_resource type="QuadMesh" id="QuadMesh_l71n6"]
-
-[sub_resource type="Animation" id="Animation_85g3d"]
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.694]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("fire:process_material:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0.5, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("sparks:process_material:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0.04, 0.089999996)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("torchlight:omni_range")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [5.0]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("CSGCylinder3D:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.0014818311, -0.4084103, -0.00053441525)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("CSGCylinder3D:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(8.202509e-06, 3.1405008, -3.1268787)]
-}
-
-[sub_resource type="Animation" id="Animation_choun"]
-resource_name = "init"
-length = 2.0
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.26666668, 0.6, 0.93333334, 1.3, 1.6666666, 2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [1.0, 0.85, 0.9, 1.0, 0.9, 0.85, 1.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("torchlight:omni_range")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.26666668, 0.6, 0.93333334, 1.3, 1.6666666, 2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [5.0, 4.7, 4.85, 5.0, 4.85, 4.7, 5.0]
-}
-
-[sub_resource type="Animation" id="Animation_ya4ey"]
-resource_name = "pull_out"
-length = 0.4
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 1.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("fire:process_material:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0.5, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("sparks:process_material:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0.04, 0.089999996)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("torchlight:omni_range")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 5.0]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("CSGCylinder3D:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0.001, -1.228, -1.436), Vector3(0.0014818311, -0.4084103, -0.00053441525)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("CSGCylinder3D:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(-1.4590952, 3.1398473, -3.12763), Vector3(8.202509e-06, 3.1405008, -3.1268787)]
-}
-
-[sub_resource type="Animation" id="Animation_eb6dy"]
-resource_name = "put_away"
-length = 0.4
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [1.0, 0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("fire:process_material:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0.5, 1), Vector2(0, 0)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("sparks:process_material:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0.04, 0.089999996), Vector2(0, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("torchlight:omni_range")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [5.0, 0.0]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("CSGCylinder3D:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0, -0.375, 0), Vector3(0.001, -1.228, -1.436)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("CSGCylinder3D:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0, 3.1398473, -3.12763), Vector3(-1.4590952, 3.1398473, -3.12763)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_ke2ow"]
-_data = {
-&"RESET": SubResource("Animation_85g3d"),
-&"init": SubResource("Animation_choun"),
-&"pull_out": SubResource("Animation_ya4ey"),
-&"put_away": SubResource("Animation_eb6dy")
-}
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ujl30"]
-albedo_color = Color(0.3203125, 0.111237444, 0, 1)
-albedo_texture = ExtResource("6_d2wvv")
-use_z_clip_scale = true
-z_clip_scale = 0.77
 
 [node name="player" type="CharacterBody3D" unique_id=286832902 groups=["player"]]
 transform = Transform3D(-1, 0, -8.940697e-08, 0, 1, 0, 8.940697e-08, 0, -1, 0, 0, 0)
@@ -605,22 +235,27 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 
 [node name="Camera3D" type="Camera3D" parent="neck/head/eyes" unique_id=840606825]
 physics_interpolation_mode = 1
-cull_mask = 524287
+cull_mask = 524285
+fov = 77.7
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="neck/head/eyes/Camera3D" unique_id=294210705]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="neck/head/eyes/Camera3D/SubViewportContainer" unique_id=1322851411]
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="view_model_camera" parent="neck/head/eyes/Camera3D/SubViewportContainer/SubViewport" unique_id=1251342088 instance=ExtResource("2_ke2ow")]
+transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0, 0, 0)
 fov = 77.7
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="neck/head/eyes" unique_id=178176517]
 libraries/ = SubResource("AnimationLibrary_f1ej7")
-
-[node name="flashlight" type="OmniLight3D" parent="neck/head/eyes" unique_id=452568305]
-visible = false
-light_color = Color(1, 0.92151475, 0.7071615, 1)
-light_energy = 5.308
-light_indirect_energy = 2.436
-light_volumetric_fog_energy = 2.846
-light_size = 0.218
-distance_fade_begin = 355.08
-omni_range = 9.481
-omni_attenuation = 1.769
 
 [node name="test_voiceline" type="AudioStreamPlayer3D" parent="neck/head/eyes" unique_id=1499193532]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8034322e-09, -0.23581624, 0.031355858)
@@ -664,6 +299,24 @@ mouse_filter = 2
 
 [node name="DitherShader" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=1899935609]
 material = SubResource("ShaderMaterial_smehm")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SpeedLines" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=434578485]
+material = SubResource("ShaderMaterial_31cv2")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ExhaustionEffect" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=962910863]
+material = SubResource("ShaderMaterial_pf23h")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1115,23 +768,52 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Restore Default Bindings"
 
-[node name="SpeedLines" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=434578485]
-material = SubResource("ShaderMaterial_31cv2")
-anchors_preset = 15
+[node name="Hotbar" type="HBoxContainer" parent="neck/head/eyes/CanvasLayer" unique_id=1659858700]
+anchors_preset = 1
+anchor_left = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
+offset_left = -143.0
+offset_right = 143.0
+offset_bottom = 64.0
+grow_horizontal = 0
+scale = Vector2(0.5, 0.5)
+size_flags_vertical = 0
+theme_override_constants/separation = 10
 
-[node name="ExhaustionEffect" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=962910863]
-material = SubResource("ShaderMaterial_pf23h")
+[node name="slot0" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=594876167]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+
+[node name="slot1" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1252260056]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+
+[node name="slot2" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1228693769]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+
+[node name="slot3" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1164002941]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+
+[node name="inventory_menu" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=2006503517]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 102.0
+offset_top = 62.0
+offset_right = -82.0
+offset_bottom = -76.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+color = Color(0, 0, 0, 0.60784316)
 
 [node name="object_grabber_shapecast" type="ShapeCast3D" parent="neck/head/eyes" unique_id=1856526472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118158e-08, -0.09398723, -0.25857222)
@@ -1149,42 +831,6 @@ spring_length = 0.1
 stream = ExtResource("4_3v2ag")
 volume_db = -42.949
 bus = &"effects"
-
-[node name="torch" type="Node3D" parent="." unique_id=2003583024]
-transform = Transform3D(-0.9999728, 0.007356844, -0.0005458494, 0.0073581766, 0.99996984, -0.0024821616, 0.00052758254, -0.0024861083, -0.9999968, 1.3585167, 1.7183175, -1.6062595)
-
-[node name="fire" type="GPUParticles3D" parent="torch" unique_id=1315568114]
-transform = Transform3D(0.99999994, -5.215952e-10, 0, -8.310508e-11, 0.99999994, 0, 0, -2.3283064e-10, 0.9999999, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_oprun")
-amount = 50
-lifetime = 1.2
-process_material = SubResource("ParticleProcessMaterial_4r5pv")
-draw_pass_1 = SubResource("QuadMesh_60mlk")
-
-[node name="sparks" type="GPUParticles3D" parent="torch" unique_id=254984700]
-transform = Transform3D(0.9999999, -9.870291e-10, 0, -8.299139e-11, 0.9999999, -2.3283064e-10, 5.820766e-11, -6.9849193e-10, 0.99999976, -5.4240227e-05, -0.007370472, 1.8239021e-05)
-material_override = SubResource("StandardMaterial3D_i4ail")
-amount = 7
-process_material = SubResource("ParticleProcessMaterial_4ni07")
-draw_pass_1 = SubResource("QuadMesh_l71n6")
-
-[node name="light_animation" type="AnimationPlayer" parent="torch" unique_id=352717910]
-libraries/ = SubResource("AnimationLibrary_ke2ow")
-autoplay = &"init"
-
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="torch" unique_id=912897789]
-transform = Transform3D(0.998364, -0.011688584, 0.0010923943, -0.014690911, -0.79433244, -8.206453e-06, 0.0010902043, -6.2468916e-06, -1.0004802, 0.0014818311, -0.4084103, -0.00053441525)
-radius = 0.063
-height = 0.797
-sides = 7
-material = SubResource("StandardMaterial3D_ujl30")
-
-[node name="torchlight" type="OmniLight3D" parent="torch" unique_id=2008889413]
-transform = Transform3D(0.99999994, 8.310508e-11, -1.5479532e-19, -8.310508e-11, 0.99999994, 5.8207656e-09, 6.3853055e-19, -5.820766e-09, 0.9999999, 0.019759238, 0.17720258, -1.5123991)
-light_color = Color(1, 0.9265426, 0.6850681, 1)
-light_energy = 0.694
-shadow_blur = 4.0
-script = ExtResource("8_smehm")
 
 [node name="Timer" type="Timer" parent="." unique_id=502840275]
 autostart = true

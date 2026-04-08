@@ -165,8 +165,9 @@ autoplay = true
 
 [node name="fire_light" type="OmniLight3D" parent="." index="5" unique_id=1018765914]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.79498065, 0)
+layers = 3
 light_color = Color(1, 0.78779423, 0.19338065, 1)
-light_energy = 1.577
+light_energy = 0.36
 omni_range = 15.0
 
 [node name="extinguish" type="AudioStreamPlayer3D" parent="." index="6" unique_id=120283485]

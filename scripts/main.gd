@@ -2,7 +2,6 @@ extends Node3D
 
 @onready var bg_noise: AudioStreamPlayer = $bg_noise
 @onready var game_music_1: AudioStreamPlayer = $game_music_1
-@onready var torch: Node3D = $player/torch
 @onready var eyes: Node3D = $player/neck/head/eyes
 @onready var player: CharacterBody3D = $player
 @onready var enemy = get_tree().get_first_node_in_group("enemy") 

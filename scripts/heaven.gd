@@ -6,6 +6,7 @@ extends Node3D
 @onready var ambiance: AudioStreamPlayer = $ambiance
 @onready var campfire: Node3D = $campfire
 @onready var fireflies: Node3D = $fireflies
+@onready var better_call_saul: AudioStreamPlayer3D = $better_call_saul
 
 @onready var sky_3d: Sky3D = $Sky3D
 @onready var birds: Node3D = $birds
@@ -77,3 +78,9 @@ func start_campfire():
 	campfire.get_node('fire_light').visible = true
 	campfire.get_node('sparks').visible = true
 	campfire.get_node('smoke').position.y = 0.081
+
+
+func _on_area_3d_body_entered(body: Node3D) -> void:
+	if body is Player:
+		better_call_saul.play()
+		

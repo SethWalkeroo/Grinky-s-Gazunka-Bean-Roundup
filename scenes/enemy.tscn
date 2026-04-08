@@ -1637,6 +1637,7 @@ bus = &"game_voicelines"
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=392642995]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07255722, 1.2959987, -0.56928366)
+layers = 3
 light_color = Color(0.87109375, 0.6614753, 0, 1)
 
 [node name="hear_player_voicelines" type="Node3D" parent="." unique_id=1612702232]
