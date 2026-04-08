@@ -22,7 +22,6 @@ band_db/320_hz = -60.0
 band_db/1000_hz = -42.0
 
 [resource]
-bus/0/volume_db = -0.13049698
 bus/1/name = &"game_voicelines"
 bus/1/solo = false
 bus/1/mute = false
@@ -58,7 +57,7 @@ bus/5/bypass_fx = false
 bus/5/volume_db = 0.0
 bus/5/send = &"Master"
 bus/5/effect/0/effect = SubResource("AudioEffectEQ10_j3pel")
-bus/5/effect/0/enabled = true
+bus/5/effect/0/enabled = false
 bus/6/name = &"ambient_noise"
 bus/6/solo = false
 bus/6/mute = false

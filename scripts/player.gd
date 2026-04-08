@@ -6,6 +6,12 @@ class_name Player
 var is_hidden = false
 @onready var shh: AudioStreamPlayer3D = $shh
 
+
+# --- B-HOP STATE ---
+var bhop_jump_buffer: float = 0.0
+const BHOP_BUFFER_MAX: float = 0.15 # 150ms window to buffer a jump
+const SOURCE_AIR_ACCEL: float = 12.0 # Gives you that smooth air-strafing feel
+
 @onready var gui: CanvasLayer = $neck/head/eyes/CanvasLayer
 @onready var wall_torches: Node3D = $"../wall_torches"
 
@@ -674,7 +680,6 @@ func handle_movement(delta: float) -> void:
 					stamina_bar.value += stamina_regen_move
 
 		# --- NEW: CENTRAL EXHAUSTION TRIGGER ---
-		# Check if we just hit zero for ANY reason (sprint, jump, slide)
 		if stamina_bar.value <= 0 and !is_exhausted:
 			trigger_exhaustion()
 
@@ -703,16 +708,26 @@ func handle_movement(delta: float) -> void:
 			current_speed = lerp(current_speed, walking_speed * speed_multiplier, delta * lerp_speed)
 			walking = true; sprinting = false; crouching = false
 
-	if not is_on_floor(): velocity += get_gravity() * delta
+	if not is_on_floor(): 
+		velocity += get_gravity() * delta
 	
-	if Input.is_action_just_pressed("jump") and is_on_floor() and !ceiling_detection.is_colliding():
-		if is_exhausted:
+	# --- B-HOP JUMP BUFFERING LOGIC ---
+	if Input.is_action_just_pressed("jump"):
+		bhop_jump_buffer = BHOP_BUFFER_MAX
+		
+	if bhop_jump_buffer > 0:
+		bhop_jump_buffer -= delta
+
+	if bhop_jump_buffer > 0 and is_on_floor() and !ceiling_detection.is_colliding():
+		if is_exhausted and not in_heaven:
 			if !out_of_breath_sound.playing:
 				out_of_breath_sound.play()
 		else:
 			if not in_heaven: stamina_bar.value -= 5
 			velocity.y = jump_velocity
-			sliding = false; jump_sound.play()
+			sliding = false
+			bhop_jump_buffer = 0.0 # Consume the buffer so it doesn't double-trigger
+			jump_sound.play()
 			animation_player.play('jumping')
 
 	if is_on_floor() and last_velocity.y < 0.0:
@@ -720,10 +735,22 @@ func handle_movement(delta: float) -> void:
 		footsteps.play()
 		spawn_landing_footprints()
 
+	# --- DIRECTION & MOMENTUM ---
+	var target_dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	
 	if is_on_floor():
-		direction = lerp(direction, (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized(), delta * lerp_speed)
-	elif input_dir != Vector2.ZERO:
-		direction = lerp(direction, (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized(), delta * air_lerp_speed)
+		if in_heaven and bhop_jump_buffer > 0:
+			# Prevent ground friction from killing momentum if a jump is buffered
+			direction = target_dir if target_dir != Vector3.ZERO else direction
+		else:
+			direction = lerp(direction, target_dir, delta * lerp_speed)
+	else:
+		if in_heaven and target_dir != Vector3.ZERO:
+			# Apply "Source-like" air acceleration for strafing
+			direction = lerp(direction, target_dir, delta * SOURCE_AIR_ACCEL)
+		elif target_dir != Vector3.ZERO:
+			# Standard air control for normal levels
+			direction = lerp(direction, target_dir, delta * air_lerp_speed)
 		
 	if sliding:
 		direction = (transform.basis * Vector3(slide_vector.x, 0, slide_vector.y)).normalized()
@@ -733,8 +760,13 @@ func handle_movement(delta: float) -> void:
 		velocity.x = direction.x * current_speed
 		velocity.z = direction.z * current_speed
 	else:
-		velocity.x = move_toward(velocity.x, 0, current_speed)
-		velocity.z = move_toward(velocity.z, 0, current_speed)
+		if in_heaven and not is_on_floor():
+			# Don't apply drag in the air while in heaven, preserving velocity
+			pass
+		else:
+			# Standard friction/drag
+			velocity.x = move_toward(velocity.x, 0, current_speed)
+			velocity.z = move_toward(velocity.z, 0, current_speed)
 		
 	last_velocity = velocity
 	move_and_slide()
