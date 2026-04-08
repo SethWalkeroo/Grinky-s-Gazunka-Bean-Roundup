@@ -793,6 +793,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot0" unique_id=382443673]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot1" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1252260056]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -803,6 +817,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot1" unique_id=277748272]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="slot2" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1228693769]
 custom_minimum_size = Vector2(64, 64)
@@ -815,6 +843,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot2" unique_id=1287601186]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot3" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1164002941]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -825,6 +867,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot3" unique_id=1823997941]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="inventory_menu" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=2006503517]
 anchors_preset = 15
@@ -869,6 +925,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot0" unique_id=766047758]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot1" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1245182350]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -879,6 +949,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot1" unique_id=1340879488]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="slot2" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=168251852]
 custom_minimum_size = Vector2(64, 64)
@@ -891,6 +975,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot2" unique_id=546935159]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot3" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=518536511]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -901,6 +999,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot3" unique_id=253076518]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="slot4" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1691872849]
 custom_minimum_size = Vector2(64, 64)
@@ -913,6 +1025,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot4" unique_id=305044280]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot5" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=523659359]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -923,6 +1049,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot5" unique_id=1176530337]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="slot6" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1384057755]
 custom_minimum_size = Vector2(64, 64)
@@ -935,6 +1075,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot6" unique_id=831664193]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot7" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=46491691]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -945,6 +1099,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot7" unique_id=498161345]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="slot8" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1912105170]
 custom_minimum_size = Vector2(64, 64)
@@ -957,6 +1125,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot8" unique_id=801853487]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot9" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=455223424]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -967,6 +1149,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot9" unique_id=39053850]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="slot10" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=294970169]
 custom_minimum_size = Vector2(64, 64)
@@ -979,6 +1175,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot10" unique_id=430748484]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="slot11" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=395394973]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -989,6 +1199,20 @@ script = ExtResource("10_ujl30")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot11" unique_id=957192446]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="object_grabber_shapecast" type="ShapeCast3D" parent="neck/head/eyes" unique_id=1856526472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118158e-08, -0.09398723, -0.25857222)

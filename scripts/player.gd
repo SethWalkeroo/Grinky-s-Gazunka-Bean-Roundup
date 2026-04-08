@@ -10,24 +10,22 @@ var is_hidden = false
 @onready var view_model_camera: Camera3D = $neck/head/eyes/Camera3D/SubViewportContainer/SubViewport/view_model_camera
 
 # --- INVENTORY & HOTBAR STATE ---
+const SAVE_FILE_PATH = "user://player_inventory.json"
 var inventory = ["shotgun", "empty", "empty", "empty"]
 var active_slot_index: int = -1 # -1 means your hands are empty
-var is_switching_weapons: bool = false # Prevents animation glitching if you spam numbers
+var is_switching_weapons: bool = false
 var inventory_open: bool = false
 
-# This stores items that aren't on your hotbar
-var backpack: Dictionary = {
-	"shotgun_shells": 12,
-	"gazunka_beans": 0,
-	"medkit": 1
-}
-var shotgun_ammo: int = 5 # What is currently loaded in the gun
+# --- WEAPON STATE ---
+var shotgun_ammo: int = 4
+var is_reloading: bool = false
 
 @onready var slot_0: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot0
 @onready var slot_1: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot1
 @onready var slot_2: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot2
 @onready var slot_3: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot3
 @onready var inventory_menu: ColorRect = $neck/head/eyes/CanvasLayer/inventory_menu
+@onready var inventory_grid: GridContainer = $neck/head/eyes/CanvasLayer/inventory_menu/GridContainer
 
 @onready var hotbar_slots: Array = [
 	slot_0,
@@ -279,9 +277,13 @@ func _ready() -> void:
 		
 	# --- INITIALIZE HOTBAR & WEAPON STATE ---
 	if inventory_menu: inventory_menu.visible = false
+	if shotgun_model: shotgun_model.visible = false
+		
+	# Load our saved data from the hard drive (replaces testing logic)
+	load_inventory()
+	
 	update_hotbar_ui()
-	if shotgun_model:
-		shotgun_model.visible = false
+	refresh_all_slots()
 
 func sync_settings_from_global() -> void:
 	mouse_sens = GlobalStats.mouse_sens
@@ -425,19 +427,18 @@ func _input(event: InputEvent) -> void:
 			equip_slot(2)
 		elif event.keycode == KEY_4:
 			equip_slot(3)
+		elif event.keycode == KEY_R:
+			reload_shotgun()
 
 	# --- INTERACT & FIRE LOGIC ---
 	if event.is_action_pressed('interact'):
-		# If holding the shotgun, redirect the interact key to FIRE
 		if active_slot_index != -1 and inventory[active_slot_index] == "shotgun":
 			fire_shotgun()
 		else:
-			# --- NORMAL GRAB LOGIC ---
 			if grabbed_object:
 				if grabbed_object.has_meta("original_mask"):
 					grabbed_object.collision_mask = grabbed_object.get_meta("original_mask")
 				remove_collision_exception_with(grabbed_object)
-				
 				grabbed_object = null
 				rotating_object = false
 			elif object_grabber_shapecast.is_colliding():
@@ -476,36 +477,145 @@ func _input(event: InputEvent) -> void:
 func toggle_inventory() -> void:
 	inventory_open = !inventory_open
 	if inventory_open:
-		# Open menu and free mouse
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		if inventory_menu: inventory_menu.visible = true
 		crosshair.visible = false
 	else:
-		# Close menu and capture mouse
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		if inventory_menu: inventory_menu.visible = false
 		crosshair.visible = true
 
 # --- WEAPON LOGIC ---
 func fire_shotgun() -> void:
-	if is_switching_weapons: return
+	if is_switching_weapons or is_reloading: return
 	
-	# Prevent spamming fire if the animation is still playing
-	if shotgun_animator.is_playing() and shotgun_animator.current_animation == "fire":
+	if shotgun_animator.is_playing() and (shotgun_animator.current_animation == "fire" or shotgun_animator.current_animation == "pump"):
 		return
 		
 	if shotgun_ammo > 0:
 		shotgun_ammo -= 1
-		print("BANG! Ammo left: ", shotgun_ammo)
 		if shotgun_animator.has_animation("fire"):
 			shotgun_animator.play("fire")
+			await shotgun_animator.animation_finished
 			
-		# NOTE: You can add an AudioStreamPlayer play() call here for a gunshot sound!
-		# NOTE: You can add RayCast3D damage logic here later!
+		if shotgun_animator.has_animation("pump"):
+			shotgun_animator.play("pump")
+			
+		refresh_all_slots() # Updates the UI numbers!
 	else:
 		print("Click! Out of ammo.")
-		# Play an empty click sound here if you have one
 
+func reload_shotgun() -> void:
+	if is_switching_weapons or is_reloading: return
+	if active_slot_index == -1 or inventory[active_slot_index] != "shotgun": return
+	if shotgun_ammo >= 4: return # Already full
+	
+	# Check our inventory slots to see if we have ANY shotgun_ammo items
+	var ammo_available = get_total_item_count("shotgun_ammo")
+	if ammo_available <= 0:
+		print("No ammo in inventory to reload with!")
+		return
+		
+	is_reloading = true
+	var shells_needed = 4 - shotgun_ammo
+	var shells_to_load = min(shells_needed, ammo_available)
+	
+	# Phase 1: Begin
+	if shotgun_animator.has_animation("begin_reload"):
+		shotgun_animator.play("begin_reload", 0.05)
+		await shotgun_animator.animation_finished
+		
+	# Phase 2: Insert Shells
+	for i in range(shells_to_load):
+		if shotgun_animator.has_animation("inserting_shells"):
+			shotgun_animator.play("inserting_shells", 0.05)
+			await shotgun_animator.animation_finished
+			
+		# The shell is physically in the gun now, update data
+		shotgun_ammo += 1
+		consume_item("shotgun_ammo", 1) 
+		refresh_all_slots()
+		
+		# Give Godot one frame to breathe before looping
+		await get_tree().process_frame
+		
+	# Phase 3: End and Chamber
+	if shotgun_animator.has_animation("end_reload"):
+		shotgun_animator.play("end_reload", 0.05)
+		await shotgun_animator.animation_finished
+		
+	if shotgun_animator.has_animation("pump"):
+		shotgun_animator.play("pump", 0.05)
+		await shotgun_animator.animation_finished
+		
+	is_reloading = false
+
+# --- NEW INVENTORY BACKEND HELPERS ---
+
+# Combines hotbar slots and grid slots into one big array so we can search them
+func get_all_ui_slots() -> Array:
+	var all = []
+	all.append_array(hotbar_slots)
+	if inventory_grid:
+		all.append_array(inventory_grid.get_children())
+	return all
+
+# Scans all UI slots and counts the total quantity of a specific item
+func get_total_item_count(target_item: String) -> int:
+	var total = 0
+	for slot in get_all_ui_slots():
+		if slot.item_name == target_item:
+			total += slot.quantity
+	return total
+
+# Finds stacks of an item and subtracts from them (Used when reloading)
+func consume_item(target_item: String, amount: int) -> void:
+	var amount_left_to_remove = amount
+	for slot in get_all_ui_slots():
+		if slot.item_name == target_item and slot.quantity > 0:
+			if slot.quantity >= amount_left_to_remove:
+				slot.set_item(slot.item_name, slot.quantity - amount_left_to_remove)
+				return
+			else:
+				# This stack isn't big enough, consume it entirely and keep searching
+				amount_left_to_remove -= slot.quantity
+				slot.set_item("empty", 0)
+
+# Tells all UI slots to refresh their text labels
+func refresh_all_slots():
+	for slot in get_all_ui_slots():
+		if slot.has_method("refresh_label"):
+			slot.refresh_label()
+
+func sync_inventory_arrays() -> void:
+	# What were we holding BEFORE the UI updated?
+	var old_held_item = "empty"
+	if active_slot_index != -1:
+		old_held_item = inventory[active_slot_index]
+		
+	# Update simple array for equip logic
+	for i in range(hotbar_slots.size()):
+		inventory[i] = hotbar_slots[i].item_name
+		
+	if active_slot_index != -1:
+		var current_held_item = inventory[active_slot_index]
+		
+		# CRITICAL FIX: Only run equip/unequip animations if the item in our HANDS actually changed!
+		if current_held_item != old_held_item:
+			
+			# If we dragged our equipped weapon into the backpack
+			if current_held_item == "empty":
+				if shotgun_model.visible and shotgun_animator.has_animation("put_away"):
+					shotgun_animator.play("put_away")
+					await shotgun_animator.animation_finished
+				shotgun_model.visible = false
+				active_slot_index = -1
+				update_hotbar_ui()
+			else:
+				# Swapped weapons directly in hands
+				var temp = active_slot_index
+				active_slot_index = -1 
+				equip_slot(temp)
 
 # --- CONTROLS MENU CALLBACKS ---
 func _on_controls_button_pressed() -> void:
@@ -588,15 +698,11 @@ func try_grabbing(collided):
 	grab_spring_arm.spring_length = 2.0
 
 func handle_bean_pickup(collided):
-	# Always apply a speed boost
 	speed_boost_timer = bean_speed_boost_duration
-
-	# Recovery logic if picking up while exhausted
 	if is_exhausted:
 		is_exhausted = false
 		stamina_bar.modulate = Color.WHITE
-		if out_of_breath_sound.playing:
-			out_of_breath_sound.stop()
+		if out_of_breath_sound.playing: out_of_breath_sound.stop()
 
 	if collided.has_node("pickup_noise"):
 		var sfx = collided.get_node("pickup_noise")
@@ -664,15 +770,11 @@ func update_crosshair(delta: float) -> void:
 
 func update_exhaustion_visuals(delta: float) -> void:
 	if not exhaustion_effect: return
-	
-	# Override: If the player has a speed boost, clear it quickly (0.3 seconds)
 	if speed_boost_timer > 0:
 		exhaustion_effect.modulate.a = move_toward(exhaustion_effect.modulate.a, 0.0, delta * 3.0)
 	elif is_exhausted:
-		# Smooth, steady fade-in when they run out of breath (takes 1.0 second)
 		exhaustion_effect.modulate.a = move_toward(exhaustion_effect.modulate.a, 1.0, delta * 1.0)
 	else:
-		# Perfectly smooth, linear fade-out as they catch their breath (takes 2.0 seconds)
 		exhaustion_effect.modulate.a = move_toward(exhaustion_effect.modulate.a, 0.0, delta * 0.5)
 
 func handle_timers(delta: float) -> void:
@@ -684,11 +786,9 @@ func handle_timers(delta: float) -> void:
 
 	if speed_boost_timer > 0:
 		speed_boost_timer -= delta
-		if speed_lines:
-			speed_lines.modulate.a = lerp(speed_lines.modulate.a, 1.0, delta * 15.0)
+		if speed_lines: speed_lines.modulate.a = lerp(speed_lines.modulate.a, 1.0, delta * 15.0)
 	else:
-		if speed_lines:
-			speed_lines.modulate.a = lerp(speed_lines.modulate.a, 0.0, delta * 5.0)
+		if speed_lines: speed_lines.modulate.a = lerp(speed_lines.modulate.a, 0.0, delta * 5.0)
 
 	if bean_count >= 7:
 		if exit_door and exit_door.has_node("light"):
@@ -718,45 +818,33 @@ func handle_interaction() -> void:
 
 func handle_movement(delta: float) -> void:
 	var input_dir := Input.get_vector("left", "right", "forward", "backward")
-	
 	var speed_multiplier = 1.0
-	if speed_boost_timer > 0:
-		speed_multiplier = bean_speed_boost_amount
+	if speed_boost_timer > 0: speed_multiplier = bean_speed_boost_amount
 	
 	if in_heaven:
 		stamina_bar.value = 100
 	else:
-		# --- EXHAUSTION RECOVERY & BLINK ---
 		if is_exhausted:
 			exhaustion_timer -= delta
 			stamina_bar.value = 1.0 
-			
 			var blink = (sin(Time.get_ticks_msec() * 0.02) + 1.0) / 2.0
 			stamina_bar.modulate = Color(1, 0, 0).lerp(Color(1, 0.6, 0.6), blink)
-			
 			if exhaustion_timer <= 0:
 				is_exhausted = false
 				stamina_bar.modulate = Color.WHITE
 				stamina_bar.value = 0.0
-				if out_of_breath_sound.playing:
-					out_of_breath_sound.stop()
+				if out_of_breath_sound.playing: out_of_breath_sound.stop()
 		
-		# --- CONTINUOUS STAMINA DRAIN (SPRINT) ---
 		if sprinting and input_dir != Vector2.ZERO and !is_exhausted:
 			stamina_bar.value -= stamina_drain_sprint
 			stamina_delay_timer = STAMINA_DELAY_MAX 
 		else:
-			if stamina_delay_timer > 0:
-				stamina_delay_timer -= delta 
+			if stamina_delay_timer > 0: stamina_delay_timer -= delta 
 			elif !is_exhausted: 
-				if input_dir == Vector2.ZERO: 
-					stamina_bar.value += stamina_regen_idle
-				elif crouching or walking: 
-					stamina_bar.value += stamina_regen_move
+				if input_dir == Vector2.ZERO: stamina_bar.value += stamina_regen_idle
+				elif crouching or walking: stamina_bar.value += stamina_regen_move
 
-		# --- NEW: CENTRAL EXHAUSTION TRIGGER ---
-		if stamina_bar.value <= 0 and !is_exhausted:
-			trigger_exhaustion()
+		if stamina_bar.value <= 0 and !is_exhausted: trigger_exhaustion()
 
 	if crouching and ceiling_detection.is_colliding():
 		current_speed = crouching_speed * speed_multiplier
@@ -783,25 +871,19 @@ func handle_movement(delta: float) -> void:
 			current_speed = lerp(current_speed, walking_speed * speed_multiplier, delta * lerp_speed)
 			walking = true; sprinting = false; crouching = false
 
-	if not is_on_floor(): 
-		velocity += get_gravity() * delta
+	if not is_on_floor(): velocity += get_gravity() * delta
 	
-	# --- B-HOP JUMP BUFFERING LOGIC ---
-	if Input.is_action_just_pressed("jump"):
-		bhop_jump_buffer = BHOP_BUFFER_MAX
-		
-	if bhop_jump_buffer > 0:
-		bhop_jump_buffer -= delta
+	if Input.is_action_just_pressed("jump"): bhop_jump_buffer = BHOP_BUFFER_MAX
+	if bhop_jump_buffer > 0: bhop_jump_buffer -= delta
 
 	if bhop_jump_buffer > 0 and is_on_floor() and !ceiling_detection.is_colliding():
 		if is_exhausted and not in_heaven:
-			if !out_of_breath_sound.playing:
-				out_of_breath_sound.play()
+			if !out_of_breath_sound.playing: out_of_breath_sound.play()
 		else:
 			if not in_heaven: stamina_bar.value -= 5
 			velocity.y = jump_velocity
 			sliding = false
-			bhop_jump_buffer = 0.0 # Consume the buffer so it doesn't double-trigger
+			bhop_jump_buffer = 0.0
 			jump_sound.play()
 			animation_player.play('jumping')
 
@@ -810,21 +892,17 @@ func handle_movement(delta: float) -> void:
 		footsteps.play()
 		spawn_landing_footprints()
 
-	# --- DIRECTION & MOMENTUM ---
 	var target_dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
 	if is_on_floor():
 		if in_heaven and bhop_jump_buffer > 0:
-			# Prevent ground friction from killing momentum if a jump is buffered
 			direction = target_dir if target_dir != Vector3.ZERO else direction
 		else:
 			direction = lerp(direction, target_dir, delta * lerp_speed)
 	else:
 		if in_heaven and target_dir != Vector3.ZERO:
-			# Apply "Source-like" air acceleration for strafing
 			direction = lerp(direction, target_dir, delta * SOURCE_AIR_ACCEL)
 		elif target_dir != Vector3.ZERO:
-			# Standard air control for normal levels
 			direction = lerp(direction, target_dir, delta * air_lerp_speed)
 		
 	if sliding:
@@ -835,27 +913,19 @@ func handle_movement(delta: float) -> void:
 		velocity.x = direction.x * current_speed
 		velocity.z = direction.z * current_speed
 	else:
-		if in_heaven and not is_on_floor():
-			# Don't apply drag in the air while in heaven, preserving velocity
-			pass
+		if in_heaven and not is_on_floor(): pass
 		else:
-			# Standard friction/drag
 			velocity.x = move_toward(velocity.x, 0, current_speed)
 			velocity.z = move_toward(velocity.z, 0, current_speed)
 		
 	last_velocity = velocity
 	move_and_slide()
 
-# Helper function to trigger the penalty state
 func trigger_exhaustion():
 	is_exhausted = true
 	exhaustion_timer = exhaustion_penalty_duration
-	if !out_of_breath_sound.playing:
-		out_of_breath_sound.play()
-	
-	# Stop ongoing voicelines
-	var lines = bean_pickup_voicelines.get_children()
-	for line in lines:
+	if !out_of_breath_sound.playing: out_of_breath_sound.play()
+	for line in bean_pickup_voicelines.get_children():
 		if line.playing: line.stop()
 	if all_seven_beans_voiceline.playing: all_seven_beans_voiceline.stop()
 	if start_voiceline.playing: start_voiceline.stop()
@@ -868,13 +938,11 @@ func handle_camera_and_bobbing(delta: float) -> void:
 		var space_state = get_world_3d().direct_space_state
 		var ray_start = head.global_position
 		var ray_end = ray_start + (head.global_transform.basis.x * target_lean)
-		
 		var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
 		var excludes = [self.get_rid()]
 		if is_instance_valid(grabbed_object) and grabbed_object is CollisionObject3D:
 			excludes.append(grabbed_object.get_rid())
 		query.exclude = excludes
-		
 		var result = space_state.intersect_ray(query)
 		if result:
 			var safe_dist = max(0.0, ray_start.distance_to(result.position) - 0.2)
@@ -883,8 +951,7 @@ func handle_camera_and_bobbing(delta: float) -> void:
 	current_lean_offset = lerp(current_lean_offset, target_lean, delta * lean_speed)
 	current_lean_tilt = lerp(current_lean_tilt, lean_input * deg_to_rad(lean_angle), delta * lean_speed)
 	
-	if Input.is_action_pressed('freelook') or sliding: 
-		free_looking = true
+	if Input.is_action_pressed('freelook') or sliding: free_looking = true
 	else:
 		free_looking = false
 		neck.rotation.y = lerp(neck.rotation.y, 0.0, delta * neck_lerp_speed)
@@ -943,12 +1010,9 @@ func hit():
 	if !dead:
 		dead = true; final_time = time.text 
 		stamina_bar.visible = false; time.visible = false; beans_found_label.visible = false
-
 		fade_rect.visible = true; fade_rect.modulate = Color(0.8, 0, 0, 0.6) 
-		
 		var tween = create_tween()
 		var shake_tween = create_tween().set_parallel(true)
-		
 		var shake_duration = 0.5
 		var shake_steps = 15
 		var step_time = shake_duration / shake_steps
@@ -960,7 +1024,6 @@ func hit():
 		
 		shake_tween.tween_property(camera_3d, "fov", 140.0, 0.1).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 		shake_tween.tween_property(camera_3d, "fov", 75.0, 0.4).set_delay(0.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		
 		shake_tween.tween_property(camera_3d, "rotation_degrees:x", 60.0, 0.4).set_trans(Tween.TRANS_BOUNCE)
 		var fall_dir = 65.0 if randf() > 0.5 else -65.0
 		shake_tween.tween_property(camera_3d, "rotation_degrees:z", fall_dir, 0.4).set_trans(Tween.TRANS_SINE)
@@ -996,9 +1059,7 @@ func show_death_ui():
 
 func bean_found():
 	bean_count += 1
-	if stamina_bar:
-		stamina_bar.value += bean_stamina_boost
-	
+	if stamina_bar: stamina_bar.value += bean_stamina_boost
 	if enemy_doors and open_noise:
 		if bean_count == 1:
 			for door in enemy_doors.get_children():
@@ -1011,9 +1072,7 @@ func bean_found():
 	emit_signal("bean_collected")
 
 func play_random_bean_voiceline():
-	if is_exhausted:
-		return
-
+	if is_exhausted: return
 	if bean_count < 7:
 		var lines = bean_pickup_voicelines.get_children()
 		if lines.size() > 0:
@@ -1028,10 +1087,8 @@ func play_random_bean_voiceline():
 # --- UI BUTTON CALLBACKS ---
 func _on_button_pressed():
 	GlobalStats.play_click()
-	if "heaven.tscn" in get_tree().current_scene.scene_file_path:
-		get_tree().change_scene_to_file("res://scenes/main.tscn")
-	else:
-		get_tree().reload_current_scene()
+	if "heaven.tscn" in get_tree().current_scene.scene_file_path: get_tree().change_scene_to_file("res://scenes/main.tscn")
+	else: get_tree().reload_current_scene()
 
 func _on_leaderboard_button_pressed() -> void:
 	GlobalStats.play_click() 
@@ -1057,6 +1114,7 @@ func _handle_leaderboard_close(node_to_free):
 
 func _on_main_menu_pressed() -> void:
 	GlobalStats.play_click()
+	save_inventory()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -1080,24 +1138,14 @@ func _on_save_settings_pressed() -> void:
 	GlobalStats.mouse_sens = mouse_sens
 	GlobalStats.save_to_disk()
 
-func _on_master_slider_value_changed(value: float) -> void:
-	AudioServer.set_bus_volume_db(master_bus, linear_to_db(value))
-
-func _on_chase_music_slider_value_changed(value: float) -> void:
-	AudioServer.set_bus_volume_db(chase_music_bus, linear_to_db(value))
-
-func _on_effects_slider_value_changed(value: float) -> void:
-	AudioServer.set_bus_volume_db(effects_bus, linear_to_db(value))
-
-func _on_voicelines_slider_value_changed(value: float) -> void:
-	AudioServer.set_bus_volume_db(voicelines_bus, linear_to_db(value))
-
-func _on_ambient_noise_slider_value_changed(value: float) -> void:
-	AudioServer.set_bus_volume_db(ambient_noise_bus, linear_to_db(value))
+func _on_master_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(master_bus, linear_to_db(value))
+func _on_chase_music_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(chase_music_bus, linear_to_db(value))
+func _on_effects_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(effects_bus, linear_to_db(value))
+func _on_voicelines_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(voicelines_bus, linear_to_db(value))
+func _on_ambient_noise_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(ambient_noise_bus, linear_to_db(value))
 
 func _play_hover_sound():
-	if button_hover_noise and not button_hover_noise.playing:
-		button_hover_noise.play()
+	if button_hover_noise and not button_hover_noise.playing: button_hover_noise.play()
 
 func _on_video_button_pressed() -> void:
 	GlobalStats.play_click()
@@ -1106,33 +1154,24 @@ func _on_video_button_pressed() -> void:
 
 func _on_check_box_toggled(toggled_on: bool) -> void:
 	GlobalStats.play_click()
-	if toggled_on:
-		minimap.visible = true
-	else:
-		minimap.visible = false
+	if toggled_on: minimap.visible = true
+	else: minimap.visible = false
 		
 func spawn_footprint() -> void:
 	if footprint_scene and footprint_raycast.is_colliding():
 		var footprint = footprint_scene.instantiate()
 		get_tree().current_scene.add_child(footprint)
-		
 		var hit_pos = footprint_raycast.get_collision_point()
 		var hit_normal = footprint_raycast.get_collision_normal()
 		var right_direction = global_transform.basis.x.normalized()
 		var offset_vector = right_direction * footprint_spacing
-		
-		if is_left_foot:
-			offset_vector = -offset_vector
-		
+		if is_left_foot: offset_vector = -offset_vector
 		footprint.global_position = hit_pos + offset_vector
-		
 		if hit_normal != Vector3.UP and hit_normal != Vector3.ZERO:
 			footprint.look_at(footprint.global_position + hit_normal, Vector3.UP)
 			footprint.rotate_object_local(Vector3.RIGHT, deg_to_rad(-90))
-			
 		footprint.rotate_y(global_rotation.y)
-		if is_left_foot:
-			footprint.scale.x = -1.0
+		if is_left_foot: footprint.scale.x = -1.0
 		is_left_foot = !is_left_foot
 
 func spawn_landing_footprints() -> void:
@@ -1143,7 +1182,6 @@ func spawn_landing_footprints() -> void:
 		var right_offset = right_direction * footprint_spacing
 		var left_offset = -right_direction * footprint_spacing
 		
-		# Left Foot
 		var left_print = footprint_scene.instantiate()
 		get_tree().current_scene.add_child(left_print)
 		left_print.global_position = hit_pos + left_offset
@@ -1153,7 +1191,6 @@ func spawn_landing_footprints() -> void:
 		left_print.rotate_y(global_rotation.y)
 		left_print.scale.x = -1.0
 		
-		# Right Foot
 		var right_print = footprint_scene.instantiate()
 		get_tree().current_scene.add_child(right_print)
 		right_print.global_position = hit_pos + right_offset
@@ -1165,14 +1202,10 @@ func spawn_landing_footprints() -> void:
 func save_final_time() -> void:
 	GlobalStats.final_time = total_time
 	GlobalStats.final_time_string = time.text
-	
-	# Deposit this run's beans into the permanent jar
 	GlobalStats.add_to_jar(bean_count)
-	
 	if total_time < GlobalStats.best_time_float:
 		GlobalStats.save_score(total_time, time.text)
 		GlobalStats.needs_upload = true
-
 
 func _on_resume_pressed() -> void:
 	if settings_panel.visible or video_settings.visible or controls_settings.visible:
@@ -1186,85 +1219,110 @@ func _on_resume_pressed() -> void:
 		settings_panel.visible = false
 		paused = false
 
-
 func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
 	GlobalStats.play_click()
-	
 
 func equip_slot(slot_index: int) -> void:
-	# Prevent breaking the code by spamming buttons during an animation
-	if is_switching_weapons: return
+	if is_switching_weapons or is_reloading: return
 	
-	# Determine what slot we are going to. If it's the exact same slot we are holding, we go to empty (-1)
 	var target_slot = slot_index
-	if active_slot_index == slot_index:
-		target_slot = -1
-		
-	# Don't do anything if we are currently holding nothing and pressed the button for an empty slot
+	if active_slot_index == slot_index: target_slot = -1
 	if active_slot_index == -1 and target_slot == -1: return
 
 	is_switching_weapons = true
 	
-	# --- 1. PUT AWAY CURRENTLY HELD ITEM ---
 	if active_slot_index != -1:
 		var current_item = inventory[active_slot_index]
-		match current_item:
-			"shotgun":
-				if shotgun_animator.has_animation("put_away"):
-					shotgun_animator.play("put_away")
-					await shotgun_animator.animation_finished
-				shotgun_model.visible = false
-			"empty":
-				pass
-	
-	# --- 2. UPDATE STATE & UI ---
+		if current_item == "shotgun":
+			if shotgun_animator.has_animation("put_away"):
+				shotgun_animator.play("put_away")
+				await shotgun_animator.animation_finished
+			shotgun_model.visible = false
+			
 	active_slot_index = target_slot
 	update_hotbar_ui()
 	
-	# --- 3. PULL OUT NEW ITEM ---
 	if active_slot_index != -1:
 		var new_item = inventory[active_slot_index]
-		match new_item:
-			"shotgun":
-				shotgun_model.visible = true
-				if shotgun_animator.has_animation("pull_out"):
-					shotgun_animator.play("pull_out")
-			"empty":
-				pass
+		if new_item == "shotgun":
+			shotgun_model.visible = true
+			if shotgun_animator.has_animation("pull_out"):
+				shotgun_animator.play("pull_out")
 				
 	is_switching_weapons = false
 
 func update_hotbar_ui() -> void:
-	# Loop through all 4 UI slots
 	for i in range(hotbar_slots.size()):
 		var slot_rect = hotbar_slots[i]
-		if i == active_slot_index:
-			# Highlight the active slot (e.g., Bright Yellow)
-			slot_rect.color = Color(0.8, 0.8, 0.2, 0.8)
-		else:
-			# Dim the inactive slots
-			slot_rect.color = Color(0, 0, 0, 0.5)
+		if i == active_slot_index: slot_rect.color = Color(0.8, 0.8, 0.2, 0.8)
+		else: slot_rect.color = Color(0, 0, 0, 0.5)
 
-func sync_inventory_arrays() -> void:
-	# 1. Read the UI slots and update the backend array
-	for i in range(hotbar_slots.size()):
-		inventory[i] = hotbar_slots[i].item_name
-		
-	# 2. If we just dragged an item out of our currently active hands, or dragged a new one in
-	if active_slot_index != -1:
-		var current_held_item = inventory[active_slot_index]
-		
-		if current_held_item == "empty":
-			# We dragged our weapon into our backpack. Put it away.
-			if shotgun_model.visible and shotgun_animator.has_animation("put_away"):
-				shotgun_animator.play("put_away")
-				await shotgun_animator.animation_finished
-			shotgun_model.visible = false
-			active_slot_index = -1
-			update_hotbar_ui()
+# --- PERSISTENCE (SAVE / LOAD) ---
+func save_inventory() -> void:
+	var hotbar_data = []
+	for slot in hotbar_slots:
+		if slot.has_method("set_item"):
+			hotbar_data.append({"item": slot.item_name, "qty": slot.quantity})
+
+	var grid_data = []
+	if inventory_grid:
+		for slot in inventory_grid.get_children():
+			if slot.has_method("set_item"):
+				grid_data.append({"item": slot.item_name, "qty": slot.quantity})
+
+	var save_data = {
+		"hotbar": hotbar_data,
+		"grid": grid_data,
+		"shotgun_ammo": shotgun_ammo
+	}
+
+	var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(save_data))
+		print("Inventory saved successfully to ", SAVE_FILE_PATH)
+	else:
+		print("ERROR: Could not open save file to write!")
+
+func load_inventory() -> void:
+	if not FileAccess.file_exists(SAVE_FILE_PATH):
+		print("No save file found. Using default inventory.")
+		# Fallback for brand new saves so you have something to test with
+		if inventory_grid and inventory_grid.get_child_count() > 0:
+			if inventory_grid.get_child(0).has_method("set_item"):
+				inventory_grid.get_child(0).set_item("shotgun_ammo", 12)
+		return
+
+	var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
+	if file:
+		var json_string = file.get_as_text()
+		var json = JSON.new()
+		var parse_result = json.parse(json_string)
+
+		if parse_result == OK:
+			var saved_data = json.get_data()
+
+			if saved_data.has("shotgun_ammo"):
+				shotgun_ammo = saved_data["shotgun_ammo"]
+
+			if saved_data.has("hotbar"):
+				for i in range(min(saved_data["hotbar"].size(), hotbar_slots.size())):
+					var slot_data = saved_data["hotbar"][i]
+					if hotbar_slots[i].has_method("set_item"):
+						hotbar_slots[i].set_item(slot_data["item"], slot_data["qty"])
+					inventory[i] = slot_data["item"]
+
+			if saved_data.has("grid") and inventory_grid:
+				var grid_slots = inventory_grid.get_children()
+				for i in range(min(saved_data["grid"].size(), grid_slots.size())):
+					var slot_data = saved_data["grid"][i]
+					if grid_slots[i].has_method("set_item"):
+						grid_slots[i].set_item(slot_data["item"], slot_data["qty"])
+
+			print("Inventory loaded successfully!")
 		else:
-			# We swapped the weapon in our hands for a different one. 
-			# Force the equip logic to run again.
-			var temp = active_slot_index
-			active_slot_index = -1 # Temporarily reset so equip_slot doesn't ignore the command
-			equip_slot(temp)
+			print("ERROR: Failed to parse save file JSON.")
+
+# Triggers when the user force-quits the game (e.g. clicking the X on the window)
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_inventory()
