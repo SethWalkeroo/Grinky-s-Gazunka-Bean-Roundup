@@ -1244,3 +1244,27 @@ func update_hotbar_ui() -> void:
 		else:
 			# Dim the inactive slots
 			slot_rect.color = Color(0, 0, 0, 0.5)
+
+func sync_inventory_arrays() -> void:
+	# 1. Read the UI slots and update the backend array
+	for i in range(hotbar_slots.size()):
+		inventory[i] = hotbar_slots[i].item_name
+		
+	# 2. If we just dragged an item out of our currently active hands, or dragged a new one in
+	if active_slot_index != -1:
+		var current_held_item = inventory[active_slot_index]
+		
+		if current_held_item == "empty":
+			# We dragged our weapon into our backpack. Put it away.
+			if shotgun_model.visible and shotgun_animator.has_animation("put_away"):
+				shotgun_animator.play("put_away")
+				await shotgun_animator.animation_finished
+			shotgun_model.visible = false
+			active_slot_index = -1
+			update_hotbar_ui()
+		else:
+			# We swapped the weapon in our hands for a different one. 
+			# Force the equip logic to run again.
+			var temp = active_slot_index
+			active_slot_index = -1 # Temporarily reset so equip_slot doesn't ignore the command
+			equip_slot(temp)

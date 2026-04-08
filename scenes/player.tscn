@@ -11,6 +11,7 @@
 [ext_resource type="Shader" uid="uid://bvt85r5ugbalb" path="res://shaders/exhaust.gdshader" id="7_31cv2"]
 [ext_resource type="Shader" uid="uid://ctcj7f0d1a2x6" path="res://shaders/distortion.gdshader" id="8_pf23h"]
 [ext_resource type="AudioStream" uid="uid://cedt4y4wht8oq" path="res://audio/delicous.wav" id="9_ur7pv"]
+[ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="10_ujl30"]
 [ext_resource type="AudioStream" uid="uid://b2xywdwn6ttmi" path="res://audio/scrumptious.wav" id="10_y4r1p"]
 [ext_resource type="AudioStream" uid="uid://gem27cg43ie8" path="res://audio/slide.wav" id="11_d2wvv"]
 [ext_resource type="AudioStream" uid="uid://dgo27wuioswyo" path="res://audio/throw_sound.wav" id="12_3v2ag"]
@@ -769,13 +770,14 @@ mouse_default_cursor_shape = 2
 text = "Restore Default Bindings"
 
 [node name="Hotbar" type="HBoxContainer" parent="neck/head/eyes/CanvasLayer" unique_id=1659858700]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -143.0
-offset_right = 143.0
-offset_bottom = 64.0
-grow_horizontal = 0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -72.0
+offset_top = 7.777
+offset_right = 214.0
+offset_bottom = 71.777
+grow_horizontal = 2
 scale = Vector2(0.5, 0.5)
 size_flags_vertical = 0
 theme_override_constants/separation = 10
@@ -784,36 +786,209 @@ theme_override_constants/separation = 10
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot0" unique_id=1699683249]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="slot1" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1252260056]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot1" unique_id=2084481830]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="slot2" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1228693769]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot2" unique_id=1980343808]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="slot3" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1164002941]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot3" unique_id=1623851034]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="inventory_menu" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=2006503517]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 102.0
-offset_top = 62.0
-offset_right = -82.0
-offset_bottom = -76.0
+offset_left = 128.0
+offset_top = 73.0
+offset_right = -120.0
+offset_bottom = -111.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 color = Color(0, 0, 0, 0.60784316)
+
+[node name="GridContainer" type="GridContainer" parent="neck/head/eyes/CanvasLayer/inventory_menu" unique_id=1573211938]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -107.0
+offset_top = -81.0
+offset_right = 179.0
+offset_bottom = 187.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.75, 0.75)
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="slot0" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=374532815]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot0" unique_id=2092035501]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot1" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1245182350]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot1" unique_id=114222503]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot2" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=168251852]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot2" unique_id=787914839]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot3" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=518536511]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot3" unique_id=31529483]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot4" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1691872849]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot4" unique_id=1607922499]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot5" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=523659359]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot5" unique_id=899771695]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot6" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1384057755]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot6" unique_id=1675765677]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot7" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=46491691]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot7" unique_id=1187273478]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot8" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=1912105170]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot8" unique_id=10487625]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot9" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=455223424]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot9" unique_id=1337906244]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot10" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=294970169]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot10" unique_id=1251211039]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="slot11" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer" unique_id=395394973]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/GridContainer/slot11" unique_id=345518840]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="object_grabber_shapecast" type="ShapeCast3D" parent="neck/head/eyes" unique_id=1856526472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118158e-08, -0.09398723, -0.25857222)
