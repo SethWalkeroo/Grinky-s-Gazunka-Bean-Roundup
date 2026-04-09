@@ -1321,7 +1321,7 @@ volume_db = -38.095
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
-[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_check_box_toggled"]
+[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

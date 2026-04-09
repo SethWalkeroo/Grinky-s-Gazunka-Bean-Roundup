@@ -1,5 +1,28 @@
 extends CanvasLayer
 
+#inventory headache
+
+# --- SHOP & STASH NODES ---
+@onready var shop_panel: ColorRect = $shop_panel
+@onready var stash_panel: ColorRect = $stash_panel
+@onready var bean_shop_button: Button = $bean_shop_button
+@onready var stash_button: Button = $stash_button # Assuming you add a button to open the stash
+@onready var bean_shop_display: Label = $shop_panel/bean_shop_display # Label inside shop to show balance
+@onready var stash_grid: GridContainer = $stash_panel/GridContainer
+@onready var buy_shotgun_btn: Button = $shop_panel/buy_shotgun_btn 
+@onready var buy_shotgun_ammo_btn: Button = $shop_panel/buy_shotgun_ammo_btn
+@onready var stash_bean_display: Label = $stash_panel/stash_bean_display
+
+# --- NEW CLOSE BUTTONS ---
+@onready var close_shop_btn: Button = $shop_panel/close_shop_btn 
+@onready var close_stash_btn: Button = $stash_panel/close_stash_btn
+
+const INVENTORY_SAVE_PATH = "user://player_inventory.json"
+
+# Example prices
+const SHOTGUN_PRICE = 50
+const AMMO_PRICE = 5
+
 @onready var number_1_player: RichTextLabel = $number_1_player
 @onready var motd_button: Button = $motd_button
 @onready var bean_jar: RichTextLabel = $bean_jar
@@ -158,6 +181,35 @@ var ambient_noise_bus = AudioServer.get_bus_index('ambient_noise')
 var sarah_bus = AudioServer.get_bus_index("sarah") 
 
 func _ready() -> void:
+	
+	if stash_button:
+		stash_button.mouse_entered.connect(_play_hover_sound)
+		stash_button.pressed.connect(_on_stash_button_pressed)
+		
+	if buy_shotgun_btn:
+		buy_shotgun_btn.mouse_entered.connect(_play_hover_sound)
+		buy_shotgun_btn.pressed.connect(_on_buy_shotgun_pressed)
+		
+	if buy_shotgun_ammo_btn:
+		buy_shotgun_ammo_btn.mouse_entered.connect(_play_hover_sound)
+		buy_shotgun_ammo_btn.pressed.connect(_on_buy_shotgun_ammo_pressed)
+		
+	# --- CONNECT CLOSE BUTTONS ---
+	if close_shop_btn:
+		close_shop_btn.mouse_entered.connect(_play_hover_sound)
+		close_shop_btn.pressed.connect(_on_close_shop_pressed)
+		
+	if close_stash_btn:
+		close_stash_btn.mouse_entered.connect(_play_hover_sound)
+		close_stash_btn.pressed.connect(_on_close_stash_pressed)
+	
+	#shop and stash display
+	if shop_panel: shop_panel.visible = false
+	if stash_panel: stash_panel.visible = false
+	if bean_shop_button:
+		bean_shop_button.mouse_entered.connect(_play_hover_sound)
+		bean_shop_button.pressed.connect(_on_bean_shop_button_pressed)
+	
 	randomize()
 	
 	# Connect the Enter Key Signal for the Name Input
@@ -277,6 +329,10 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed('pause'):
 		if settings_panel.visible or controls_settings.visible or video_settings.visible:
 			_on_save_settings_pressed() 
+		elif shop_panel.visible:
+			_on_close_shop_pressed()
+		elif stash_panel.visible:
+			_on_close_stash_pressed()
 
 func setup_main_menu():
 	profile_panel.visible = false
@@ -284,6 +340,8 @@ func setup_main_menu():
 	motd_button.visible = true 
 	bean_jar.visible = true
 	if controls_btn: controls_btn.visible = true
+	if bean_shop_button: bean_shop_button.visible = true
+	if stash_button: stash_button.visible = true
 	if welcome_label: welcome_label.text = "Welcome, " + GlobalStats.player_name + "!"
 
 func setup_profile_creation():
@@ -292,6 +350,8 @@ func setup_profile_creation():
 	bean_jar.visible = false
 	motd_button.visible = false 
 	if controls_btn: controls_btn.visible = false
+	if bean_shop_button: bean_shop_button.visible = false
+	if stash_button: stash_button.visible = false
 	name_input.grab_focus()
 
 func set_motd():
@@ -435,6 +495,8 @@ func _on_settings_button_pressed() -> void:
 	bean_jar.visible = false
 	menu_container.visible = false
 	if controls_btn: controls_btn.visible = false
+	if bean_shop_button: bean_shop_button.visible = false
+	if stash_button: stash_button.visible = false
 	settings_panel.visible = true
 
 func _on_video_settings_pressed() -> void:
@@ -444,6 +506,8 @@ func _on_video_settings_pressed() -> void:
 	bean_jar.visible = false
 	menu_container.visible = false
 	if controls_btn: controls_btn.visible = false
+	if bean_shop_button: bean_shop_button.visible = false
+	if stash_button: stash_button.visible = false
 	video_settings.visible = true
 
 func _on_save_settings_pressed() -> void:
@@ -451,10 +515,14 @@ func _on_save_settings_pressed() -> void:
 	controls_settings.visible = false
 	settings_panel.visible = false
 	video_settings.visible = false
+	
 	menu_container.visible = true
 	bean_jar.visible = true
-	if controls_btn: controls_btn.visible = true
 	motd_button.visible = true
+	if controls_btn: controls_btn.visible = true
+	if bean_shop_button: bean_shop_button.visible = true
+	if stash_button: stash_button.visible = true
+	
 	GlobalStats.minimap_on = minimap_checkbox.button_pressed
 	GlobalStats.master_vol = master_slider.value
 	GlobalStats.menu_music_vol = menu_music_slider.value
@@ -537,12 +605,16 @@ func _on_button_pressed() -> void:
 	bean_jar.visible = false
 	controls.play()
 	motd_button.visible = false
+	if bean_shop_button: bean_shop_button.visible = false
+	if stash_button: stash_button.visible = false
 
 func _on_controls_button_pressed() -> void:
 	GlobalStats.play_click()
 	menu_container.visible = false
 	bean_jar.visible = false
 	if controls_btn: controls_btn.visible = false
+	if bean_shop_button: bean_shop_button.visible = false
+	if stash_button: stash_button.visible = false
 	controls_settings.visible = true
 
 func _on_rebind_button_pressed(btn: Button, action: String) -> void:
@@ -587,6 +659,240 @@ func _update_button_text(btn: Button, action: String) -> void:
 	rcl.text = bbcode_text
 	rcl.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 
-
 func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
 	GlobalStats.play_click()
+
+func _on_bean_shop_button_pressed() -> void:
+	GlobalStats.play_click()
+	menu_container.visible = false
+	motd_button.visible = false
+	bean_jar.visible = false
+	if controls_btn: controls_btn.visible = false
+	if stash_button: stash_button.visible = false
+	if bean_shop_button: bean_shop_button.visible = false
+	
+	shop_panel.visible = true
+	update_shop_display()
+
+func _on_stash_button_pressed() -> void:
+	GlobalStats.play_click()
+	menu_container.visible = false
+	motd_button.visible = false
+	bean_jar.visible = false
+	if controls_btn: controls_btn.visible = false
+	if stash_button: stash_button.visible = false
+	if bean_shop_button: bean_shop_button.visible = false
+	
+	stash_panel.visible = true
+	load_stash_ui()
+	update_shop_display()
+
+# --- CLOSE BUTTON FUNCTIONS ---
+func _on_close_shop_pressed() -> void:
+	GlobalStats.play_click()
+	shop_panel.visible = false
+	menu_container.visible = true
+	motd_button.visible = true
+	bean_jar.visible = true
+	if controls_btn: controls_btn.visible = true
+	if stash_button: stash_button.visible = true
+	if bean_shop_button: bean_shop_button.visible = true
+
+func _on_close_stash_pressed() -> void:
+	GlobalStats.play_click()
+	save_stash_to_json() # Save everything before closing!
+	stash_panel.visible = false
+	menu_container.visible = true
+	motd_button.visible = true
+	bean_jar.visible = true
+	if controls_btn: controls_btn.visible = true
+	if stash_button: stash_button.visible = true
+	if bean_shop_button: bean_shop_button.visible = true
+
+func update_shop_display() -> void:
+	var bean_text = "Beans Available: " + str(GlobalStats.total_beans_collected)
+	if bean_shop_display:
+		bean_shop_display.text = bean_text
+	if stash_bean_display:
+		stash_bean_display.text = bean_text
+	update_bean_jar_display()
+
+func buy_item(item_name: String, price: int, quantity: int) -> void:
+	if GlobalStats.total_beans_collected < price:
+		print("Not enough beans!")
+		# Play buzzer/error sound here!
+		return
+		
+	if not can_fit_item(item_name, quantity):
+		print("Stash is full!")
+		# Play buzzer/error sound here!
+		return
+		
+	# If we have money and space, do the transaction!
+	GlobalStats.total_beans_collected -= price
+	GlobalStats.save_to_disk() 
+	
+	# Play a cash register/success sound here!
+	update_shop_display()
+	add_item_to_json(item_name, quantity)
+
+# Button signal connections
+func _on_buy_shotgun_pressed() -> void:
+	GlobalStats.play_click()
+	buy_item("shotgun", SHOTGUN_PRICE, 1)
+
+func _on_buy_shotgun_ammo_pressed() -> void:
+	GlobalStats.play_click()
+	buy_item("shotgun_ammo", AMMO_PRICE, 4)
+
+func add_item_to_json(item_name: String, amount: int) -> void:
+	var save_data = {
+		"hotbar": [{"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}],
+		"grid": [],
+		"shotgun_ammo": 0
+	}
+	
+	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
+		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			save_data = json.get_data()
+			
+	var amount_left = amount
+	var placed = false
+	
+	if save_data.has("grid"):
+		if item_name != "shotgun":
+			for slot in save_data["grid"]:
+				if slot["item"] == item_name and slot["qty"] < 16:
+					var space_left = 16 - slot["qty"]
+					var add_amount = min(space_left, amount_left)
+					slot["qty"] += add_amount
+					amount_left -= add_amount
+					if amount_left <= 0:
+						placed = true
+						break
+						
+		if not placed and amount_left > 0:
+			for slot in save_data["grid"]:
+				if slot["item"] == "empty":
+					slot["item"] = item_name
+					slot["qty"] = amount_left
+					placed = true
+					break
+					
+	# Force append only if there is physical space
+	if not placed and amount_left > 0:
+		if not save_data.has("grid"):
+			save_data["grid"] = []
+			
+		var max_slots = stash_grid.get_child_count() if stash_grid else 12
+		if save_data["grid"].size() < max_slots:
+			save_data["grid"].append({"item": item_name, "qty": amount_left})
+		else:
+			print("CRITICAL: Tried to append but stash is physically full!")
+		
+	var save_file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.WRITE)
+	if save_file:
+		save_file.store_string(JSON.stringify(save_data))
+		
+		
+func load_stash_ui() -> void:
+	if not stash_grid:
+		print("ERROR: Stash grid is missing!")
+		return
+
+	# Grab all the pre-built slot nodes (slot0 through slot11)
+	var stash_slots = stash_grid.get_children()
+
+	# 1. Clear out all existing slots first so old data doesn't visually duplicate
+	for slot in stash_slots:
+		if slot.has_method("set_item"):
+			slot.set_item("empty", 0)
+
+	# 2. Load the save data from the hard drive
+	var save_data = {}
+	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
+		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			save_data = json.get_data()
+
+	# 3. Apply the saved data to your existing slot nodes
+	if save_data.has("grid"):
+		var grid_data = save_data["grid"]
+		# Loop through whichever is smaller: the amount of saved items, or the amount of slots you built
+		for i in range(min(grid_data.size(), stash_slots.size())):
+			var slot_data = grid_data[i]
+			var slot_node = stash_slots[i]
+			
+			if slot_node.has_method("set_item"):
+				slot_node.set_item(slot_data["item"], slot_data["qty"])
+
+# --- SAVE DRAG AND DROP CHANGES IN STASH ---
+func save_stash_to_json() -> void:
+	var save_data = {}
+	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
+		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			save_data = json.get_data()
+			
+	var new_grid_data = []
+	if stash_grid:
+		for slot in stash_grid.get_children():
+			if slot.has_method("set_item"):
+				new_grid_data.append({"item": slot.item_name, "qty": slot.quantity})
+			
+	save_data["grid"] = new_grid_data
+	
+	var save_file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.WRITE)
+	if save_file:
+		save_file.store_string(JSON.stringify(save_data))
+		
+
+
+func can_fit_item(item_name: String, amount: int) -> bool:
+	var save_data = {}
+	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
+		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			save_data = json.get_data()
+
+	# Count how many physical UI slots you built in the editor (e.g., 12 or 16)
+	var max_slots = stash_grid.get_child_count() if stash_grid else 12
+	var grid = save_data.get("grid", [])
+	var amount_left = amount
+
+	# 1. Check if we can stack it (Ammo only)
+	if item_name != "shotgun":
+		for slot in grid:
+			if slot["item"] == item_name and slot["qty"] < 16:
+				var space_available = 16 - slot["qty"]
+				amount_left -= space_available
+				if amount_left <= 0:
+					return true
+
+	# 2. Count existing empty slots in the JSON
+	var empty_count = 0
+	for slot in grid:
+		if slot["item"] == "empty":
+			empty_count += 1
+
+	# 3. Count uninitialized slots (if the JSON array hasn't filled all physical UI slots yet)
+	var uninitialized = max_slots - grid.size()
+	if uninitialized > 0:
+		empty_count += uninitialized
+
+	# Shotguns take 1 full slot. Ammo can fit up to 16 per slot.
+	if item_name == "shotgun":
+		return amount_left <= empty_count
+	else:
+		return amount_left <= (empty_count * 16)
+
+
+func update_bean_jar_display() -> void:
+	if bean_jar:
+		# You can add BBCode like [color=yellow] or [center] around this if needed!
+		bean_jar.text = "Beans: " + str(GlobalStats.total_beans_collected)

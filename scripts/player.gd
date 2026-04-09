@@ -26,6 +26,7 @@ var inventory_open: bool = false
 var shotgun_ammo: int = 4
 var is_reloading: bool = false
 
+@onready var hotbar: Control = $neck/head/eyes/CanvasLayer/Hotbar
 @onready var slot_0: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot0
 @onready var slot_1: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot1
 @onready var slot_2: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot2
@@ -50,7 +51,7 @@ const BHOP_BUFFER_MAX: float = 0.15 # 150ms window to buffer a jump
 const SOURCE_AIR_ACCEL: float = 12.0 # Gives you that smooth air-strafing feel
 
 @onready var gui: CanvasLayer = $neck/head/eyes/CanvasLayer
-@onready var wall_torches: Node3D = $"../wall_torches"
+@onready var wall_torches: Node3D = get_node_or_null("../wall_torches")
 
 @onready var button_hover_noise: AudioStreamPlayer = $button_hover_noise
 @onready var button_click_noise: AudioStreamPlayer = $button_click_noise
@@ -290,6 +291,11 @@ func _ready() -> void:
 	
 	update_hotbar_ui()
 	refresh_all_slots()
+	
+	# --- SET HOVER CURSORS ---
+	for slot in get_all_ui_slots():
+		if slot is Control:
+			slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func sync_settings_from_global() -> void:
 	mouse_sens = GlobalStats.mouse_sens
@@ -395,15 +401,20 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 		return
 		
-	if event.is_action_pressed('pause') and !paused and !dead and !inventory_open:
+	if event.is_action_pressed('pause') and !paused and !dead:
+		# If the inventory is open, this closes it first
+		if inventory_open:
+			toggle_inventory()
+			
 		GlobalStats.play_click()
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		emit_signal('player_paused')
 		menu_vbox.visible = true
 		menu_vbox.move_to_front()
 		paused = true
+		if hotbar: hotbar.visible = false # Hide hotbar when pausing
 		return
-	elif event.is_action_pressed('pause') and paused and !dead and !inventory_open:
+	elif event.is_action_pressed('pause') and paused and !dead:
 		if settings_panel.visible or video_settings.visible or controls_settings.visible:
 			_on_save_settings_pressed()
 			return 
@@ -414,6 +425,7 @@ func _input(event: InputEvent) -> void:
 			menu_vbox.visible = false
 			settings_panel.visible = false
 			paused = false
+			if hotbar: hotbar.visible = true # Show hotbar when unpausing
 			return
 			
 	# --- INVENTORY TOGGLE (TAB KEY) ---
@@ -529,8 +541,8 @@ func fire_shotgun() -> void:
 			)
 			
 			# Calculate exactly where this specific pellet is going
-			var direction = (-camera_3d.global_transform.basis.z + spread_offset).normalized()
-			var end_point = origin + (direction * range_distance)
+			var pellet_direction = (-camera_3d.global_transform.basis.z + spread_offset).normalized()
+			var end_point = origin + (pellet_direction * range_distance)
 			
 			var query = PhysicsRayQueryParameters3D.create(origin, end_point)
 			query.exclude = [self.get_rid()] # Don't shoot ourselves!
@@ -1131,6 +1143,7 @@ func trigger_screen_shake(intensity: float = 0.1):
 
 func show_death_ui():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if hotbar: hotbar.visible = false # Hide hotbar on death screen
 	menu_vbox.modulate.a = 0.0
 	menu_vbox.visible = true
 	menu_vbox.move_to_front()
@@ -1298,6 +1311,7 @@ func _on_resume_pressed() -> void:
 		menu_vbox.visible = false
 		settings_panel.visible = false
 		paused = false
+		if hotbar: hotbar.visible = true # Show hotbar again when unpausing
 
 func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
 	GlobalStats.play_click()
@@ -1382,7 +1396,7 @@ func load_inventory() -> void:
 			var saved_data = json.get_data()
 
 			if saved_data.has("shotgun_ammo"):
-				shotgun_ammo = saved_data["shotgun_ammo"]
+				shotgun_ammo = clampi(int(saved_data["shotgun_ammo"]), 0, 4)
 
 			if saved_data.has("hotbar"):
 				for i in range(min(saved_data["hotbar"].size(), hotbar_slots.size())):

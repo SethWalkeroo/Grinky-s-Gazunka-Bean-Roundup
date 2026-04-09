@@ -2372,7 +2372,7 @@ mesh = SubResource("ArrayMesh_uitm0")
 transform = Transform3D(0.011479671, -0.046169415, -0.013625793, 0.04802569, 0.011941217, 3.956969e-09, 0.0032878364, -0.013223175, 0.047575187, 0.038326554, -0.1894558, -0.7575833)
 
 [node name="hand" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand" unique_id=492938704]
-transform = Transform3D(0.5161167, -0.84312564, -0.15087146, 0.8534408, 0.5211409, 0.0072013796, 0.07255377, -0.1324765, 0.9885265, 0.54206514, -0.69232106, 0.4850521)
+transform = Transform3D(0.5161167, -0.84312564, -0.15087144, 0.8534408, 0.5211409, 0.007201379, 0.07255377, -0.1324765, 0.98852646, 0.54206514, -0.69232106, 0.4850521)
 layers = 2
 material_override = ExtResource("2_prr7q")
 mesh = SubResource("ArrayMesh_s20c1")
@@ -2385,7 +2385,7 @@ mesh = SubResource("ArrayMesh_m4lkb")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="index_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=105184758]
-transform = Transform3D(0.8319568, -0.5507593, -0.06717332, 0.53819126, 0.8304913, -0.14364669, 0.13490167, 0.08335575, 0.9873464, 0.6355164, -2.861023e-06, -1.8432941)
+transform = Transform3D(0.8319568, -0.5507593, -0.06717332, 0.53819126, 0.83049124, -0.14364669, 0.13490167, 0.08335575, 0.98734635, 0.6355164, -2.861023e-06, -1.8432941)
 layers = 2
 mesh = SubResource("ArrayMesh_06fy6")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2403,19 +2403,19 @@ mesh = SubResource("ArrayMesh_q3unt")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=1400321696]
-transform = Transform3D(0.9955628, 0.041010786, -0.08468614, -0.051888194, 0.99008536, -0.13052616, 0.078493565, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
+transform = Transform3D(0.99556273, 0.041010786, -0.08468614, -0.05188819, 0.99008536, -0.13052616, 0.078493565, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
 layers = 2
 mesh = SubResource("ArrayMesh_urq86")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_1" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0" unique_id=1942702148]
-transform = Transform3D(0.98175853, -0.06894447, 0.17719057, 0.08969948, 0.98966026, -0.11192268, -0.16764206, 0.12577502, 0.9777913, 0, -9.536743e-07, -0.5954528)
+transform = Transform3D(0.9817585, -0.06894446, 0.17719056, 0.08969947, 0.98966014, -0.111922674, -0.16764204, 0.12577501, 0.97779125, 0, -9.536743e-07, -0.5954528)
 layers = 2
 mesh = SubResource("ArrayMesh_5pyow")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_2" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0/middle_1" unique_id=1221415525]
-transform = Transform3D(0.98815536, 0.069582805, -0.13677295, -0.031522773, 0.9643221, 0.26285014, 0.15018286, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
+transform = Transform3D(0.9881553, 0.069582805, -0.13677295, -0.031522773, 0.9643221, 0.26285014, 0.15018286, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
 layers = 2
 mesh = SubResource("ArrayMesh_db5fc")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2433,7 +2433,7 @@ mesh = SubResource("ArrayMesh_t1x64")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="pinky_2" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/pinky_0/pinky_1" unique_id=312912306]
-transform = Transform3D(0.9276321, 0.31934133, -0.1936986, -0.085198574, 0.6858621, 0.72272694, 0.36364707, -0.6539221, 0.66343546, 4.7683716e-07, 1.9073486e-06, -0.4841566)
+transform = Transform3D(0.92763203, 0.31934133, -0.1936986, -0.08519857, 0.6858621, 0.72272694, 0.36364707, -0.6539221, 0.66343546, 4.7683716e-07, 1.9073486e-06, -0.4841566)
 layers = 2
 mesh = SubResource("ArrayMesh_low7n")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2451,13 +2451,13 @@ mesh = SubResource("ArrayMesh_xj8ni")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="ring_2" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/ring_0/ring_1" unique_id=574748648]
-transform = Transform3D(0.40461066, 0.25474113, -0.8782914, 0.22727163, 0.90227467, 0.3663968, 0.88579655, -0.34785914, 0.3071749, -9.536743e-07, -9.536743e-07, -0.55844307)
+transform = Transform3D(0.40461066, 0.25474113, -0.8782914, 0.22727163, 0.9022746, 0.3663968, 0.88579655, -0.34785914, 0.3071749, -9.536743e-07, -9.536743e-07, -0.55844307)
 layers = 2
 mesh = SubResource("ArrayMesh_0x76r")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="thumb_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=710766095]
-transform = Transform3D(0.52577335, 0.8248427, 0.14681529, -0.8898047, 0.43731144, -0.5019128, -0.4870407, 0.091488406, 1.0754665, 0.7116307, -0.053869247, -0.36543083)
+transform = Transform3D(0.52577335, 0.82484263, 0.1468153, -0.8898047, 0.4373114, -0.50191283, -0.4870407, 0.0914884, 1.0754665, 0.7116307, -0.053869247, -0.36543083)
 layers = 2
 mesh = SubResource("ArrayMesh_ivovp")
 surface_material_override/0 = ExtResource("2_prr7q")

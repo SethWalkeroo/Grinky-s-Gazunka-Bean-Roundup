@@ -89,6 +89,10 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	
 	var preview_ctrl = get_preview_control(item_name, quantity)
 	set_drag_preview(preview_ctrl)
+	
+	# Change the global mouse cursor to the "grabbing" hand
+	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+	
 	return {"source_slot": self, "dragged_item": item_name, "dragged_qty": quantity, "is_split": false}
 
 # --- RIGHT CLICK DRAG (Split Stack) ---
@@ -100,12 +104,15 @@ func _gui_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and right_click_down:
 		if item_name != "empty" and quantity > 1 and item_name != "shotgun":
 			right_click_down = false 
-			var drag_qty = max(1, quantity / 2) 
+			var drag_qty = int(max(1.0, quantity / 2.0))
 			
 			var preview_ctrl = get_preview_control(item_name, drag_qty)
 			
 			active_drag_label = preview_ctrl.get_child(0).get_node("DragQtyLabel")
 			active_drag_data = {"source_slot": self, "dragged_item": item_name, "dragged_qty": drag_qty, "is_split": true}
+			
+			# Change the global mouse cursor to the "grabbing" hand
+			Input.set_default_cursor_shape(Input.CURSOR_DRAG)
 			
 			force_drag(active_drag_data, preview_ctrl)
 
@@ -145,6 +152,9 @@ func _notification(what: int) -> void:
 		active_drag_data.clear()
 		active_drag_label = null
 		right_click_down = false
+		
+		# Reset the global mouse cursor back to the standard arrow
+		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 # --- DROP LOGIC ---
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:

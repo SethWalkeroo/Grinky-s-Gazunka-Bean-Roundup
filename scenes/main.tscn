@@ -79,7 +79,7 @@ data = {
 }
 
 [node name="Enemy" parent="NavigationRegion3D" unique_id=230370259 instance=ExtResource("10_choun")]
-transform = Transform3D(-1.25, 0, 1.8874475e-07, 0, 1.25, 0, -1.8874475e-07, 0, -1.25, 8.335414, 1.2048229, 58.999283)
+transform = Transform3D(-0.02, 0, 3.0199159e-09, 0, 0.02, 0, -3.0199159e-09, 0, -0.02, 8.335414, 0.47774923, 58.999283)
 player_path = NodePath("../../player")
 investigation_time = 12.0
 
