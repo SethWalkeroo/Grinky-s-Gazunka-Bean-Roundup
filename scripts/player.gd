@@ -9,6 +9,12 @@ var is_hidden = false
 #fps rig
 @onready var view_model_camera: Camera3D = $neck/head/eyes/Camera3D/SubViewportContainer/SubViewport/view_model_camera
 
+#shotgun sounds
+@onready var shotgun_audio = view_model_camera.get_node('shotgun_rig/shotgun/shotgun_audio')
+
+#shotgun impact on walls
+@export var impact_scene: PackedScene
+
 # --- INVENTORY & HOTBAR STATE ---
 const SAVE_FILE_PATH = "user://player_inventory.json"
 var inventory = ["shotgun", "empty", "empty", "empty"]
@@ -494,14 +500,85 @@ func fire_shotgun() -> void:
 		
 	if shotgun_ammo > 0:
 		shotgun_ammo -= 1
+		
+		# --- 1. MUZZLE FLASH ---
+		var flash = view_model_camera.get_node_or_null('shotgun_rig/shotgun/muzzle_flash')
+		if flash:
+			flash.visible = true
+			# Turn the light off after 50 milliseconds
+			var flash_timer = get_tree().create_timer(0.05)
+			flash_timer.timeout.connect(func(): flash.visible = false)
+			
+		# Optional: Add a tiny bit of screen shake for recoil!
+		trigger_screen_shake(0.15)
+			
+		# --- 2. SHOTGUN PELLET HITSCAN ---
+		var space_state = get_world_3d().direct_space_state
+		var origin = camera_3d.global_position
+		
+		var pellets = 8          # How many bullets fire out
+		var spread_amount = 0.08 # How wide the cone is
+		var range_distance = 50.0 # How far the bullets go
+		
+		for i in range(pellets):
+			# Create a randomized spread vector
+			var spread_offset = Vector3(
+				randf_range(-spread_amount, spread_amount), 
+				randf_range(-spread_amount, spread_amount), 
+				randf_range(-spread_amount, spread_amount)
+			)
+			
+			# Calculate exactly where this specific pellet is going
+			var direction = (-camera_3d.global_transform.basis.z + spread_offset).normalized()
+			var end_point = origin + (direction * range_distance)
+			
+			var query = PhysicsRayQueryParameters3D.create(origin, end_point)
+			query.exclude = [self.get_rid()] # Don't shoot ourselves!
+			
+			var result = space_state.intersect_ray(query)
+			
+			if result:
+				# A pellet hit something!
+				if impact_scene:
+					var impact = impact_scene.instantiate()
+					get_tree().current_scene.add_child(impact)
+					impact.global_position = result.position
+					
+					# Rotate the impact sparks/decal so they sit flat on the wall
+					var hit_normal = result.normal
+					if hit_normal != Vector3.UP and hit_normal != Vector3.DOWN:
+						impact.look_at(result.position + hit_normal, Vector3.UP)
+					elif hit_normal == Vector3.UP:
+						impact.rotation_degrees.x = 90
+					elif hit_normal == Vector3.DOWN:
+						impact.rotation_degrees.x = -90
+						
+					# --- NEW: CHECK MATERIAL AND PLAY SOUND ---
+					var surface_type = "default"
+					if result.collider.is_in_group("wood"):
+						surface_type = "wood"
+					elif result.collider.is_in_group("metal"):
+						surface_type = "metal"
+						
+					# Tell the impact scene to play the right sound!
+					if impact.has_method("play_impact"):
+						impact.play_impact(surface_type)
+						
+				# --- DAMAGE LOGIC (Ready for your enemies) ---
+				if result.collider.has_method("take_damage"):
+					result.collider.take_damage(10) 
+
+		# --- 3. ANIMATIONS & UI ---
 		if shotgun_animator.has_animation("fire"):
 			shotgun_animator.play("fire")
+			shotgun_audio.get_node('fire').play()
 			await shotgun_animator.animation_finished
 			
 		if shotgun_animator.has_animation("pump"):
 			shotgun_animator.play("pump")
+			shotgun_audio.get_node('pump').play()
 			
-		refresh_all_slots() # Updates the UI numbers!
+		refresh_all_slots() 
 	else:
 		print("Click! Out of ammo.")
 
@@ -529,6 +606,7 @@ func reload_shotgun() -> void:
 	for i in range(shells_to_load):
 		if shotgun_animator.has_animation("inserting_shells"):
 			shotgun_animator.play("inserting_shells", 0.05)
+			shotgun_audio.get_node('load_shell').play()
 			await shotgun_animator.animation_finished
 			
 		# The shell is physically in the gun now, update data
@@ -546,6 +624,7 @@ func reload_shotgun() -> void:
 		
 	if shotgun_animator.has_animation("pump"):
 		shotgun_animator.play("pump", 0.05)
+		shotgun_audio.get_node('pump').play()
 		await shotgun_animator.animation_finished
 		
 	is_reloading = false

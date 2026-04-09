@@ -3,6 +3,9 @@
 [ext_resource type="Material" uid="uid://dkuxktmff5gtd" path="res://materials/shotgun_material.tres" id="1_j4url"]
 [ext_resource type="Script" uid="uid://d2vl65t3fedv2" path="res://scripts/view_model.gd" id="1_prr7q"]
 [ext_resource type="Material" uid="uid://day3y4aoco5if" path="res://materials/hands_material.tres" id="2_prr7q"]
+[ext_resource type="AudioStream" uid="uid://ca51q5mkyao3v" path="res://audio/shotgun_audio/shotgun_fire.wav" id="4_eq4rv"]
+[ext_resource type="AudioStream" uid="uid://dwxshwq8f2wav" path="res://audio/shotgun_audio/shotgun_pump.wav" id="5_nr30m"]
+[ext_resource type="AudioStream" uid="uid://dkdvqkmwpp5o2" path="res://audio/shotgun_audio/shotgun_load_shell.wav" id="6_yqxiw"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7phf0"]
 resource_name = "ShotgunMaterial"
@@ -2587,6 +2590,27 @@ libraries/ = SubResource("AnimationLibrary_nr30m")
 
 [node name="fire" type="AudioStreamPlayer3D" parent="shotgun_rig/shotgun/shotgun_audio" unique_id=899241201]
 transform = Transform3D(1, 0, 7.1054274e-15, 0, 1, 0, 0, 0, 1, 0.09784267, -0.10584104, -1.0869063)
+stream = ExtResource("4_eq4rv")
+volume_db = -12.222
+bus = &"effects"
+
+[node name="pump" type="AudioStreamPlayer3D" parent="shotgun_rig/shotgun/shotgun_audio" unique_id=1096655909]
+transform = Transform3D(1, 0, 7.1054274e-15, 0, 1, 0, 0, 0, 1, 0.074982315, -0.13674666, -0.83739966)
+stream = ExtResource("5_nr30m")
+volume_db = -23.88
+bus = &"effects"
+
+[node name="load_shell" type="AudioStreamPlayer3D" parent="shotgun_rig/shotgun/shotgun_audio" unique_id=274679543]
+stream = ExtResource("6_yqxiw")
+volume_db = -25.074
+bus = &"effects"
+
+[node name="muzzle_flash" type="OmniLight3D" parent="shotgun_rig/shotgun" unique_id=914181684]
+transform = Transform3D(1, 0, 7.1054274e-15, 0, 1, 0, 0, 0, 1, 0.09727935, -0.10464, -1.1122308)
+visible = false
+light_color = Color(1, 0.80241597, 0, 1)
+light_energy = 5.0
+shadow_enabled = true
 
 [node name="just_hands_rig" type="Node3D" parent="." unique_id=266498802]
 visible = false

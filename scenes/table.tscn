@@ -9,10 +9,10 @@ data = PackedVector3Array(-4, -1, -1.5999999, -4, 0.9995, -2, -4, 0.9995, -1.599
 [sub_resource type="BoxShape3D" id="BoxShape3D_02ppr"]
 size = Vector3(7.5557327, 2.6142578, 3.7233887)
 
-[node name="table2" unique_id=372385754 instance=ExtResource("1_02ppr")]
+[node name="table2" unique_id=372385754 groups=["wood"] instance=ExtResource("1_02ppr")]
 script = ExtResource("2_eotx8")
 
-[node name="table" parent="." index="0" unique_id=326298531]
+[node name="table" parent="." index="0" unique_id=395570100]
 transform = Transform3D(1, 0, -8.742278e-08, 0, -0.100000024, 0, 8.742278e-08, 0, 1, 0, 3, 0)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="table" index="0" unique_id=943179012]
