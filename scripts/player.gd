@@ -314,20 +314,26 @@ func setup_heaven() -> void:
 	if GlobalStats.needs_upload:
 		upload_new_best_score()
 		
-	if win_label:
-		var report = "Final Time: " + GlobalStats.final_time_string
-		report += "\nPersonal Best: " + GlobalStats.best_time_string
-		if GlobalStats.final_time_string == GlobalStats.best_time_string:
-			report += "\nNEW PERSONAL RECORD!"
-		win_label.text = report
-		win_label.visible = true
-		win_label.modulate.a = 1.0
-		check_global_record()
-		
-		var tween = get_tree().create_tween()
-		tween.tween_interval(5.0)
-		tween.tween_property(win_label, "modulate:a", 0.0, 2.0)
-		tween.tween_callback(win_label.hide)
+	# Check if we beat the game, or just clicked the button in the main menu
+	if not GlobalStats.came_from_main_menu:
+		if win_label:
+			var report = "Final Time: " + GlobalStats.final_time_string
+			report += "\nPersonal Best: " + GlobalStats.best_time_string
+			if GlobalStats.final_time_string == GlobalStats.best_time_string:
+				report += "\nNEW PERSONAL RECORD!"
+			win_label.text = report
+			win_label.visible = true
+			win_label.modulate.a = 1.0
+			check_global_record()
+			
+			var tween = get_tree().create_tween()
+			tween.tween_interval(5.0)
+			tween.tween_property(win_label, "modulate:a", 0.0, 2.0)
+			tween.tween_callback(win_label.hide)
+	else:
+		# We came from the menu! Hide the label and reset the flag for the next real run.
+		if win_label: 
+			win_label.visible = false
 
 func setup_level() -> void:
 	exit_door = get_node_or_null("../exit_door")

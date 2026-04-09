@@ -8,6 +8,11 @@
 [ext_resource type="AudioStream" uid="uid://dkdvqkmwpp5o2" path="res://audio/shotgun_audio/shotgun_load_shell.wav" id="6_yqxiw"]
 [ext_resource type="AudioStream" uid="uid://07n5j4fsc074" path="res://audio/shotgun_audio/no_ammo_click.wav" id="7_48lih"]
 
+[sub_resource type="Environment" id="Environment_48lih"]
+ambient_light_source = 2
+ambient_light_color = Color(0.14946733, 0.1927912, 0.23828125, 1)
+tonemap_mode = 2
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7phf0"]
 resource_name = "ShotgunMaterial"
 cull_mode = 2
@@ -1036,6 +1041,18 @@ tracks/19/keys = {
 "update": 0,
 "values": [Vector3(-0.007201446, -0.15145381, 1.0225929)]
 }
+tracks/20/type = "value"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("right_hand:position")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.11835503, -0.15646225, -0.43747672)]
+}
 
 [sub_resource type="Animation" id="Animation_8wutx"]
 resource_name = "begin_reload"
@@ -1643,6 +1660,18 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Vector3(-0.2459867, 2.7133176e-09, -2.194935e-08), Vector3(0, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("right_hand:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.11835503, -0.15646225, -0.43747672), Vector3(0.11835503, -0.15646224, -0.42680544)]
 }
 
 [sub_resource type="Animation" id="Animation_48lih"]
@@ -2326,6 +2355,7 @@ shadow_mesh = SubResource("ArrayMesh_qy3wj")
 [node name="view_model_camera" type="Camera3D" unique_id=1251342088]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 cull_mask = 2
+environment = SubResource("Environment_48lih")
 fov = 35.0
 script = ExtResource("1_prr7q")
 
@@ -2475,10 +2505,10 @@ mesh = SubResource("ArrayMesh_02ff0")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="right_hand" type="Node3D" parent="shotgun_rig/shotgun" unique_id=678924866]
-transform = Transform3D(0.0071122725, -0.04897423, -3.704601e-09, 0.04897423, 0.0071122725, 4.2814645e-09, -3.7046024e-09, -4.2814636e-09, 0.049487982, 0.11649085, -0.15646228, -0.44249552)
+transform = Transform3D(0.0071122725, -0.04897423, -3.7045997e-09, 0.04897422, 0.007112271, 4.281463e-09, -3.704602e-09, -4.2814623e-09, 0.04948797, 0.11835503, -0.15646225, -0.43747672)
 
 [node name="hand" type="MeshInstance3D" parent="shotgun_rig/shotgun/right_hand" unique_id=1763634211]
-transform = Transform3D(1, 9.465308e-36, -1.4210855e-14, -1.2384698e-21, 0.9999999, -1.8207676e-15, 2.1316282e-14, 8.881784e-16, 0.9999999, 0, 0, 0.9167175)
+transform = Transform3D(0.9999997, -2.9802322e-08, -3.5527137e-14, 4.4703484e-08, 0.9999996, -1.2923029e-15, 4.2632564e-14, 1.670271e-15, 0.9999996, 0, 0, 0.9167175)
 layers = 2
 material_override = ExtResource("2_prr7q")
 mesh = SubResource("ArrayMesh_s20c1")
@@ -2573,7 +2603,7 @@ mesh = SubResource("ArrayMesh_ivovp")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="thumb_1" type="MeshInstance3D" parent="shotgun_rig/shotgun/right_hand/hand/thumb_0" unique_id=673523848]
-transform = Transform3D(0.88420045, -0.4616114, 0.07144566, 0.45492178, 0.8857099, 0.09254337, -0.10599921, -0.04932471, 0.9931423, 0.4188478, 1.1920929e-07, -0.5414753)
+transform = Transform3D(0.88420045, -0.46161145, 0.07144566, 0.45492178, 0.8857099, 0.09254336, -0.10599922, -0.04932471, 0.9931424, 0.4188478, 1.1920929e-07, -0.3842225)
 layers = 2
 mesh = SubResource("ArrayMesh_jpdya")
 surface_material_override/0 = ExtResource("2_prr7q")

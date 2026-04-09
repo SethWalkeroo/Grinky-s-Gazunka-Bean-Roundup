@@ -21,12 +21,6 @@ band_db/100_hz = -60.0
 band_db/320_hz = -60.0
 band_db/1000_hz = -42.0
 
-[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_g28q7"]
-resource_name = "Reverb"
-room_size = 0.37
-hipass = 0.46
-wet = 0.38
-
 [resource]
 bus/1/name = &"game_voicelines"
 bus/1/solo = false
@@ -84,11 +78,9 @@ bus/8/mute = false
 bus/8/bypass_fx = false
 bus/8/volume_db = -33.002224
 bus/8/send = &"Master"
-bus/9/name = &"indoor sfx"
+bus/9/name = &"outdoor sfx"
 bus/9/solo = false
 bus/9/mute = false
 bus/9/bypass_fx = false
 bus/9/volume_db = 0.0
 bus/9/send = &"Master"
-bus/9/effect/0/effect = SubResource("AudioEffectReverb_g28q7")
-bus/9/effect/0/enabled = true

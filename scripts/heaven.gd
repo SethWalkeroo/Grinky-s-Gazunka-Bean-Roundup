@@ -15,19 +15,25 @@ extends Node3D
 var is_daytime: bool = false 
 
 func _ready() -> void:
-	sky_3d.current_time = 0
+	if GlobalStats.came_from_main_menu:
+		sky_3d.current_time = 8
+	else:
+		sky_3d.current_time = 0
 	player.minimap.visible = false
 	welcome_to_heaven.play()
 	
 	# Determine initial state so the fireflies/crickets start correctly
 	is_daytime = (sky_3d.current_time >= 7 and sky_3d.current_time < 19)
 	if not is_daytime:
+		show_fireflies()
 		setup_sound_group(crickets)
 	else:
+		extinguish_campfire()
+		stop_sound_group(crickets)
 		setup_sound_group(birds)
-		# Hide fireflies immediately if starting during the day
-		for firefly in fireflies.get_children():
-			firefly.visible = false
+		hide_fireflies()
+			
+	GlobalStats.came_from_main_menu = false
 
 func _physics_process(delta: float) -> void:
 	var current_time = sky_3d.current_time
@@ -36,24 +42,32 @@ func _physics_process(delta: float) -> void:
 	# Transition to DAY
 	if should_be_day and not is_daytime:
 		is_daytime = true
-		for firefly in fireflies.get_children():
-			firefly.visible = false
-		for cricket in crickets.get_children():
-			cricket.stop()
+		hide_fireflies()
+		stop_sound_group(crickets)
 		setup_sound_group(birds)
 		extinguish_campfire()
 			
 	# Transition to NIGHT
 	elif not should_be_day and is_daytime:
 		is_daytime = false
-		for firefly in fireflies.get_children():
-			firefly.visible = true
-		for bird in birds.get_children():
-			bird.stop()
-		# Calling setup_crickets() here so they retain their randomized start times!
+		show_fireflies()
+		stop_sound_group(birds)
 		setup_sound_group(crickets)
 		start_campfire()
 
+
+func show_fireflies():
+	for firefly in fireflies.get_children():
+		firefly.visible = true
+
+func hide_fireflies():
+	for firefly in fireflies.get_children():
+		firefly.visible = false
+
+func stop_sound_group(things) -> void:
+	for thing in things.get_children():
+		thing.stop()
+		
 
 func setup_sound_group(things) -> void:
 	for thing in things.get_children():
@@ -61,8 +75,6 @@ func setup_sound_group(things) -> void:
 			var stream_length = thing.stream.get_length()
 			thing.play(randf_range(0.0, stream_length))
 			thing.pitch_scale = randf_range(0.9, 1.1)
-
-
 
 func extinguish_campfire():
 	campfire.get_node('flames').visible = false

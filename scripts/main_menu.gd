@@ -1,6 +1,7 @@
 extends CanvasLayer
 
-#inventory headache
+#heaven button
+@onready var heaven_button: Button = $heaven_button
 
 # --- SHOP & STASH NODES ---
 @onready var shop_panel: ColorRect = $shop_panel
@@ -182,6 +183,10 @@ var sarah_bus = AudioServer.get_bus_index("sarah")
 
 func _ready() -> void:
 	
+	if heaven_button:
+		heaven_button.mouse_entered.connect(_play_hover_sound)
+		heaven_button.pressed.connect(_on_heaven_button_pressed)
+	
 	if stash_button:
 		stash_button.mouse_entered.connect(_play_hover_sound)
 		stash_button.pressed.connect(_on_stash_button_pressed)
@@ -339,6 +344,7 @@ func setup_main_menu():
 	menu_container.visible = true
 	motd_button.visible = true 
 	bean_jar.visible = true
+	heaven_button.visible = true
 	if controls_btn: controls_btn.visible = true
 	if bean_shop_button: bean_shop_button.visible = true
 	if stash_button: stash_button.visible = true
@@ -349,6 +355,7 @@ func setup_profile_creation():
 	menu_container.visible = false
 	bean_jar.visible = false
 	motd_button.visible = false 
+	heaven_button.visible = false
 	if controls_btn: controls_btn.visible = false
 	if bean_shop_button: bean_shop_button.visible = false
 	if stash_button: stash_button.visible = false
@@ -494,6 +501,7 @@ func _on_settings_button_pressed() -> void:
 	motd_button.visible = false
 	bean_jar.visible = false
 	menu_container.visible = false
+	heaven_button.visible = false
 	if controls_btn: controls_btn.visible = false
 	if bean_shop_button: bean_shop_button.visible = false
 	if stash_button: stash_button.visible = false
@@ -505,6 +513,7 @@ func _on_video_settings_pressed() -> void:
 	motd_button.visible = false
 	bean_jar.visible = false
 	menu_container.visible = false
+	heaven_button.visible = false
 	if controls_btn: controls_btn.visible = false
 	if bean_shop_button: bean_shop_button.visible = false
 	if stash_button: stash_button.visible = false
@@ -519,6 +528,7 @@ func _on_save_settings_pressed() -> void:
 	menu_container.visible = true
 	bean_jar.visible = true
 	motd_button.visible = true
+	heaven_button.visible = true
 	if controls_btn: controls_btn.visible = true
 	if bean_shop_button: bean_shop_button.visible = true
 	if stash_button: stash_button.visible = true
@@ -612,6 +622,7 @@ func _on_controls_button_pressed() -> void:
 	GlobalStats.play_click()
 	menu_container.visible = false
 	bean_jar.visible = false
+	heaven_button.visible = false
 	if controls_btn: controls_btn.visible = false
 	if bean_shop_button: bean_shop_button.visible = false
 	if stash_button: stash_button.visible = false
@@ -667,6 +678,7 @@ func _on_bean_shop_button_pressed() -> void:
 	menu_container.visible = false
 	motd_button.visible = false
 	bean_jar.visible = false
+	heaven_button.visible = false
 	if controls_btn: controls_btn.visible = false
 	if stash_button: stash_button.visible = false
 	if bean_shop_button: bean_shop_button.visible = false
@@ -679,6 +691,7 @@ func _on_stash_button_pressed() -> void:
 	menu_container.visible = false
 	motd_button.visible = false
 	bean_jar.visible = false
+	heaven_button.visible = false
 	if controls_btn: controls_btn.visible = false
 	if stash_button: stash_button.visible = false
 	if bean_shop_button: bean_shop_button.visible = false
@@ -694,6 +707,7 @@ func _on_close_shop_pressed() -> void:
 	menu_container.visible = true
 	motd_button.visible = true
 	bean_jar.visible = true
+	heaven_button.visible = true
 	if controls_btn: controls_btn.visible = true
 	if stash_button: stash_button.visible = true
 	if bean_shop_button: bean_shop_button.visible = true
@@ -705,6 +719,7 @@ func _on_close_stash_pressed() -> void:
 	menu_container.visible = true
 	motd_button.visible = true
 	bean_jar.visible = true
+	heaven_button.visible = true
 	if controls_btn: controls_btn.visible = true
 	if stash_button: stash_button.visible = true
 	if bean_shop_button: bean_shop_button.visible = true
@@ -896,3 +911,8 @@ func update_bean_jar_display() -> void:
 	if bean_jar:
 		# You can add BBCode like [color=yellow] or [center] around this if needed!
 		bean_jar.text = "Beans: " + str(GlobalStats.total_beans_collected)
+
+func _on_heaven_button_pressed() -> void:
+	GlobalStats.play_click()
+	GlobalStats.came_from_main_menu = true # Tell the next scene how we got here!
+	get_tree().change_scene_to_file("res://scenes/heaven.tscn")

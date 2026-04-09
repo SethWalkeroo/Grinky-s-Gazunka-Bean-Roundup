@@ -7,6 +7,7 @@ var final_time_string: String = ""
 var player_name: String = ""
 var final_time: float = 0.0
 var needs_upload: bool = false
+var came_from_main_menu: bool = false
 
 # --- META PROGRESSION (NEW) ---
 var total_beans_collected: int = 0

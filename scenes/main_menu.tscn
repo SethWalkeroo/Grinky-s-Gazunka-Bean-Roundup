@@ -668,7 +668,6 @@ offset_bottom = 171.0
 text = "Your Stash"
 
 [node name="shop_panel" type="ColorRect" parent="." unique_id=777782643]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -684,8 +683,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -45.0
-offset_top = -31.0
+offset_top = -42.0
 offset_right = 45.0
+offset_bottom = -11.0
 grow_horizontal = 2
 grow_vertical = 0
 text = "close shop"
@@ -703,7 +703,15 @@ offset_right = 79.5
 offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
-text = "Buy shotgun ammo"
+text = "Buy shotgun ammo "
+
+[node name="ammo_price" type="Label" parent="shop_panel/buy_shotgun_ammo_btn" unique_id=1341345470]
+layout_mode = 0
+offset_left = 171.5
+offset_top = 7.5
+offset_right = 231.5
+offset_bottom = 30.5
+text = "5 beans"
 
 [node name="buy_shotgun_btn" type="Button" parent="shop_panel" unique_id=651563042]
 layout_mode = 1
@@ -719,6 +727,14 @@ offset_bottom = -24.5
 grow_horizontal = 2
 grow_vertical = 2
 text = "Buy shotgun"
+
+[node name="shotgun_price" type="Label" parent="shop_panel/buy_shotgun_btn" unique_id=1112357172]
+layout_mode = 0
+offset_left = 113.5
+offset_top = 7.5
+offset_right = 182.5
+offset_bottom = 30.5
+text = "50 beans"
 
 [node name="bean_shop_display" type="Label" parent="shop_panel" unique_id=1280800338]
 layout_mode = 1
@@ -1119,12 +1135,13 @@ stream = ExtResource("17_a8gd2")
 volume_db = -26.0
 bus = &"menu_music"
 
-[node name="Button2" type="Button" parent="." unique_id=923302252]
+[node name="heaven_button" type="Button" parent="." unique_id=923302252]
 modulate = Color(1, 0.84212565, 0, 1)
 offset_left = 56.0
 offset_top = 179.0
 offset_right = 123.0
 offset_bottom = 210.0
+mouse_default_cursor_shape = 2
 text = "Heaven"
 
 [connection signal="pressed" from="ProfilePanel/CreateButton" to="." method="_on_create_button_pressed"]
