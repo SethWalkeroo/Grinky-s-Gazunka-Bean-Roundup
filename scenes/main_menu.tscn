@@ -7,7 +7,7 @@
 [ext_resource type="AudioStream" uid="uid://bb5puy8mjg5bf" path="res://audio/byeah.wav" id="6_rtw2f"]
 [ext_resource type="AudioStream" uid="uid://cks72bjuhemok" path="res://audio/SNAP.wav" id="6_tbmy8"]
 [ext_resource type="AudioStream" uid="uid://bq3wlb10ukrjd" path="res://audio/ambeint_sound_smol.ogg" id="7_a8gd2"]
-[ext_resource type="AudioStream" uid="uid://bglmhclp35clt" path="res://audio/MAIN_MUSIC.wav" id="8_5pajh"]
+[ext_resource type="AudioStream" uid="uid://cs1eujsi4w38y" path="res://audio/menumusicfin.wav" id="8_a8gd2"]
 [ext_resource type="AudioStream" uid="uid://dm21taa0wukn8" path="res://audio/excellent_choice.wav" id="8_jk1qb"]
 [ext_resource type="AudioStream" uid="uid://bqrg4ljgojii7" path="res://audio/name_taken.wav" id="10_5dd4i"]
 [ext_resource type="AudioStream" uid="uid://bkl2s4v2btsqe" path="res://audio/oh_my.wav" id="11_lgwnu"]
@@ -575,7 +575,7 @@ stream = ExtResource("8_jk1qb")
 volume_db = -37.471
 
 [node name="main_music" type="AudioStreamPlayer" parent="menu_noises" unique_id=350473728]
-stream = ExtResource("8_5pajh")
+stream = ExtResource("8_a8gd2")
 volume_db = -27.589
 autoplay = true
 bus = &"menu_music"

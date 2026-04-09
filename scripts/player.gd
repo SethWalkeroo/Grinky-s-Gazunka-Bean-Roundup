@@ -580,6 +580,7 @@ func fire_shotgun() -> void:
 			
 		refresh_all_slots() 
 	else:
+		shotgun_audio.get_node('click').play()
 		print("Click! Out of ammo.")
 
 func reload_shotgun() -> void:
