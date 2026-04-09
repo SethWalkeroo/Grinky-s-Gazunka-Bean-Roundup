@@ -92,6 +92,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	
 	# Change the global mouse cursor to the "grabbing" hand
 	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+	GlobalStats.play_click()
 	
 	return {"source_slot": self, "dragged_item": item_name, "dragged_qty": quantity, "is_split": false}
 
@@ -115,6 +116,7 @@ func _gui_input(event: InputEvent) -> void:
 			Input.set_default_cursor_shape(Input.CURSOR_DRAG)
 			
 			force_drag(active_drag_data, preview_ctrl)
+			GlobalStats.play_click()
 
 # --- SCROLL WHEEL SPLIT ADJUSTMENT & AUTO-DROP ---
 func _input(event: InputEvent) -> void:
@@ -130,11 +132,13 @@ func _input(event: InputEvent) -> void:
 				if active_drag_data["dragged_qty"] < quantity - 1:
 					active_drag_data["dragged_qty"] += 1
 					active_drag_label.text = str(active_drag_data["dragged_qty"])
+					GlobalStats.play_click()
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				# Prevent dropping below 1
 				if active_drag_data["dragged_qty"] > 1:
 					active_drag_data["dragged_qty"] -= 1
 					active_drag_label.text = str(active_drag_data["dragged_qty"])
+					GlobalStats.play_click()
 					
 		# 2. THE DROP HACK (Release Right-Click)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and not event.pressed:
@@ -189,6 +193,9 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 			source_slot.set_item(source_slot.item_name, source_slot.quantity - incoming_qty)
 		else:
 			source_slot.set_item(my_old_item, my_old_qty)
+			
+	# --- PLAY SOUND ON SUCCESSFUL DROP ---
+	GlobalStats.play_click()
 	
 	if player and player.has_method("sync_inventory_arrays"):
 		player.sync_inventory_arrays()

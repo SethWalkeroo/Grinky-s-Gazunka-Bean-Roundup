@@ -705,6 +705,7 @@ func sync_inventory_arrays() -> void:
 			if current_held_item == "empty":
 				if shotgun_model.visible and shotgun_animator.has_animation("put_away"):
 					shotgun_animator.play("put_away")
+					shotgun_audio.get_node('put_away').play()
 					await shotgun_animator.animation_finished
 				shotgun_model.visible = false
 				active_slot_index = -1
@@ -1336,6 +1337,7 @@ func equip_slot(slot_index: int) -> void:
 		if current_item == "shotgun":
 			if shotgun_animator.has_animation("put_away"):
 				shotgun_animator.play("put_away")
+				shotgun_audio.get_node('put_away').play()
 				await shotgun_animator.animation_finished
 			shotgun_model.visible = false
 			
@@ -1348,6 +1350,7 @@ func equip_slot(slot_index: int) -> void:
 			shotgun_model.visible = true
 			if shotgun_animator.has_animation("pull_out"):
 				shotgun_animator.play("pull_out")
+				shotgun_audio.get_node('pull_out').play()
 				
 	is_switching_weapons = false
 
