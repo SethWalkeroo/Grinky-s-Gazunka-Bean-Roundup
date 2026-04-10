@@ -25,6 +25,7 @@ var inventory_open: bool = false
 # --- WEAPON STATE ---
 var shotgun_ammo: int = 4
 var is_reloading: bool = false
+var is_chambered: bool = true
 
 @onready var hotbar: Control = $neck/head/eyes/CanvasLayer/Hotbar
 @onready var slot_0: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot0
@@ -437,6 +438,7 @@ func _input(event: InputEvent) -> void:
 	# --- INVENTORY TOGGLE (TAB KEY) ---
 	if event is InputEventKey and event.is_pressed() and not event.is_echo() and not paused and not dead:
 		if event.keycode == KEY_TAB:
+			GlobalStats.play_click()
 			toggle_inventory()
 		
 	if dead or paused or inventory_open: return
@@ -518,7 +520,7 @@ func fire_shotgun() -> void:
 		
 	if shotgun_ammo > 0:
 		shotgun_ammo -= 1
-		
+		hotbar_slots[active_slot_index].quantity = shotgun_ammo
 		# --- 1. MUZZLE FLASH ---
 		var flash = view_model_camera.get_node_or_null('shotgun_rig/shotgun/muzzle_flash')
 		if flash:
@@ -577,14 +579,27 @@ func fire_shotgun() -> void:
 						surface_type = "wood"
 					elif result.collider.is_in_group("metal"):
 						surface_type = "metal"
-						
+					elif result.collider.is_in_group("flesh") or result.collider is Enemy:
+						surface_type = "flesh"
+					else:
+						var hit_node = result.collider
+						if hit_node.is_in_group("flesh"):
+							surface_type = "flesh"
+					
+					print("Hit: ", result.collider.name, " Groups: ", result.collider.get_groups())
 					# Tell the impact scene to play the right sound!
 					if impact.has_method("play_impact"):
 						impact.play_impact(surface_type)
 						
 				# --- DAMAGE LOGIC (Ready for your enemies) ---
 				if result.collider.has_method("take_damage"):
-					result.collider.take_damage(10) 
+					result.collider.take_damage(10)
+					# --- PUSH PHYSICS OBJECTS & RAGDOLLS ---
+				if result.collider is RigidBody3D or result.collider is PhysicalBone3D:
+					# Calculate exactly the direction the camera is facing
+					var push_dir = -camera_3d.global_transform.basis.z.normalized()
+					# apply_impulse takes (force, hit_location_offset) so it spins based on where you shot it!
+					result.collider.apply_impulse(push_dir * 15.0, result.position - result.collider.global_position) 
 
 		# --- 3. ANIMATIONS & UI ---
 		if shotgun_animator.has_animation("fire"):
@@ -595,6 +610,11 @@ func fire_shotgun() -> void:
 		if shotgun_animator.has_animation("pump"):
 			shotgun_animator.play("pump")
 			shotgun_audio.get_node('pump').play()
+			
+		if shotgun_ammo > 0:
+			is_chambered = true
+		else:
+			is_chambered = false
 			
 		refresh_all_slots() 
 	else:
@@ -630,6 +650,7 @@ func reload_shotgun() -> void:
 			
 		# The shell is physically in the gun now, update data
 		shotgun_ammo += 1
+		hotbar_slots[active_slot_index].quantity = shotgun_ammo
 		consume_item("shotgun_ammo", 1) 
 		refresh_all_slots()
 		
@@ -641,10 +662,12 @@ func reload_shotgun() -> void:
 		shotgun_animator.play("end_reload", 0.05)
 		await shotgun_animator.animation_finished
 		
-	if shotgun_animator.has_animation("pump"):
-		shotgun_animator.play("pump", 0.05)
-		shotgun_audio.get_node('pump').play()
-		await shotgun_animator.animation_finished
+	if not is_chambered:
+		if shotgun_animator.has_animation("pump"):
+			shotgun_animator.play("pump", 0.05)
+			shotgun_audio.get_node('pump').play()
+			await shotgun_animator.animation_finished
+		is_chambered = true
 		
 	is_reloading = false
 
@@ -697,6 +720,10 @@ func sync_inventory_arrays() -> void:
 		
 	if active_slot_index != -1:
 		var current_held_item = inventory[active_slot_index]
+		
+		if current_held_item == 'shotgun' and old_held_item == 'shotgun':
+			shotgun_ammo = hotbar_slots[active_slot_index].quantity
+			is_chambered = (shotgun_ammo > 0)
 		
 		# CRITICAL FIX: Only run equip/unequip animations if the item in our HANDS actually changed!
 		if current_held_item != old_held_item:
@@ -1149,6 +1176,7 @@ func trigger_screen_shake(intensity: float = 0.1):
 	tween.parallel().tween_property(camera_3d, "v_offset", 0.0, 0.1)
 
 func show_death_ui():
+	wipe_inventory_on_death()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	if hotbar: hotbar.visible = false # Hide hotbar on death screen
 	menu_vbox.modulate.a = 0.0
@@ -1214,7 +1242,11 @@ func _handle_leaderboard_close(node_to_free):
 
 func _on_main_menu_pressed() -> void:
 	GlobalStats.play_click()
-	save_inventory()
+	if not dead:
+		save_inventory()
+	else:
+		wipe_inventory_on_death() # Force a wipe instead of saving if dead!
+		
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -1347,6 +1379,10 @@ func equip_slot(slot_index: int) -> void:
 	if active_slot_index != -1:
 		var new_item = inventory[active_slot_index]
 		if new_item == "shotgun":
+			# --- NEW: Load ammo from this specific shotgun's slot! ---
+			shotgun_ammo = hotbar_slots[active_slot_index].quantity
+			is_chambered = (shotgun_ammo > 0)
+			
 			shotgun_model.visible = true
 			if shotgun_animator.has_animation("pull_out"):
 				shotgun_animator.play("pull_out")
@@ -1360,7 +1396,6 @@ func update_hotbar_ui() -> void:
 		if i == active_slot_index: slot_rect.color = Color(0.8, 0.8, 0.2, 0.8)
 		else: slot_rect.color = Color(0, 0, 0, 0.5)
 
-# --- PERSISTENCE (SAVE / LOAD) ---
 func save_inventory() -> void:
 	var hotbar_data = []
 	for slot in hotbar_slots:
@@ -1373,11 +1408,18 @@ func save_inventory() -> void:
 			if slot.has_method("set_item"):
 				grid_data.append({"item": slot.item_name, "qty": slot.quantity})
 
-	var save_data = {
-		"hotbar": hotbar_data,
-		"grid": grid_data,
-		"shotgun_ammo": shotgun_ammo
-	}
+	# --- CRITICAL FIX: READ THE FILE FIRST TO PRESERVE THE STASH ---
+	var save_data = {}
+	if FileAccess.file_exists(SAVE_FILE_PATH):
+		var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			save_data = json.get_data()
+
+	save_data["hotbar"] = hotbar_data
+	save_data["grid"] = grid_data
+	save_data["shotgun_ammo"] = shotgun_ammo
+	# Notice we leave save_data["stash_grid"] completely alone!
 
 	var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
 	if file:
@@ -1385,7 +1427,6 @@ func save_inventory() -> void:
 		print("Inventory saved successfully to ", SAVE_FILE_PATH)
 	else:
 		print("ERROR: Could not open save file to write!")
-
 func load_inventory() -> void:
 	if not FileAccess.file_exists(SAVE_FILE_PATH):
 		print("No save file found. Using default inventory.")
@@ -1406,6 +1447,7 @@ func load_inventory() -> void:
 
 			if saved_data.has("shotgun_ammo"):
 				shotgun_ammo = clampi(int(saved_data["shotgun_ammo"]), 0, 4)
+				is_chambered = (shotgun_ammo > 0)
 
 			if saved_data.has("hotbar"):
 				for i in range(min(saved_data["hotbar"].size(), hotbar_slots.size())):
@@ -1428,4 +1470,27 @@ func load_inventory() -> void:
 # Triggers when the user force-quits the game (e.g. clicking the X on the window)
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		save_inventory()
+		if not dead:
+			save_inventory()
+		else:
+			wipe_inventory_on_death()
+
+func wipe_inventory_on_death() -> void:
+	var save_data = {}
+	if FileAccess.file_exists(SAVE_FILE_PATH):
+		var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			save_data = json.get_data()
+			
+	# Wipe the player's pockets
+	save_data["grid"] = []
+	save_data["hotbar"] = [{"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}]
+	save_data["shotgun_ammo"] = 0
+	
+	# Notice how we DO NOT touch save_data["stash_grid"]!
+	
+	var save_file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
+	if save_file:
+		save_file.store_string(JSON.stringify(save_data))
+		print("Player died. Inventory wiped, stash preserved.")

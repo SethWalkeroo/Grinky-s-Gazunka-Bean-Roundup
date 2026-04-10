@@ -47,6 +47,7 @@ player=""
 wood=""
 metal=""
 dirt=""
+flesh=""
 
 [input]
 

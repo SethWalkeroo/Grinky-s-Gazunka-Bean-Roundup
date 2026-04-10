@@ -5,24 +5,36 @@ extends Node3D
 # Make sure this matches the exact name of your particle node!
 @onready var particles: GPUParticles3D = get_node_or_null("GPUParticles3D") 
 
+var appropriate_decal
+
 # Load your sounds using UIDs
 const DEFAULT_IMPACT_SOUND = preload("uid://bj5eufoducvmq")
 const METAL_IMPACT_SOUND = preload("uid://cpf27n6tf637h")
 const WOOD_IMPACT_SOUND = preload("uid://u31q41hrhwul")
+const FLESH_IMPACT_SOUND = preload("uid://de0sftvqqjsi4")
 
 func play_impact(surface_type: String) -> void:
-	# Choose the right sound based on the word we pass to it
+	# Choose the right sound
 	match surface_type:
 		"wood":
 			audio_player.stream = WOOD_IMPACT_SOUND
 		"metal":
 			audio_player.stream = METAL_IMPACT_SOUND
+		"flesh":
+			audio_player.stream = FLESH_IMPACT_SOUND
 		_:
 			audio_player.stream = DEFAULT_IMPACT_SOUND
 			
-	# Randomize the pitch so 8 shotgun pellets hitting at once sound like a chaotic blast!
-	audio_player.pitch_scale = randf_range(0.8, 1.2)
-	audio_player.play()
+	# --- MEATY SOUND FIX ---
+	# Add a microscopic delay (0 to 30ms) so 8 pellets sound like a 
+	# heavy impact rather than a single weird beep/pop.
+	var micro_delay = randf_range(0.01, 0.03)
+	await get_tree().create_timer(micro_delay).timeout
+	
+	if is_instance_valid(audio_player):
+		# Wider pitch range makes the impact sound "thicker"
+		audio_player.pitch_scale = randf_range(0.7, 1.3)
+		audio_player.play()
 
 func _ready() -> void:
 	# 1. Wait a short time for the particles to do their burst (e.g., 1 second)

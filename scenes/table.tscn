@@ -12,10 +12,10 @@ size = Vector3(7.5557327, 2.6142578, 3.7233887)
 [node name="table2" unique_id=372385754 groups=["wood"] instance=ExtResource("1_02ppr")]
 script = ExtResource("2_eotx8")
 
-[node name="table" parent="." index="0" unique_id=395570100]
+[node name="table" parent="." index="0" unique_id=321394748]
 transform = Transform3D(1, 0, -8.742278e-08, 0, -0.100000024, 0, 8.742278e-08, 0, 1, 0, 3, 0)
 
-[node name="StaticBody3D" type="StaticBody3D" parent="table" index="0" unique_id=943179012]
+[node name="StaticBody3D" type="StaticBody3D" parent="table" index="0" unique_id=943179012 groups=["wood"]]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="table/StaticBody3D" index="0" unique_id=1979703131]
 shape = SubResource("ConcavePolygonShape3D_02ppr")

@@ -2,6 +2,12 @@ extends CharacterBody3D
 
 class_name Enemy
 
+signal enemy_dead
+
+@onready var physical_bone_simulator_3d: PhysicalBoneSimulator3D = $rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D
+@onready var collision_shape_3d: CollisionShape3D = $CollisionShape3D
+@onready var death_sounds: Node3D = $death_sounds
+@onready var enemy_death_noise: AudioStreamPlayer3D = $death_sounds/enemy_death_noise
 
 @export var player_path: NodePath
 @export var attack_range = 2.2
@@ -30,7 +36,7 @@ var has_acknowledged_hiding: bool = false
 @onready var random_voicelines: Node3D = $random_voicelines
 @onready var allsevenbeans_voiceline: AudioStreamPlayer3D = $allsevenbeans_voiceline
 @onready var nav_agent = $NavigationAgent3D
-@onready var anim_player: AnimationPlayer = $AnimationPlayer
+@onready var anim_player: AnimationPlayer = $rembotgames_feb_npc/AnimationPlayer
 @onready var enemy_footsteps = $enemy_footsteps
 @onready var kick_voiceline = $kick
 @onready var debug_marker: MeshInstance3D = $DebugMarker
@@ -75,6 +81,9 @@ var previous_eye_position = 0.0
 
 var sight_burst_timer: float = 0.0
 
+# --- NEW RAGDOLL STATE ---
+var is_ragdolled: bool = false
+
 const ANIM_IDLE = "idle" 
 const ANIM_RUN = "run"
 const ANIM_ATTACK = "attack"
@@ -83,7 +92,30 @@ func _ready():
 	icon_component.get_node('icon_sprite').pixel_size = 0.0003
 	add_to_group("enemy") 
 	speed = base_speed 
-	player = get_node(player_path)
+	
+	# --- NEW AUTO-FIND PLAYER LOGIC ---
+	if player_path:
+		player = get_node_or_null(player_path)
+		
+	if player == null:
+		player = get_tree().get_first_node_in_group("player")
+		if player == null:
+			print("WARNING: Enemy cannot find the player! It will not chase.")
+			
+	# --- FIX: RECONNECT BROKEN SIGNALS & SYNC BEANS ---
+	if player != null:
+		# Instantly sync beans in case the enemy spawned AFTER the player got one
+		beans_collected = player.bean_count
+		
+		# Reconnect the signals through code so they never break again
+		if not player.bean_collected.is_connected(_on_player_bean_collected):
+			player.bean_collected.connect(_on_player_bean_collected)
+		if not player.player_paused.is_connected(_on_player_player_paused):
+			player.player_paused.connect(_on_player_player_paused)
+		if not player.player_unpaused.is_connected(_on_player_player_unpaused):
+			player.player_unpaused.connect(_on_player_player_unpaused)
+	# --------------------------------------------------
+			
 	current_target_pos = global_position 
 	
 	if player:
@@ -111,6 +143,10 @@ func _on_nav_map_changed(_map_rid):
 	nav_map_ready = true
 
 func _physics_process(delta):
+	# If the enemy is a ragdoll, completely stop all AI logic and movement calculations!
+	if is_ragdolled:
+		return
+
 	if not nav_map_ready: return
 		
 	if beans_collected == 0 or player_is_dead:
@@ -161,6 +197,46 @@ func _physics_process(delta):
 
 	apply_movement(current_move_speed, has_arrived, delta)
 
+# --- NEW DAMAGE FUNCTION ---
+# --- NEW DAMAGE FUNCTION ---
+func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
+	# Calculate the push direction based on player position
+	var push_direction = Vector3.UP
+	if player != null:
+		push_direction = (global_position - player.global_position).normalized()
+	else:
+		push_direction = global_transform.basis.z.normalized() 
+		
+	push_direction += Vector3(0, 0.5, 0) # Add upward lift
+	
+	# If already dead, just apply the force and skip the rest!
+	if is_ragdolled:
+		var target_bone = physical_bone_simulator_3d.get_node_or_null("PhysicalBone3D_Spine") 
+		if target_bone and target_bone is PhysicalBone3D:
+			target_bone.apply_central_impulse(push_direction * 150.0)
+		return
+	
+	is_ragdolled = true
+	collision_shape_3d.disabled = true
+	
+	# --- IMMERSION FIX: SHUT UP IMMEDIATELY ---
+	stop_random_voicelines()
+	if active_voiceline and active_voiceline.playing:
+		active_voiceline.stop()
+	# ------------------------------------------
+	
+	if enemy_footsteps.playing: enemy_footsteps.stop()
+	if anim_player: anim_player.stop()
+	
+	physical_bone_simulator_3d.physical_bones_start_simulation()
+	play_random_death_sound()
+	emit_signal('enemy_dead')
+	
+	# Apply initial death force
+	var target_bone = physical_bone_simulator_3d.get_node_or_null("PhysicalBone3D_Spine") 
+	if target_bone and target_bone is PhysicalBone3D:
+		target_bone.apply_central_impulse(push_direction * 150.0)
+	
 func reset_investigation_variables():
 	has_last_known_pos = false 
 	is_chasing = false
@@ -186,7 +262,9 @@ func investigate_sound(sound_pos: Vector3, loudness: float) -> void:
 
 func handle_overshoot(sees_player: bool) -> void:
 	if was_seeing_player and not sees_player and is_chasing and beans_collected < 7:
-		if player and "is_hidden" in player and player.is_hidden:
+		if player == null: return # <-- SAFETY CHECK ADDED
+		
+		if "is_hidden" in player and player.is_hidden:
 			return 
 
 		var movement_vector = player.global_position - player_last_frame_pos
@@ -218,7 +296,7 @@ func handle_overshoot(sees_player: bool) -> void:
 			last_known_pos = player.global_position
 			
 		has_last_known_pos = true
-		investigation_timer = investigation_time 
+		investigation_timer = investigation_time
 
 func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void:
 	var player_is_hidden = player and "is_hidden" in player and player.is_hidden
@@ -227,14 +305,15 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 		has_acknowledged_hiding = false
 
 	if beans_collected >= 7:
-		current_target_pos = player.global_position
-		nav_agent.set_target_position(current_target_pos)
+		if player != null: # <-- SAFETY CHECK ADDED
+			current_target_pos = player.global_position
+			nav_agent.set_target_position(current_target_pos)
 		is_chasing = false 
 		stop_random_voicelines()
 		if not allsevenbeans_voiceline.playing:
 			allsevenbeans_voiceline.play()
 		
-	elif sees_player:
+	elif sees_player and player != null: # <-- SAFETY CHECK ADDED
 		if not is_chasing:
 			sight_burst_timer = 2.0 
 			
@@ -545,3 +624,17 @@ func can_see_player() -> bool:
 	
 	var result = space_state.intersect_ray(query)
 	return result and result.collider == player
+
+func play_random_death_sound():
+	if death_sounds:
+		var valid_sounds = []
+		for child in death_sounds.get_children():
+			if child is AudioStreamPlayer3D or child is AudioStreamPlayer:
+				valid_sounds.append(child)
+		
+		if valid_sounds.size() > 0:
+			var sound_to_play = valid_sounds.pick_random()
+			sound_to_play.play()
+			print("Playing death sound: ", sound_to_play.name) # Debug print to console
+		else:
+			print("WARNING: No audio players found inside death_sounds!")

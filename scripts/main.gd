@@ -212,3 +212,7 @@ func show_exit_warning(message: String):
 		label.visible = true
 		await get_tree().create_timer(3.0).timeout
 		label.visible = false
+
+
+func _on_enemy_enemy_dead() -> void:
+	game_music_1.stop()

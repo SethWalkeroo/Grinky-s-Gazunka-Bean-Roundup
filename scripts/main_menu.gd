@@ -7,9 +7,15 @@ extends CanvasLayer
 @onready var shop_panel: ColorRect = $shop_panel
 @onready var stash_panel: ColorRect = $stash_panel
 @onready var bean_shop_button: Button = $bean_shop_button
-@onready var stash_button: Button = $stash_button # Assuming you add a button to open the stash
-@onready var bean_shop_display: Label = $shop_panel/bean_shop_display # Label inside shop to show balance
-@onready var stash_grid: GridContainer = $stash_panel/GridContainer
+@onready var stash_button: Button = $stash_button 
+@onready var bean_shop_display: Label = $shop_panel/bean_shop_display 
+
+# --- CRITICAL FIX: SWAPPED NODE PATHS ---
+@onready var stash_grid: GridContainer = $stash_panel/player_grid # This is your Stash UI
+@onready var player_grid: GridContainer = $stash_panel/GridContainer # This is your Backpack UI
+@onready var player_hotbar: HBoxContainer = $stash_panel/player_hotbar
+# ----------------------------------------
+
 @onready var buy_shotgun_btn: Button = $shop_panel/buy_shotgun_btn 
 @onready var buy_shotgun_ammo_btn: Button = $shop_panel/buy_shotgun_ammo_btn
 @onready var stash_bean_display: Label = $stash_panel/stash_bean_display
@@ -21,8 +27,10 @@ extends CanvasLayer
 const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 
 # Example prices
-const SHOTGUN_PRICE = 50
-const AMMO_PRICE = 5
+var shotgun_price = 35
+var shotgun_ammo_price = 7
+@onready var shotgun_ammo_price_label: Label = $shop_panel/buy_shotgun_ammo_btn/ammo_price
+@onready var shotgun_price_label: Label = $shop_panel/buy_shotgun_btn/shotgun_price
 
 @onready var number_1_player: RichTextLabel = $number_1_player
 @onready var motd_button: Button = $motd_button
@@ -173,6 +181,7 @@ var button_to_rebind: Button = null
 @onready var video: AudioStreamPlayer = $menu_noises/video
 @onready var controls: AudioStreamPlayer = $menu_noises/controls
 @onready var leaderboard_noise: AudioStreamPlayer = $menu_noises/leaderboard_noise
+@onready var purchase_made: AudioStreamPlayer = $menu_noises/purchase_made
 
 var master_bus = AudioServer.get_bus_index("Master")
 var menu_music_bus = AudioServer.get_bus_index("menu_music")
@@ -182,6 +191,9 @@ var ambient_noise_bus = AudioServer.get_bus_index('ambient_noise')
 var sarah_bus = AudioServer.get_bus_index("sarah") 
 
 func _ready() -> void:
+	
+	shotgun_ammo_price_label.text = str(shotgun_ammo_price)
+	shotgun_price_label.text = str(shotgun_price)
 	
 	if heaven_button:
 		heaven_button.mouse_entered.connect(_play_hover_sound)
@@ -753,19 +765,21 @@ func buy_item(item_name: String, price: int, quantity: int) -> void:
 
 # Button signal connections
 func _on_buy_shotgun_pressed() -> void:
-	GlobalStats.play_click()
-	buy_item("shotgun", SHOTGUN_PRICE, 1)
+	if GlobalStats.total_beans_collected >= shotgun_price:
+		purchase_made.play()
+	else:
+		GlobalStats.play_click()
+	buy_item("shotgun", shotgun_price, 1)
 
 func _on_buy_shotgun_ammo_pressed() -> void:
-	GlobalStats.play_click()
-	buy_item("shotgun_ammo", AMMO_PRICE, 4)
+	if GlobalStats.total_beans_collected >= shotgun_ammo_price:
+		purchase_made.play()
+	else:
+		GlobalStats.play_click()
+	buy_item("shotgun_ammo", shotgun_ammo_price, 4)
 
 func add_item_to_json(item_name: String, amount: int) -> void:
-	var save_data = {
-		"hotbar": [{"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}],
-		"grid": [],
-		"shotgun_ammo": 0
-	}
+	var save_data = {"hotbar": [], "grid": [], "stash_grid": [], "shotgun_ammo": 0}
 	
 	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
 		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
@@ -773,12 +787,22 @@ func add_item_to_json(item_name: String, amount: int) -> void:
 		if json.parse(file.get_as_text()) == OK:
 			save_data = json.get_data()
 			
+	if not save_data.has("stash_grid"):
+		save_data["stash_grid"] = []
+
+	var max_slots = stash_grid.get_child_count() if stash_grid else 24
+
+	# CRITICAL FIX: Force the stash to have physical empty slots before trying to fill them!
+	while save_data["stash_grid"].size() < max_slots:
+		save_data["stash_grid"].append({"item": "empty", "qty": 0})
+			
 	var amount_left = amount
 	var placed = false
 	
-	if save_data.has("grid"):
+	# --- SHOP PURCHASES NOW GO TO STASH_GRID ---
+	if save_data.has("stash_grid"):
 		if item_name != "shotgun":
-			for slot in save_data["grid"]:
+			for slot in save_data["stash_grid"]:
 				if slot["item"] == item_name and slot["qty"] < 16:
 					var space_left = 16 - slot["qty"]
 					var add_amount = min(space_left, amount_left)
@@ -789,60 +813,60 @@ func add_item_to_json(item_name: String, amount: int) -> void:
 						break
 						
 		if not placed and amount_left > 0:
-			for slot in save_data["grid"]:
+			for slot in save_data["stash_grid"]:
 				if slot["item"] == "empty":
 					slot["item"] = item_name
 					slot["qty"] = amount_left
 					placed = true
 					break
 					
-	# Force append only if there is physical space
-	if not placed and amount_left > 0:
-		if not save_data.has("grid"):
-			save_data["grid"] = []
-			
-		var max_slots = stash_grid.get_child_count() if stash_grid else 12
-		if save_data["grid"].size() < max_slots:
-			save_data["grid"].append({"item": item_name, "qty": amount_left})
-		else:
-			print("CRITICAL: Tried to append but stash is physically full!")
-		
 	var save_file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.WRITE)
 	if save_file:
 		save_file.store_string(JSON.stringify(save_data))
 		
-		
 func load_stash_ui() -> void:
-	if not stash_grid:
-		print("ERROR: Stash grid is missing!")
-		return
+	var save_data = {
+		"hotbar": [{"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}],
+		"grid": [],
+		"stash_grid": [], # <-- NEW STASH ARRAY
+		"shotgun_ammo": 0
+	}
 
-	# Grab all the pre-built slot nodes (slot0 through slot11)
-	var stash_slots = stash_grid.get_children()
-
-	# 1. Clear out all existing slots first so old data doesn't visually duplicate
-	for slot in stash_slots:
-		if slot.has_method("set_item"):
-			slot.set_item("empty", 0)
-
-	# 2. Load the save data from the hard drive
-	var save_data = {}
 	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
 		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
 		var json = JSON.new()
 		if json.parse(file.get_as_text()) == OK:
 			save_data = json.get_data()
 
-	# 3. Apply the saved data to your existing slot nodes
-	if save_data.has("grid"):
-		var grid_data = save_data["grid"]
-		# Loop through whichever is smaller: the amount of saved items, or the amount of slots you built
-		for i in range(min(grid_data.size(), stash_slots.size())):
-			var slot_data = grid_data[i]
-			var slot_node = stash_slots[i]
-			
-			if slot_node.has_method("set_item"):
-				slot_node.set_item(slot_data["item"], slot_data["qty"])
+	# 1. Load Stash Grid
+	if stash_grid:
+		var slots = stash_grid.get_children()
+		for slot in slots:
+			if slot.has_method("set_item"): slot.set_item("empty", 0)
+		if save_data.has("stash_grid"):
+			for i in range(min(save_data["stash_grid"].size(), slots.size())):
+				if slots[i].has_method("set_item"):
+					slots[i].set_item(save_data["stash_grid"][i]["item"], save_data["stash_grid"][i]["qty"])
+
+	# 2. Load Player Backpack Grid
+	if player_grid:
+		var slots = player_grid.get_children()
+		for slot in slots:
+			if slot.has_method("set_item"): slot.set_item("empty", 0)
+		if save_data.has("grid"):
+			for i in range(min(save_data["grid"].size(), slots.size())):
+				if slots[i].has_method("set_item"):
+					slots[i].set_item(save_data["grid"][i]["item"], save_data["grid"][i]["qty"])
+
+	# 3. Load Player Hotbar
+	if player_hotbar:
+		var slots = player_hotbar.get_children()
+		for slot in slots:
+			if slot.has_method("set_item"): slot.set_item("empty", 0)
+		if save_data.has("hotbar"):
+			for i in range(min(save_data["hotbar"].size(), slots.size())):
+				if slots[i].has_method("set_item"):
+					slots[i].set_item(save_data["hotbar"][i]["item"], save_data["hotbar"][i]["qty"])
 
 # --- SAVE DRAG AND DROP CHANGES IN STASH ---
 func save_stash_to_json() -> void:
@@ -853,18 +877,30 @@ func save_stash_to_json() -> void:
 		if json.parse(file.get_as_text()) == OK:
 			save_data = json.get_data()
 			
-	var new_grid_data = []
+	# Save Stash
+	var new_stash = []
 	if stash_grid:
 		for slot in stash_grid.get_children():
-			if slot.has_method("set_item"):
-				new_grid_data.append({"item": slot.item_name, "qty": slot.quantity})
-			
-	save_data["grid"] = new_grid_data
+			if slot.has_method("set_item"): new_stash.append({"item": slot.item_name, "qty": slot.quantity})
+	save_data["stash_grid"] = new_stash
+	
+	# Save Player Grid
+	var new_grid = []
+	if player_grid:
+		for slot in player_grid.get_children():
+			if slot.has_method("set_item"): new_grid.append({"item": slot.item_name, "qty": slot.quantity})
+	save_data["grid"] = new_grid
+	
+	# Save Player Hotbar
+	var new_hotbar = []
+	if player_hotbar:
+		for slot in player_hotbar.get_children():
+			if slot.has_method("set_item"): new_hotbar.append({"item": slot.item_name, "qty": slot.quantity})
+	save_data["hotbar"] = new_hotbar
 	
 	var save_file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.WRITE)
 	if save_file:
 		save_file.store_string(JSON.stringify(save_data))
-		
 
 
 func can_fit_item(item_name: String, amount: int) -> bool:
@@ -875,9 +911,13 @@ func can_fit_item(item_name: String, amount: int) -> bool:
 		if json.parse(file.get_as_text()) == OK:
 			save_data = json.get_data()
 
-	# Count how many physical UI slots you built in the editor (e.g., 12 or 16)
-	var max_slots = stash_grid.get_child_count() if stash_grid else 12
-	var grid = save_data.get("grid", [])
+	var max_slots = stash_grid.get_child_count() if stash_grid else 24
+	var grid = save_data.get("stash_grid", [])
+	
+	# CRITICAL FIX: Pad the calculation array so we accurately count empty space
+	while grid.size() < max_slots:
+		grid.append({"item": "empty", "qty": 0})
+		
 	var amount_left = amount
 
 	# 1. Check if we can stack it (Ammo only)
@@ -895,11 +935,6 @@ func can_fit_item(item_name: String, amount: int) -> bool:
 		if slot["item"] == "empty":
 			empty_count += 1
 
-	# 3. Count uninitialized slots (if the JSON array hasn't filled all physical UI slots yet)
-	var uninitialized = max_slots - grid.size()
-	if uninitialized > 0:
-		empty_count += uninitialized
-
 	# Shotguns take 1 full slot. Ammo can fit up to 16 per slot.
 	if item_name == "shotgun":
 		return amount_left <= empty_count
@@ -916,3 +951,60 @@ func _on_heaven_button_pressed() -> void:
 	GlobalStats.play_click()
 	GlobalStats.came_from_main_menu = true # Tell the next scene how we got here!
 	get_tree().change_scene_to_file("res://scenes/heaven.tscn")
+
+
+# --- SHIFT-CLICK FAST TRANSFER ---
+func shift_transfer_item(source_slot: Control) -> void:
+	# Removed the "quantity <= 0" check so we can transfer empty shotguns!
+	if source_slot.item_name == "empty": return
+
+	var source_parent = source_slot.get_parent()
+	var target_grid = null
+
+	# Determine where to send the item
+	if source_parent == stash_grid:
+		target_grid = player_grid # Send to backpack
+	elif source_parent == player_grid or source_parent == player_hotbar:
+		target_grid = stash_grid # Send to stash
+
+	if target_grid == null: return
+
+	var item_to_move = source_slot.item_name
+	var amount_to_move = source_slot.quantity
+	var placed = false
+
+	# 1. Try to stack it onto an existing pile (Ammo only)
+	if item_to_move != "shotgun":
+		for target_slot in target_grid.get_children():
+			if target_slot.has_method("set_item") and target_slot.item_name == item_to_move and target_slot.quantity < 16:
+				var space_left = 16 - target_slot.quantity
+				var add_amount = min(space_left, amount_to_move)
+
+				target_slot.set_item(item_to_move, target_slot.quantity + add_amount)
+				amount_to_move -= add_amount
+
+				if amount_to_move <= 0:
+					placed = true
+					break
+
+	# 2. If there's still amount left (or it's a shotgun), find an empty slot
+	if not placed:
+		for target_slot in target_grid.get_children():
+			if target_slot.has_method("set_item") and target_slot.item_name == "empty":
+				target_slot.set_item(item_to_move, amount_to_move)
+				amount_to_move = 0 # Force this to 0 so the source slot knows it fully transferred
+				placed = true
+				break
+
+	# 3. Resolve the transaction and save
+	if placed:
+		GlobalStats.play_click()
+		
+		# CRITICAL FIX: If the item fully transferred, explicitly force the source slot to be "empty"
+		# This overrides the "don't delete empty shotguns" safety rule.
+		if amount_to_move == 0:
+			source_slot.set_item("empty", 0) 
+		else:
+			source_slot.set_item(source_slot.item_name, amount_to_move)
+			
+		save_stash_to_json() # Save immediately so the JSON stays in sync

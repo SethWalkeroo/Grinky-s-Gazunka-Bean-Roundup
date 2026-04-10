@@ -27,5 +27,5 @@ size = Vector3(0.25, 0.25, 0.25)
 texture_albedo = ExtResource("2_mhqou")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=935894738]
-volume_db = -15.238
+volume_db = -17.143
 bus = &"effects"

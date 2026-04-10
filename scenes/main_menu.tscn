@@ -17,6 +17,7 @@
 [ext_resource type="AudioStream" uid="uid://dwmsn84qsy8jy" path="res://audio/controls.wav" id="15_j7ex8"]
 [ext_resource type="AudioStream" uid="uid://bve3vsvcga3e5" path="res://audio/leaderboard.wav" id="16_5pajh"]
 [ext_resource type="AudioStream" uid="uid://gluyq60rlooh" path="res://audio/SARAH.wav" id="17_a8gd2"]
+[ext_resource type="AudioStream" uid="uid://crkbaigrb4ufy" path="res://audio/purchase_made.wav" id="17_gw5y6"]
 [ext_resource type="Script" uid="uid://dd5sto7rgxirb" path="res://scripts/bean_jar.gd" id="17_j7ex8"]
 [ext_resource type="Script" uid="uid://gbqrsvfccfii" path="res://scripts/sell_zone.gd" id="19_8egab"]
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="19_hstxw"]
@@ -620,6 +621,11 @@ volume_db = -27.368
 autoplay = true
 bus = &"ambient_noise"
 
+[node name="purchase_made" type="AudioStreamPlayer" parent="menu_noises" unique_id=1443839235]
+stream = ExtResource("17_gw5y6")
+volume_db = -32.19
+bus = &"effects"
+
 [node name="Button" type="Button" parent="." unique_id=1088281270]
 modulate = Color(1, 0, 0.9798479, 1)
 offset_left = 37.0
@@ -668,6 +674,7 @@ offset_bottom = 171.0
 text = "Your Stash"
 
 [node name="shop_panel" type="ColorRect" parent="." unique_id=777782643]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -747,7 +754,6 @@ offset_bottom = 23.0
 grow_horizontal = 2
 
 [node name="stash_panel" type="ColorRect" parent="." unique_id=263047847]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -764,13 +770,13 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -107.0
-offset_top = -81.0
-offset_right = 179.0
-offset_bottom = 187.0
+offset_left = -41.0
+offset_top = -41.0
+offset_right = 245.0
+offset_bottom = 227.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.75, 0.75)
+scale = Vector2(0.5, 0.5)
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 4
@@ -1077,23 +1083,25 @@ theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="RichTextLabel" type="RichTextLabel" parent="stash_panel" unique_id=89759931]
 layout_mode = 0
-offset_left = 204.0
-offset_top = 51.0
-offset_right = 278.0
-offset_bottom = 91.0
-text = "The stash"
+offset_left = 236.0
+offset_top = 112.0
+offset_right = 324.0
+offset_bottom = 152.0
+bbcode_enabled = true
+text = "Inventory"
 
 [node name="close_stash_btn" type="Button" parent="stash_panel" unique_id=1439693890]
+modulate = Color(1, 0.1232335, 0, 1)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -217.0
-offset_top = -199.0
-offset_right = -124.0
-offset_bottom = -168.0
+offset_left = -19.0
+offset_top = -82.0
+offset_right = 74.0
+offset_bottom = -51.0
 grow_horizontal = 2
 grow_vertical = 0
 text = "close stash"
@@ -1101,18 +1109,18 @@ text = "close stash"
 [node name="sell_zone" type="ColorRect" parent="stash_panel" unique_id=1827928967]
 layout_mode = 0
 offset_left = 393.0
-offset_top = 161.0
+offset_top = 274.0
 offset_right = 433.0
-offset_bottom = 201.0
+offset_bottom = 314.0
 color = Color(0, 1, 0.24579334, 1)
 script = ExtResource("19_8egab")
 
 [node name="Label" type="Label" parent="stash_panel/sell_zone" unique_id=243219008]
 layout_mode = 0
-offset_left = -18.0
-offset_top = 49.0
-offset_right = 63.0
-offset_bottom = 72.0
+offset_left = -19.0
+offset_top = 45.0
+offset_right = 62.0
+offset_bottom = 68.0
 theme_override_font_sizes/font_size = 10
 text = "Drop here to sell"
 
@@ -1123,12 +1131,948 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -55.0
-offset_right = 20.0
-offset_bottom = -32.0
+offset_left = -157.0
+offset_top = -27.0
+offset_right = -117.0
+offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 0
+
+[node name="player_grid" type="GridContainer" parent="stash_panel" unique_id=99798847]
+layout_mode = 0
+offset_left = 31.0
+offset_top = 41.0
+offset_right = 299.0
+offset_bottom = 619.0
+scale = Vector2(0.5, 0.5)
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="slot0" type="ColorRect" parent="stash_panel/player_grid" unique_id=698479710]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot0" unique_id=1534694512]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot0" unique_id=1826639568]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot1" type="ColorRect" parent="stash_panel/player_grid" unique_id=1492603204]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot1" unique_id=1497923510]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot1" unique_id=1784148862]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot2" type="ColorRect" parent="stash_panel/player_grid" unique_id=828815]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot2" unique_id=791074929]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot2" unique_id=984389945]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot3" type="ColorRect" parent="stash_panel/player_grid" unique_id=817372039]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot3" unique_id=1358699808]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot3" unique_id=249773690]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot4" type="ColorRect" parent="stash_panel/player_grid" unique_id=769605155]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot4" unique_id=804816629]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot4" unique_id=106765976]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot5" type="ColorRect" parent="stash_panel/player_grid" unique_id=1730515758]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot5" unique_id=347742005]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot5" unique_id=1780100987]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot6" type="ColorRect" parent="stash_panel/player_grid" unique_id=255520825]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot6" unique_id=1071198432]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot6" unique_id=216120674]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot7" type="ColorRect" parent="stash_panel/player_grid" unique_id=1853357510]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot7" unique_id=855828834]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot7" unique_id=150447368]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot8" type="ColorRect" parent="stash_panel/player_grid" unique_id=280281235]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot8" unique_id=688276239]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot8" unique_id=920868469]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot9" type="ColorRect" parent="stash_panel/player_grid" unique_id=863843848]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot9" unique_id=2116936523]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot9" unique_id=1688679277]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot10" type="ColorRect" parent="stash_panel/player_grid" unique_id=1681000931]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot10" unique_id=1579619347]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot10" unique_id=1779438414]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot11" type="ColorRect" parent="stash_panel/player_grid" unique_id=1563922616]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot11" unique_id=1771342283]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot11" unique_id=883388738]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot12" type="ColorRect" parent="stash_panel/player_grid" unique_id=1130892240]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot12" unique_id=2091354015]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot12" unique_id=1338069943]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot13" type="ColorRect" parent="stash_panel/player_grid" unique_id=673745174]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot13" unique_id=467419982]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot13" unique_id=468597478]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot14" type="ColorRect" parent="stash_panel/player_grid" unique_id=1704879580]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot14" unique_id=325745111]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot14" unique_id=1054356117]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot15" type="ColorRect" parent="stash_panel/player_grid" unique_id=1444591021]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot15" unique_id=732211699]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot15" unique_id=1306605055]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot16" type="ColorRect" parent="stash_panel/player_grid" unique_id=1515713518]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot16" unique_id=1696523414]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot16" unique_id=2096381586]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot17" type="ColorRect" parent="stash_panel/player_grid" unique_id=1716763096]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot17" unique_id=2131366384]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot17" unique_id=1056371243]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot18" type="ColorRect" parent="stash_panel/player_grid" unique_id=682515466]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot18" unique_id=36038793]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot18" unique_id=175378305]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot19" type="ColorRect" parent="stash_panel/player_grid" unique_id=1201736301]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot19" unique_id=17101262]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot19" unique_id=614232112]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot20" type="ColorRect" parent="stash_panel/player_grid" unique_id=1121551838]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot20" unique_id=207066409]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot20" unique_id=1926707047]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot21" type="ColorRect" parent="stash_panel/player_grid" unique_id=1868624166]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot21" unique_id=345236481]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot21" unique_id=1440489002]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot22" type="ColorRect" parent="stash_panel/player_grid" unique_id=1804666076]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot22" unique_id=1283594306]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot22" unique_id=746378386]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot23" type="ColorRect" parent="stash_panel/player_grid" unique_id=1886558714]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot23" unique_id=1611988509]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot23" unique_id=1692564329]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot24" type="ColorRect" parent="stash_panel/player_grid" unique_id=1185150353]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot24" unique_id=2035906887]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot24" unique_id=630440107]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot25" type="ColorRect" parent="stash_panel/player_grid" unique_id=26950942]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot25" unique_id=1160324709]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot25" unique_id=296095743]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot26" type="ColorRect" parent="stash_panel/player_grid" unique_id=1273454021]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot26" unique_id=1449278026]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot26" unique_id=1208377189]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot27" type="ColorRect" parent="stash_panel/player_grid" unique_id=1107265143]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot27" unique_id=83217277]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot27" unique_id=2050047263]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot28" type="ColorRect" parent="stash_panel/player_grid" unique_id=71933121]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot28" unique_id=640512981]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot28" unique_id=222295724]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot29" type="ColorRect" parent="stash_panel/player_grid" unique_id=1820671126]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot29" unique_id=261162272]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot29" unique_id=280817756]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot30" type="ColorRect" parent="stash_panel/player_grid" unique_id=1926748452]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot30" unique_id=1152491667]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot30" unique_id=1801791372]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot31" type="ColorRect" parent="stash_panel/player_grid" unique_id=1062432094]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_grid/slot31" unique_id=1750054572]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_grid/slot31" unique_id=1133603706]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="player_hotbar" type="HBoxContainer" parent="stash_panel" unique_id=1372444211]
+layout_mode = 0
+offset_left = 203.0
+offset_top = 64.0
+offset_right = 529.0
+offset_bottom = 128.0
+scale = Vector2(0.5, 0.5)
+theme_override_constants/separation = 10
+
+[node name="slot0" type="ColorRect" parent="stash_panel/player_hotbar" unique_id=84623459]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_hotbar/slot0" unique_id=683319728]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_hotbar/slot0" unique_id=299823114]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot1" type="ColorRect" parent="stash_panel/player_hotbar" unique_id=1742077001]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_hotbar/slot1" unique_id=1716897950]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 42.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_hotbar/slot1" unique_id=1503270011]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot2" type="ColorRect" parent="stash_panel/player_hotbar" unique_id=1232869870]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_hotbar/slot2" unique_id=158064573]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_hotbar/slot2" unique_id=1977600190]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot3" type="ColorRect" parent="stash_panel/player_hotbar" unique_id=2004679521]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("19_hstxw")
+
+[node name="Icon" type="TextureRect" parent="stash_panel/player_hotbar/slot3" unique_id=1738141365]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="stash_panel/player_hotbar/slot3" unique_id=1960846988]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="Label" type="Label" parent="stash_panel" unique_id=1803507600]
+layout_mode = 0
+offset_left = 245.0
+offset_top = 35.0
+offset_right = 306.0
+offset_bottom = 58.0
+text = "Hotbar"
+
+[node name="Label2" type="Label" parent="stash_panel" unique_id=1594893397]
+layout_mode = 0
+offset_left = 78.0
+offset_top = 12.0
+offset_right = 121.0
+offset_bottom = 35.0
+text = "Stash"
 
 [node name="sarah" type="AudioStreamPlayer" parent="." unique_id=816916948]
 stream = ExtResource("17_a8gd2")
@@ -1136,6 +2080,7 @@ volume_db = -26.0
 bus = &"menu_music"
 
 [node name="heaven_button" type="Button" parent="." unique_id=923302252]
+visible = false
 modulate = Color(1, 0.84212565, 0, 1)
 offset_left = 56.0
 offset_top = 179.0
@@ -1155,8 +2100,8 @@ text = "Heaven"
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer3/effects_slider" to="." method="_on_effects_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
-[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="pressed" from="video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="controls_settings/ScrollContainer/GridContainer/save_settings" to="." method="_on_save_settings_pressed"]

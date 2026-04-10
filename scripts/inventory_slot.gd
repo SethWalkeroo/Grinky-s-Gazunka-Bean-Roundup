@@ -18,13 +18,15 @@ func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player")
 	if get_parent().name == "Hotbar":
 		var index = name.right(1).to_int()
-		set_item(player.inventory[index], 1 if player.inventory[index] != "empty" else 0)
+		if player and player.get("inventory"):
+			set_item(player.inventory[index], 1 if player.inventory[index] != "empty" else 0)
 
 func set_item(new_item: String, new_qty: int) -> void:
 	item_name = new_item
 	quantity = new_qty
 	
-	if item_name == "empty" or quantity <= 0:
+	# Prevent guns with 0 ammo from deleting themselves
+	if item_name == "empty" or (quantity <= 0 and item_name != "shotgun"):
 		item_name = "empty"
 		quantity = 0
 		icon.texture = null
@@ -41,8 +43,7 @@ func set_item(new_item: String, new_qty: int) -> void:
 			icon.modulate = Color(1, 0, 1)
 		
 		if item_name == "shotgun":
-			if player:
-				qty_label.text = str(player.shotgun_ammo) + "/4"
+			qty_label.text = str(quantity) + "/4"
 		elif quantity > 1:
 			qty_label.text = str(quantity)
 		else:
@@ -83,22 +84,30 @@ func get_preview_control(tex_name: String, drag_qty: int) -> Control:
 	preview.position = -preview.custom_minimum_size / 2
 	return preview_control
 
-# --- LEFT CLICK DRAG (Standard) ---
+# --- DRAG START ---
 func _get_drag_data(_at_position: Vector2) -> Variant:
-	if item_name == "empty": return null
+	# Prevent standard dragging if Shift is being held down!
+	if item_name == "empty" or Input.is_key_pressed(KEY_SHIFT): return null
 	
 	var preview_ctrl = get_preview_control(item_name, quantity)
 	set_drag_preview(preview_ctrl)
 	
-	# Change the global mouse cursor to the "grabbing" hand
 	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
 	GlobalStats.play_click()
 	
 	return {"source_slot": self, "dragged_item": item_name, "dragged_qty": quantity, "is_split": false}
 
-# --- RIGHT CLICK DRAG (Split Stack) ---
+# --- CLICK DETECTION (Shift-Click & Right-Click Split) ---
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
+		# --- NEW: SHIFT-CLICK TRANSFER ---
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.shift_pressed:
+			if item_name != "empty":
+				var main_scene = get_tree().current_scene
+				if main_scene.has_method("shift_transfer_item"):
+					main_scene.shift_transfer_item(self)
+				return # Stop execution so we don't accidentally start a drag
+
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			right_click_down = event.pressed
 			
@@ -112,7 +121,6 @@ func _gui_input(event: InputEvent) -> void:
 			active_drag_label = preview_ctrl.get_child(0).get_node("DragQtyLabel")
 			active_drag_data = {"source_slot": self, "dragged_item": item_name, "dragged_qty": drag_qty, "is_split": true}
 			
-			# Change the global mouse cursor to the "grabbing" hand
 			Input.set_default_cursor_shape(Input.CURSOR_DRAG)
 			
 			force_drag(active_drag_data, preview_ctrl)
@@ -120,44 +128,36 @@ func _gui_input(event: InputEvent) -> void:
 
 # --- SCROLL WHEEL SPLIT ADJUSTMENT & AUTO-DROP ---
 func _input(event: InputEvent) -> void:
-	# Only the single slot that initiated the drag will run this code
 	if active_drag_data.is_empty() or active_drag_label == null:
 		return
 		
 	if event is InputEventMouseButton:
-		# 1. SCROLL WHEEL ADJUSTMENT
 		if event.pressed:
 			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-				# Prevent taking the entire stack (must leave 1 behind)
 				if active_drag_data["dragged_qty"] < quantity - 1:
 					active_drag_data["dragged_qty"] += 1
 					active_drag_label.text = str(active_drag_data["dragged_qty"])
 					GlobalStats.play_click()
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-				# Prevent dropping below 1
 				if active_drag_data["dragged_qty"] > 1:
 					active_drag_data["dragged_qty"] -= 1
 					active_drag_label.text = str(active_drag_data["dragged_qty"])
 					GlobalStats.play_click()
 					
-		# 2. THE DROP HACK (Release Right-Click)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and not event.pressed:
-			# Inject a fake Left-Click release so Godot Native DND executes the drop!
 			var fake_drop = InputEventMouseButton.new()
 			fake_drop.button_index = MOUSE_BUTTON_LEFT
 			fake_drop.pressed = false
 			fake_drop.position = event.position
 			fake_drop.global_position = event.global_position
 			Input.parse_input_event(fake_drop)
+			GlobalStats.play_click()
 
-# Cleans up the variables when the drag safely finishes or is cancelled
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_DRAG_END:
 		active_drag_data.clear()
 		active_drag_label = null
 		right_click_down = false
-		
-		# Reset the global mouse cursor back to the standard arrow
 		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 # --- DROP LOGIC ---
@@ -169,8 +169,29 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var incoming_item = data["dragged_item"]
 	var incoming_qty = data["dragged_qty"]
 	var is_split = data.get("is_split", false)
-	
-	# MERGE STACKS
+
+	# --- NEW: LOAD SHOTGUN BY DRAGGING AMMO ---
+	if item_name == "shotgun" and incoming_item == "shotgun_ammo":
+		var space_left = 4 - quantity # quantity represents ammo for shotguns
+		if space_left > 0:
+			var amount_to_load = min(space_left, incoming_qty)
+			quantity += amount_to_load
+			source_slot.quantity -= amount_to_load
+			
+			self.set_item("shotgun", quantity)
+			source_slot.set_item(source_slot.item_name, source_slot.quantity)
+			
+			GlobalStats.play_click()
+			if player and player.has_method("sync_inventory_arrays"):
+				player.sync_inventory_arrays()
+				
+			# If we are in the stash, save the changes immediately!
+			var main_scene = get_tree().current_scene
+			if main_scene.has_method("save_stash_to_json"):
+				main_scene.save_stash_to_json()
+			return
+			
+	# --- MERGE STACKS ---
 	if item_name == incoming_item and item_name != "empty" and item_name != "shotgun":
 		var space_left = MAX_STACK - quantity
 		if space_left > 0:
@@ -181,6 +202,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 			self.set_item(item_name, quantity)
 			source_slot.set_item(source_slot.item_name, source_slot.quantity)
 	else:
+		# --- SWAP ITEMS ---
 		if is_split and item_name != "empty":
 			return # Cancel drop if trying to swap a split stack into an occupied slot
 			
@@ -194,7 +216,6 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		else:
 			source_slot.set_item(my_old_item, my_old_qty)
 			
-	# --- PLAY SOUND ON SUCCESSFUL DROP ---
 	GlobalStats.play_click()
 	
 	if player and player.has_method("sync_inventory_arrays"):

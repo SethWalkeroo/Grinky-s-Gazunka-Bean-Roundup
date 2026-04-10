@@ -1,4 +1,5 @@
 extends ColorRect
+@onready var purchase_made: AudioStreamPlayer = $"../../menu_noises/purchase_made"
 
 # How many beans the player gets back per item
 var sell_prices = {
@@ -23,15 +24,19 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	else:
 		source_slot.set_item("empty", 0)
 
-	# --- ADD BEANS TO WALLET ---
-	var price_per_unit = sell_prices.get(item, 0)
-	var total_earned = price_per_unit * qty
+# --- ADD BEANS TO WALLET ---
+	var total_earned = 0
+	if item == "shotgun":
+		# 25 beans for the gun itself, plus 1 bean for every shell loaded inside it!
+		total_earned = sell_prices.get("shotgun", 25) + (qty * sell_prices.get("shotgun_ammo", 1))
+	else:
+		total_earned = sell_prices.get(item, 0) * qty
 	
 	GlobalStats.total_beans_collected += total_earned
 	GlobalStats.save_to_disk()
 
 	# --- FINISH TRANSACTION ---
-	GlobalStats.play_click() # You can swap this for a cash register sound!
+	purchase_made.play()
 	
 	# Talk to the main menu script to update the UI and save the JSON
 	var main_menu = get_tree().current_scene
