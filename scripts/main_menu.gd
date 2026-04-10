@@ -738,7 +738,7 @@ func _on_close_stash_pressed() -> void:
 	if bean_shop_button: bean_shop_button.visible = true
 
 func update_shop_display() -> void:
-	var bean_text = "Beans Jar: [wave amp=20 freq=5 connect=1]" + str(GlobalStats.total_beans_collected) + '[/wave]'
+	var bean_text = "[color=cyan]Beans Jar:[/color] [wave amp=20 freq=5 connect=1][color=gold]" + str(GlobalStats.total_beans_collected) + '[/color][/wave]'
 	if bean_shop_display:
 		bean_shop_display.text = bean_text
 	if stash_bean_display:
