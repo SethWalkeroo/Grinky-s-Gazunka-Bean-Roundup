@@ -4,6 +4,14 @@ class_name Enemy
 
 signal enemy_dead
 
+#impact sound
+@onready var ragdoll_impact_sound: AudioStreamPlayer3D = $ragdoll_impact_sound
+var last_impact_time: float = 0.0
+
+# --- NEW: Spine tracking variables ---
+var ragdoll_spine: PhysicalBone3D = null
+var previous_spine_velocity: Vector3 = Vector3.ZERO
+
 @onready var physical_bone_simulator_3d: PhysicalBoneSimulator3D = $rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D
 @onready var collision_shape_3d: CollisionShape3D = $CollisionShape3D
 @onready var death_sounds: Node3D = $death_sounds
@@ -143,8 +151,29 @@ func _on_nav_map_changed(_map_rid):
 	nav_map_ready = true
 
 func _physics_process(delta):
-	# If the enemy is a ragdoll, completely stop all AI logic and movement calculations!
+	# --- VELOCITY IMPACT TRACKING ---
 	if is_ragdolled:
+		if ragdoll_spine:
+			var current_vel = ragdoll_spine.linear_velocity
+			
+			# Hitting a wall/floor causes a sudden LOSS of speed
+			var speed_loss = previous_spine_velocity.length() - current_vel.length()
+			var current_time = Time.get_ticks_msec() / 1000.0
+			
+			# If he lost more than 4.0 speed instantly, he hit something hard!
+			# (The 0.15 delay prevents audio clipping/spamming)
+			if speed_loss > 4.0 and current_time > last_impact_time + 0.15:
+				last_impact_time = current_time
+				ragdoll_impact_sound.global_position = ragdoll_spine.global_position
+				
+				# Louder sound for harder impacts
+				ragdoll_impact_sound.volume_db = linear_to_db(clamp(speed_loss / 25.0, 0.2, 1.0))
+				ragdoll_impact_sound.pitch_scale = randf_range(0.8, 1.2)
+				ragdoll_impact_sound.play()
+				
+			previous_spine_velocity = current_vel
+			
+		# Still return so the AI stops moving!
 		return
 
 	if not nav_map_ready: return
@@ -197,8 +226,7 @@ func _physics_process(delta):
 
 	apply_movement(current_move_speed, has_arrived, delta)
 
-# --- NEW DAMAGE FUNCTION ---
-# --- NEW DAMAGE FUNCTION ---
+
 func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
 	# Calculate the push direction based on player position
 	var push_direction = Vector3.UP
@@ -209,11 +237,22 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
 		
 	push_direction += Vector3(0, 0.5, 0) # Add upward lift
 	
-	# If already dead, just apply the force and skip the rest!
+	# --- THE ULTIMATE SPINE FINDER ---
+	var target_bone = null
+	var skeleton = physical_bone_simulator_3d.get_parent()
+	
+	# This forces Godot to recursively search every single node inside the skeleton
+	var all_bones = skeleton.find_children("*", "PhysicalBone3D")
+	for bone in all_bones:
+		if "Spine" in bone.name:
+			target_bone = bone
+			ragdoll_spine = bone # Save for the impact audio tracker
+			break
+	
+	# If already dead, apply the force and skip the rest!
 	if is_ragdolled:
-		var target_bone = physical_bone_simulator_3d.get_node_or_null("PhysicalBone3D_Spine") 
-		if target_bone and target_bone is PhysicalBone3D:
-			target_bone.apply_central_impulse(push_direction * 150.0)
+		if target_bone:
+			target_bone.apply_central_impulse(push_direction * 250.0)
 		return
 	
 	is_ragdolled = true
@@ -232,11 +271,11 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
 	play_random_death_sound()
 	emit_signal('enemy_dead')
 	
-	# Apply initial death force
-	var target_bone = physical_bone_simulator_3d.get_node_or_null("PhysicalBone3D_Spine") 
-	if target_bone and target_bone is PhysicalBone3D:
-		target_bone.apply_central_impulse(push_direction * 150.0)
-	
+	# Apply initial death force using the bone we found!
+	if target_bone:
+		target_bone.apply_central_impulse(push_direction * 800.0)
+
+
 func reset_investigation_variables():
 	has_last_known_pos = false 
 	is_chasing = false
@@ -568,7 +607,6 @@ func _on_timer_timeout() -> void:
 				
 			chosen_voiceline.play()
 
-# Create this new function right below it:
 func _on_random_voiceline_finished() -> void:
 	# Only restart the timer if we are STILL in a calm state
 	if not is_chasing and not has_last_known_pos and not player_is_dead:

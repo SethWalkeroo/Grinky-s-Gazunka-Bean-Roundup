@@ -2,6 +2,21 @@ extends CharacterBody3D
 class_name Player
 
 
+#slide variables
+# --- APEX SLIDE VARIABLES ---
+var is_sliding: bool = false
+var slide_boost_available: bool = true
+var slide_cooldown_timer: float = 0.0 
+@export var slide_cooldown: float = 1.2 
+@export var slide_friction: float = 0.777
+@export var slope_acceleration: float = 18.0 
+
+# --- NEW DYNAMIC MOMENTUM VARIABLES ---
+@export var sprint_acceleration: float = 7.777 # How fast you build up to max sprint speed
+@export var slide_boost_multiplier: float = 0.85 # Multiplies your current speed to calculate the slide kick
+#rotation tracking
+var object_rotation_input: Vector2 = Vector2.ZERO
+
 # quit confirm
 # --- QUIT CONFIRMATION NODES ---
 
@@ -479,9 +494,6 @@ func _input(event: InputEvent) -> void:
 			fire_shotgun()
 		else:
 			if grabbed_object:
-				if grabbed_object.has_meta("original_mask"):
-					grabbed_object.collision_mask = grabbed_object.get_meta("original_mask")
-				remove_collision_exception_with(grabbed_object)
 				grabbed_object = null
 				rotating_object = false
 			elif object_grabber_shapecast.is_colliding():
@@ -493,10 +505,7 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventMouseMotion:
 		if rotating_object and grabbed_object:
-			var cam_up = camera_3d.global_transform.basis.y
-			var cam_right = camera_3d.global_transform.basis.x
-			grabbed_object.global_rotate(cam_up, deg_to_rad(event.relative.x * object_rotation_sens))
-			grabbed_object.global_rotate(cam_right, deg_to_rad(event.relative.y * object_rotation_sens))
+			object_rotation_input += event.relative
 		else:
 			if free_looking:
 				neck.rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
@@ -622,7 +631,7 @@ func fire_shotgun() -> void:
 					# Calculate exactly the direction the camera is facing
 					var push_dir = -camera_3d.global_transform.basis.z.normalized()
 					# apply_impulse takes (force, hit_location_offset) so it spins based on where you shot it!
-					result.collider.apply_impulse(push_dir * 15.0, result.position - result.collider.global_position) 
+					result.collider.apply_impulse(push_dir * 50.0, result.position - result.collider.global_position) 
 
 		# --- 3. ANIMATIONS & UI ---
 		if shotgun_animator.has_animation("fire"):
@@ -839,8 +848,6 @@ func try_grabbing(collided):
 			collided.gravity_scale = 1.0
 
 	grabbed_object = collided
-	grabbed_object.set_meta("original_mask", grabbed_object.collision_mask)
-	grabbed_object.collision_mask = 0
 	add_collision_exception_with(grabbed_object)
 	
 	# --- NEW: Safe sleeping check ---
@@ -991,8 +998,6 @@ func handle_interaction() -> void:
 		var final_impulse = throw_dir.normalized() * throw_force * grabbed_object.mass
 		var drop_obj = grabbed_object
 		
-		if drop_obj.has_meta("original_mask"):
-			drop_obj.collision_mask = drop_obj.get_meta("original_mask")
 		remove_collision_exception_with(drop_obj)
 		
 		grabbed_object = null
@@ -1005,6 +1010,12 @@ func handle_movement(delta: float) -> void:
 	var speed_multiplier = 1.0
 	if speed_boost_timer > 0: speed_multiplier = bean_speed_boost_amount
 	
+	if slide_cooldown_timer > 0.0:
+		slide_cooldown_timer -= delta
+		
+	var speed_length = Vector2(velocity.x, velocity.z).length()
+	
+	# --- STAMINA LOGIC ---
 	if in_heaven:
 		stamina_bar.value = 100
 	else:
@@ -1030,31 +1041,55 @@ func handle_movement(delta: float) -> void:
 
 		if stamina_bar.value <= 0 and !is_exhausted: trigger_exhaustion()
 
-	if crouching and ceiling_detection.is_colliding():
-		current_speed = crouching_speed * speed_multiplier
-		
-	if (Input.is_action_pressed('crouch') or sliding) and is_on_floor():
+	# --- FIXED CROUCHING & SLIDING TRIGGER ---
+	if Input.is_action_pressed('crouch') or is_sliding or (crouching and ceiling_detection.is_colliding()):
 		current_speed = lerp(current_speed, crouching_speed * speed_multiplier, delta * lerp_speed)
 		head.position.y = lerp(head.position.y, crouching_depth, delta * lerp_speed)
 		standing_collision_shape.disabled = true
 		crouching_collision_shape.disabled = false
-		if sprinting and input_dir != Vector2.ZERO and !is_exhausted:
-			slide_sound.play()
-			if not in_heaven: stamina_bar.value -= 10
-			sliding = true; mouse_sens = slide_sens
-			slide_timer = slide_timer_max; slide_vector = input_dir
-			free_looking = true
+		
+		# --- PURE PHYSICS SLIDE CHECK ---
+		var minimum_slide_speed = (walking_speed + 0.5) * speed_multiplier
+		
+		if ((speed_length > minimum_slide_speed and is_on_floor()) or is_sliding) and !is_exhausted:
+			
+			if is_on_floor() and slide_boost_available and slide_cooldown_timer <= 0.0:
+				slide_sound.play()
+				if not in_heaven: stamina_bar.value -= 10
+				
+				var move_dir = -transform.basis.z
+				move_dir.y = 0
+				
+				var dynamic_boost = speed_length * slide_boost_multiplier
+				velocity += move_dir.normalized() * dynamic_boost
+				
+				slide_boost_available = false 
+				slide_cooldown_timer = slide_cooldown 
+				free_looking = true
+				
+			is_sliding = true
+			mouse_sens = slide_sens
+		else:
+			is_sliding = false 
+			
 		walking = false; sprinting = false; crouching = true
+		
 	elif !ceiling_detection.is_colliding():
 		standing_collision_shape.disabled = false; crouching_collision_shape.disabled = true
 		head.position.y = lerp(head.position.y, 0.0, (delta * lerp_speed) * 0.8)
+		
+		is_sliding = false
+		if not Input.is_action_pressed("crouch"):
+			slide_boost_available = true 
+			
 		if Input.is_action_pressed('sprint') and !is_exhausted and (stamina_bar.value != 0 or in_heaven):
-			current_speed = lerp(current_speed, sprinting_speed * speed_multiplier, delta * lerp_speed)
+			current_speed = move_toward(current_speed, sprinting_speed * speed_multiplier, delta * sprint_acceleration)
 			walking = false; sprinting = true; crouching = false
 		else:
 			current_speed = lerp(current_speed, walking_speed * speed_multiplier, delta * lerp_speed)
 			walking = true; sprinting = false; crouching = false
 
+	# --- GRAVITY & JUMPING ---
 	if not is_on_floor(): velocity += get_gravity() * delta
 	
 	if Input.is_action_just_pressed("jump"): bhop_jump_buffer = BHOP_BUFFER_MAX
@@ -1066,41 +1101,85 @@ func handle_movement(delta: float) -> void:
 		else:
 			if not in_heaven: stamina_bar.value -= 5
 			velocity.y = jump_velocity
-			sliding = false
+			is_sliding = false
+			free_looking = false
 			bhop_jump_buffer = 0.0
 			jump_sound.play()
 			animation_player.play('jumping')
 
-	if is_on_floor() and last_velocity.y < 0.0:
+	if is_on_floor() and last_velocity.y < -3.0:
 		animation_player.play('landing')
 		footsteps.play()
 		spawn_landing_footprints()
 
+	# --- DIRECTION & VELOCITY MATH ---
 	var target_dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
 	if is_on_floor():
-		if in_heaven and bhop_jump_buffer > 0:
-			direction = target_dir if target_dir != Vector3.ZERO else direction
+		if is_sliding:
+			var floor_normal = get_floor_normal()
+			if floor_normal.y < 0.99: 
+				var downhill_dir = Vector3.DOWN.slide(floor_normal).normalized()
+				velocity += downhill_dir * slope_acceleration * delta
+			else: 
+				var friction_amount = slide_friction * delta * 15.0
+				var flat_vel = Vector2(velocity.x, velocity.z)
+				flat_vel = flat_vel.move_toward(Vector2.ZERO, friction_amount)
+				velocity.x = flat_vel.x
+				velocity.z = flat_vel.y
+				
+			if Vector2(velocity.x, velocity.z).length() < 1.0:
+				is_sliding = false
 		else:
-			direction = lerp(direction, target_dir, delta * lerp_speed)
+			if in_heaven and bhop_jump_buffer > 0:
+				direction = target_dir if target_dir != Vector3.ZERO else direction
+			else:
+				direction = lerp(direction, target_dir, delta * lerp_speed)
 	else:
 		if in_heaven and target_dir != Vector3.ZERO:
 			direction = lerp(direction, target_dir, delta * SOURCE_AIR_ACCEL)
 		elif target_dir != Vector3.ZERO:
 			direction = lerp(direction, target_dir, delta * air_lerp_speed)
 		
-	if sliding:
-		direction = (transform.basis * Vector3(slide_vector.x, 0, slide_vector.y)).normalized()
-		current_speed = (slide_timer + 0.1) * slide_speed * speed_multiplier
+	# --- MOMENTUM PRESERVATION & BRAKES ---
+	if not is_sliding:
+		var flat_vel = Vector2(velocity.x, velocity.z)
 		
-	if direction:
-		velocity.x = direction.x * current_speed
-		velocity.z = direction.z * current_speed
-	else:
-		if in_heaven and not is_on_floor(): pass
+		if direction:
+			var target_vel = Vector2(direction.x, direction.z) * current_speed
+			
+			if flat_vel.length() > current_speed:
+				if not is_on_floor():
+					# --- THE AIR STRAFING FIX ---
+					# Instead of pulling the vector to a slow stop, we bend the 
+					# high-speed momentum toward your input direction!
+					var high_speed_target = Vector2(direction.x, direction.z).normalized() * flat_vel.length()
+					flat_vel = flat_vel.lerp(high_speed_target, delta * 4.0)
+					
+					# Slowly lose the extra speed while falling
+					var new_length = move_toward(flat_vel.length(), current_speed, 5.0 * delta)
+					flat_vel = flat_vel.normalized() * new_length
+				else:
+					var deceleration = 15.0 * delta
+					if crouching:
+						deceleration = 40.0 * delta 
+						
+					flat_vel = flat_vel.move_toward(target_vel, deceleration)
+					
+				velocity.x = flat_vel.x
+				velocity.z = flat_vel.y
+			else:
+				velocity.x = target_vel.x
+				velocity.z = target_vel.y
 		else:
-			velocity.x = move_toward(velocity.x, 0, current_speed)
-			velocity.z = move_toward(velocity.z, 0, current_speed)
+			if in_heaven and not is_on_floor(): pass
+			else:
+				var decel = 15.0 * delta
+				if crouching and is_on_floor(): decel = 40.0 * delta 
+				elif flat_vel.length() <= current_speed: decel = current_speed
+				
+				velocity.x = move_toward(velocity.x, 0, decel)
+				velocity.z = move_toward(velocity.z, 0, decel)
 		
 	last_velocity = velocity
 	move_and_slide()
@@ -1179,9 +1258,32 @@ func handle_camera_and_bobbing(delta: float) -> void:
 func handle_grabbed_object(delta: float) -> void:
 	if grabbed_object:
 		var target_pos = grabbed_anchor.global_position
-		var required_velocity = (target_pos - grabbed_object.global_position) / delta
+		var distance_vector = target_pos - grabbed_object.global_position
+		
+		# Pull the object toward the crosshair
+		var player_strength = 20.0 
+		var required_velocity = (distance_vector * player_strength) / grabbed_object.mass
 		grabbed_object.linear_velocity = required_velocity.clamp(Vector3(-50, -50, -50), Vector3(50, 50, 50))
-		grabbed_object.angular_velocity *= 0.1
+		
+		# --- NEW: PHYSICS-SAFE ROTATION ---
+		if rotating_object:
+			var cam_up = camera_3d.global_transform.basis.y
+			var cam_right = camera_3d.global_transform.basis.x
+			
+			# Convert the accumulated mouse movement into radians
+			var rot_x = deg_to_rad(object_rotation_input.x * object_rotation_sens)
+			var rot_y = deg_to_rad(object_rotation_input.y * object_rotation_sens)
+			
+			# Create a spin axis and apply it as angular velocity!
+			# Dividing by delta ensures it perfectly matches your mouse speed
+			var spin_axis = (cam_up * rot_x) + (cam_right * rot_y)
+			grabbed_object.angular_velocity = spin_axis / delta
+			
+			# Reset input for the next frame so it doesn't spin forever
+			object_rotation_input = Vector2.ZERO
+		else:
+			# Dampen rotation when not actively spinning it
+			grabbed_object.angular_velocity *= 0.1
 
 func check_bean_proximity():
 	if gazunka_beans:
@@ -1525,9 +1627,9 @@ func save_inventory() -> void:
 	# --- CRITICAL FIX: READ THE FILE FIRST TO PRESERVE THE STASH ---
 	var save_data = {}
 	if FileAccess.file_exists(SAVE_FILE_PATH):
-		var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
+		var save_file = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
 		var json = JSON.new()
-		if json.parse(file.get_as_text()) == OK:
+		if json.parse(save_file.get_as_text()) == OK:
 			save_data = json.get_data()
 
 	save_data["hotbar"] = hotbar_data
