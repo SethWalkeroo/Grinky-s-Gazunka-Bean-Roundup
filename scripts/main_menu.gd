@@ -8,7 +8,7 @@ extends CanvasLayer
 @onready var stash_panel: ColorRect = $stash_panel
 @onready var bean_shop_button: Button = $bean_shop_button
 @onready var stash_button: Button = $stash_button 
-@onready var bean_shop_display: Label = $shop_panel/bean_shop_display 
+@onready var bean_shop_display: RichTextLabel = $shop_panel/bean_shop_display
 
 # --- CRITICAL FIX: SWAPPED NODE PATHS ---
 @onready var stash_grid: GridContainer = $stash_panel/player_grid # This is your Stash UI
@@ -18,7 +18,8 @@ extends CanvasLayer
 
 @onready var buy_shotgun_btn: Button = $shop_panel/buy_shotgun_btn 
 @onready var buy_shotgun_ammo_btn: Button = $shop_panel/buy_shotgun_ammo_btn
-@onready var stash_bean_display: Label = $stash_panel/stash_bean_display
+@onready var stash_bean_display: RichTextLabel = $stash_panel/stash_bean_display
+
 
 # --- NEW CLOSE BUTTONS ---
 @onready var close_shop_btn: Button = $shop_panel/close_shop_btn 
@@ -737,7 +738,7 @@ func _on_close_stash_pressed() -> void:
 	if bean_shop_button: bean_shop_button.visible = true
 
 func update_shop_display() -> void:
-	var bean_text = "Beans Available: " + str(GlobalStats.total_beans_collected)
+	var bean_text = "Beans Jar: [wave amp=20 freq=5 connect=1]" + str(GlobalStats.total_beans_collected) + '[/wave]'
 	if bean_shop_display:
 		bean_shop_display.text = bean_text
 	if stash_bean_display:
@@ -758,6 +759,9 @@ func buy_item(item_name: String, price: int, quantity: int) -> void:
 	# If we have money and space, do the transaction!
 	GlobalStats.total_beans_collected -= price
 	GlobalStats.save_to_disk() 
+	
+	# --- NEW: TRIGGER FLOATING MINUS TEXT ---
+	spawn_floating_text(price, get_viewport().get_mouse_position())
 	
 	# Play a cash register/success sound here!
 	update_shop_display()
@@ -944,8 +948,8 @@ func can_fit_item(item_name: String, amount: int) -> bool:
 
 func update_bean_jar_display() -> void:
 	if bean_jar:
-		# You can add BBCode like [color=yellow] or [center] around this if needed!
-		bean_jar.text = "Beans: " + str(GlobalStats.total_beans_collected)
+		# Keeps the exact same wavy formatting you set up in your _ready function!
+		bean_jar.text = "[color=cyan]Bean Jar:[/color] [wave amp=20 freq=5 connect=1][color=gold][b]%s[/b][/color][/wave]" % str(GlobalStats.total_beans_collected)
 
 func _on_heaven_button_pressed() -> void:
 	GlobalStats.play_click()
@@ -1008,3 +1012,33 @@ func shift_transfer_item(source_slot: Control) -> void:
 			source_slot.set_item(source_slot.item_name, amount_to_move)
 			
 		save_stash_to_json() # Save immediately so the JSON stays in sync
+
+# --- THE NEW FLOATING MINUS TEXT FUNCTION ---
+func spawn_floating_text(amount: int, start_pos: Vector2) -> void:
+	if amount <= 0: return
+	
+	var popup = Label.new()
+	popup.text = "-" + str(amount)
+	
+	# Make it red to indicate spending!
+	popup.add_theme_color_override("font_color", Color.RED)
+	popup.add_theme_font_size_override("font_size", 28)
+	popup.add_theme_color_override("font_outline_color", Color.BLACK)
+	popup.add_theme_constant_override("outline_size", 4)
+	
+	# Add it to the CanvasLayer so it draws over the shop menus
+	add_child(popup)
+	
+	# Center the text exactly on the mouse cursor
+	popup.global_position = start_pos - (popup.size / 2)
+	
+	var tween = get_tree().create_tween()
+	
+	# Move the text 60 pixels straight up over 1.2 seconds
+	tween.tween_property(popup, "global_position:y", start_pos.y - 60.0, 1.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	# Fade the text out at the exact same time
+	tween.parallel().tween_property(popup, "modulate:a", 0.0, 1.2)
+	
+	# Delete the label so it doesn't clutter memory
+	tween.tween_callback(popup.queue_free)

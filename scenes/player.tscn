@@ -430,22 +430,6 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="torch_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=531316526]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -67.0
-offset_top = -17.0
-offset_right = -3.0
-grow_horizontal = 0
-grow_vertical = 0
-size_flags_vertical = 8
-theme_override_colors/font_color = Color(1, 1, 1, 0.4392157)
-theme_override_font_sizes/font_size = 12
-text = "torches: 27"
-
 [node name="VBoxContainer" type="VBoxContainer" parent="neck/head/eyes/CanvasLayer" unique_id=2097902031]
 visible = false
 anchors_preset = 8
@@ -1213,6 +1197,45 @@ grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="quit_confirm_panel" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=376631897]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7647059)
+
+[node name="confirm_quit_btn" type="Button" parent="neck/head/eyes/CanvasLayer/quit_confirm_panel" unique_id=902883364]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -99.0
+offset_top = 25.5
+offset_right = 99.0
+offset_bottom = 56.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Yes, Quit and Lose Items"
+
+[node name="cancel_quit_btn" type="Button" parent="neck/head/eyes/CanvasLayer/quit_confirm_panel" unique_id=1165892124]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -12.5
+offset_right = 30.0
+offset_bottom = 18.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Cancel"
 
 [node name="object_grabber_shapecast" type="ShapeCast3D" parent="neck/head/eyes" unique_id=1856526472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118158e-08, -0.09398723, -0.25857222)

@@ -1,6 +1,15 @@
 extends CharacterBody3D
 class_name Player
 
+
+# quit confirm
+# --- QUIT CONFIRMATION NODES ---
+
+@onready var confirm_quit_btn: Button = $neck/head/eyes/CanvasLayer/quit_confirm_panel/confirm_quit_btn
+@onready var cancel_quit_btn: Button = $neck/head/eyes/CanvasLayer/quit_confirm_panel/cancel_quit_btn
+@onready var quit_confirm_panel: ColorRect = $neck/head/eyes/CanvasLayer/quit_confirm_panel
+
+
 # new hiding logic
 @export var active_enemy : Enemy
 var is_hidden = false
@@ -224,6 +233,14 @@ var action_to_rebind: String = ""
 var button_to_rebind: Button = null
 
 func _ready() -> void:
+	# --- INITIALIZE QUIT POPUP ---
+	if quit_confirm_panel: quit_confirm_panel.visible = false
+	if confirm_quit_btn:
+		confirm_quit_btn.pressed.connect(_on_confirm_quit_pressed)
+	if cancel_quit_btn:
+		cancel_quit_btn.pressed.connect(_on_cancel_quit_pressed)
+	
+	#subviewport fps camera
 	$neck/head/eyes/Camera3D/SubViewportContainer/SubViewport.size = DisplayServer.window_get_size()
 
 	minimap_checkbox.button_pressed = GlobalStats.minimap_on
@@ -470,7 +487,7 @@ func _input(event: InputEvent) -> void:
 			elif object_grabber_shapecast.is_colliding():
 				for i in object_grabber_shapecast.get_collision_count():
 					var collided = object_grabber_shapecast.get_collider(i)
-					if collided is RigidBody3D and !grabbed_object:
+					if (collided is RigidBody3D or collided is PhysicalBone3D) and !grabbed_object:
 						try_grabbing(collided)
 						break 
 
@@ -530,8 +547,14 @@ func fire_shotgun() -> void:
 			flash_timer.timeout.connect(func(): flash.visible = false)
 			
 		# Optional: Add a tiny bit of screen shake for recoil!
-		trigger_screen_shake(0.15)
-			
+		trigger_screen_shake(0.2, "shotgun")
+		
+		# Get the exact backward direction of the camera (+Z) and apply velocity
+		var knockback_dir = camera_3d.global_transform.basis.z.normalized()
+		# Add a tiny bit of upward lift so shooting the floor pops you up slightly
+		knockback_dir += Vector3(0, 0.2, 0) 
+		velocity += knockback_dir * 4.0 # Tweak this 4.0 multiplier to make the push harder/softer
+		
 		# --- 2. SHOTGUN PELLET HITSCAN ---
 		var space_state = get_world_3d().direct_space_state
 		var origin = camera_3d.global_position
@@ -820,7 +843,10 @@ func try_grabbing(collided):
 	grabbed_object.collision_mask = 0
 	add_collision_exception_with(grabbed_object)
 	
-	grabbed_object.sleeping = false 
+	# --- NEW: Safe sleeping check ---
+	if "sleeping" in grabbed_object:
+		grabbed_object.sleeping = false 
+		
 	grab_spring_arm.spring_length = 2.0
 
 func handle_bean_pickup(collided):
@@ -881,6 +907,9 @@ func update_crosshair(delta: float) -> void:
 	if not crosshair: return
 	
 	var is_interactable = false
+	var is_enemy = false
+	
+	# 1. Check for grabbable objects (Short range via Shapecast)
 	if object_grabber_shapecast.is_colliding():
 		for i in object_grabber_shapecast.get_collision_count():
 			var collided = object_grabber_shapecast.get_collider(i)
@@ -888,9 +917,34 @@ func update_crosshair(delta: float) -> void:
 				is_interactable = true
 				break
 				
-	var target_color = Color.GREEN if is_interactable else Color.WHITE
-	var target_size = Vector2(2, 2) if is_interactable else Vector2(1.0, 1.0)
+	# 2. Check for enemies (Long range via Raycast)
+	var space_state = get_world_3d().direct_space_state
+	var origin = camera_3d.global_position
+	# Cast 50 meters straight forward (matching your shotgun range)
+	var end_point = origin + (-camera_3d.global_transform.basis.z * 50.0) 
 	
+	var query = PhysicsRayQueryParameters3D.create(origin, end_point)
+	query.exclude = [self.get_rid()]
+	
+	var result = space_state.intersect_ray(query)
+	if result:
+		# Use the exact same logic we set up for the flesh sounds!
+		if result.collider is Enemy or result.collider.is_in_group("flesh"):
+			is_enemy = true
+			
+	# 3. Determine target color and size
+	var target_color = Color.WHITE
+	var target_size = Vector2(1.0, 1.0)
+	
+	# Enemy highlight overrides the grab highlight if both happen
+	if is_enemy:
+		target_color = Color.RED
+		target_size = Vector2(1.5, 1.5) # Slightly larger when aiming at an enemy
+	elif is_interactable:
+		target_color = Color.GREEN
+		target_size = Vector2(2.0, 2.0)
+	
+	# Smoothly animate the changes
 	crosshair.color = lerp(crosshair.color, target_color, delta * 20.0)
 	crosshair.size = lerp(crosshair.size, target_size, delta * 20.0)
 
@@ -929,7 +983,11 @@ func handle_interaction() -> void:
 		throw_sound.pitch_scale = randf_range(1.0, 1.2)
 		throw_sound.play()
 		var throw_dir = -eyes.global_basis.z + Vector3(0.0, 0.2, 0.0)
-		grabbed_object.sleeping = false
+		
+		# --- NEW: Safe sleeping check ---
+		if "sleeping" in grabbed_object:
+			grabbed_object.sleeping = false
+			
 		var final_impulse = throw_dir.normalized() * throw_force * grabbed_object.mass
 		var drop_obj = grabbed_object
 		
@@ -1168,13 +1226,35 @@ func spawn_floating_text(pos: Vector3):
 	tween.parallel().tween_property(popup, "modulate:a", 0.0, 1.2)
 	tween.tween_callback(popup.queue_free)
 
-func trigger_screen_shake(intensity: float = 0.1):
+func trigger_screen_shake(intensity: float = 0.1, shake_type: String = "default"):
 	var tween = get_tree().create_tween()
+	
+	# 1. Base offset shake (Earthquake rumble) - Happens for BOTH
 	tween.tween_property(camera_3d, "h_offset", randf_range(-intensity, intensity), 0.04)
 	tween.parallel().tween_property(camera_3d, "v_offset", randf_range(-intensity, intensity), 0.04)
-	tween.tween_property(camera_3d, "h_offset", 0.0, 0.1)
-	tween.parallel().tween_property(camera_3d, "v_offset", 0.0, 0.1)
+	
+	if shake_type == "shotgun":
+		# 2. FOV Kick & Muzzle Climb - ONLY for the Shotgun
+		var base_fov = camera_3d.fov
+		var fov_kick = intensity * 40.0 
+		tween.parallel().tween_property(camera_3d, "fov", base_fov + fov_kick, 0.04).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+		
+		var current_rot_x = camera_3d.rotation.x
+		var kick_angle = deg_to_rad(intensity * 25.0) 
+		tween.parallel().tween_property(camera_3d, "rotation:x", current_rot_x + kick_angle, 0.04).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 
+		# --- SNAP EVERYTHING BACK (Shotgun) ---
+		tween.chain().tween_property(camera_3d, "h_offset", 0.0, 0.1)
+		tween.parallel().tween_property(camera_3d, "v_offset", 0.0, 0.1)
+		tween.parallel().tween_property(camera_3d, "fov", base_fov, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.parallel().tween_property(camera_3d, "rotation:x", current_rot_x, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		
+	else:
+		# --- SNAP EVERYTHING BACK (Default/Bean Pickup) ---
+		tween.chain().tween_property(camera_3d, "h_offset", 0.0, 0.1)
+		tween.parallel().tween_property(camera_3d, "v_offset", 0.0, 0.1)
+		
+		
 func show_death_ui():
 	wipe_inventory_on_death()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -1240,15 +1320,49 @@ func _handle_leaderboard_close(node_to_free):
 	GlobalStats.play_click() 
 	node_to_free.queue_free() 
 
-func _on_main_menu_pressed() -> void:
+func has_loot_to_lose() -> bool:
+	if bean_count > 0: return true
+	for slot in get_all_ui_slots():
+		if slot.item_name != "empty":
+			return true
+	return false
+
+# 2. The player clicked "Cancel" on the warning popup
+func _on_cancel_quit_pressed() -> void:
 	GlobalStats.play_click()
-	if not dead:
+	quit_confirm_panel.visible = false
+	menu_vbox.visible = true
+
+# 3. The player clicked "Yes, Quit" OR they are allowed to quit safely
+func _on_confirm_quit_pressed() -> void:
+	GlobalStats.play_click()
+	execute_quit()
+
+# The actual logic that processes the exit
+func execute_quit() -> void:
+	if not dead and (in_heaven or win):
 		save_inventory()
 	else:
-		wipe_inventory_on_death() # Force a wipe instead of saving if dead!
+		wipe_inventory_on_death() # Force a wipe if abandoning the raid!
 		
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+
+#1. The player clicked "Main Menu" in the pause screen
+func _on_main_menu_pressed() -> void:
+	GlobalStats.play_click()
+	
+	if dead or (in_heaven or win):
+		# Safe to quit normally (they are dead, or in a safe zone)
+		execute_quit()
+	elif has_loot_to_lose():
+		# DANGER: They have items and are trying to bail! Show the warning.
+		menu_vbox.visible = false
+		quit_confirm_panel.visible = true
+	else:
+		# They have absolutely nothing in their pockets. Let them leave without a warning.
+		execute_quit()
 
 func _on_settings_button_pressed() -> void:
 	GlobalStats.play_click() 
@@ -1470,10 +1584,11 @@ func load_inventory() -> void:
 # Triggers when the user force-quits the game (e.g. clicking the X on the window)
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if not dead:
-			save_inventory()
-		else:
+		# Same rule here: Force-quitting during a raid destroys your backpack!
+		if dead or (not in_heaven and not win):
 			wipe_inventory_on_death()
+		else:
+			save_inventory()
 
 func wipe_inventory_on_death() -> void:
 	var save_data = {}

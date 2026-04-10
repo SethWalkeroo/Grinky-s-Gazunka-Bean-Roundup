@@ -743,15 +743,17 @@ offset_right = 182.5
 offset_bottom = 30.5
 text = "50 beans"
 
-[node name="bean_shop_display" type="Label" parent="shop_panel" unique_id=1280800338]
+[node name="bean_shop_display" type="RichTextLabel" parent="shop_panel" unique_id=1852497692]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -20.0
-offset_right = 20.0
-offset_bottom = 23.0
+offset_left = -55.0
+offset_top = 11.0
+offset_right = 120.5
+offset_bottom = 62.0
 grow_horizontal = 2
+bbcode_enabled = true
 
 [node name="stash_panel" type="ColorRect" parent="." unique_id=263047847]
 anchors_preset = 15
@@ -1098,20 +1100,20 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -19.0
-offset_top = -82.0
-offset_right = 74.0
-offset_bottom = -51.0
+offset_left = -18.0
+offset_top = -59.0
+offset_right = 75.0
+offset_bottom = -28.0
 grow_horizontal = 2
 grow_vertical = 0
 text = "close stash"
 
 [node name="sell_zone" type="ColorRect" parent="stash_panel" unique_id=1827928967]
 layout_mode = 0
-offset_left = 393.0
-offset_top = 274.0
-offset_right = 433.0
-offset_bottom = 314.0
+offset_left = 401.0
+offset_top = 161.0
+offset_right = 441.0
+offset_bottom = 201.0
 color = Color(0, 1, 0.24579334, 1)
 script = ExtResource("19_8egab")
 
@@ -1124,19 +1126,20 @@ offset_bottom = 68.0
 theme_override_font_sizes/font_size = 10
 text = "Drop here to sell"
 
-[node name="stash_bean_display" type="Label" parent="stash_panel" unique_id=1696689385]
+[node name="stash_bean_display" type="RichTextLabel" parent="stash_panel" unique_id=1385557555]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -157.0
-offset_top = -27.0
-offset_right = -117.0
-offset_bottom = -4.0
+offset_left = -29.0
+offset_top = -101.0
+offset_right = 183.0
+offset_bottom = -61.0
 grow_horizontal = 2
 grow_vertical = 0
+bbcode_enabled = true
 
 [node name="player_grid" type="GridContainer" parent="stash_panel" unique_id=99798847]
 layout_mode = 0

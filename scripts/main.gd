@@ -6,7 +6,6 @@ extends Node3D
 @onready var player: CharacterBody3D = $player
 @onready var enemy = get_tree().get_first_node_in_group("enemy") 
 @onready var exit_door: Area3D = $exit_door
-@onready var torch_label: Label = $player/neck/head/eyes/CanvasLayer/torch_label
 @onready var world_environment: WorldEnvironment = $env/WorldEnvironment
 @onready var wall_torches: Node3D = $wall_torches
 @onready var gazunka_beans: Node3D = $Gazunka_Beans
@@ -29,8 +28,6 @@ var torch_throw = preload("res://scenes/torch.tscn")
 func _ready() -> void:
 	randomize()
 	distribute_beans()
-	
-	update_torch_ui()
 	if exit_door and exit_door.has_node("light"):
 		exit_door.get_node("light").light_color = Color.RED
 	if player.has_signal("bean_collected"):
@@ -173,7 +170,6 @@ func throw_torch() -> void:
 		var throw_dir = -eyes.global_basis.z
 		instance.apply_central_impulse((throw_dir) + Vector3(0, 1.0, 0))
 		torch_count -= 1
-		update_torch_ui()
 	else:
 		print("Out of torches!")
 
@@ -190,9 +186,6 @@ func _on_player_bean_collected():
 		if exit_door and exit_door.has_node("light"):
 			exit_door.get_node("light").light_color = Color.GREEN
 
-func update_torch_ui() -> void:
-	if torch_label:
-		torch_label.text = "Torches: " + str(torch_count)
 
 func _on_exit_door_body_entered(body: Node3D) -> void:
 	if body == player:
