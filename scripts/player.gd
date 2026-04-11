@@ -2,6 +2,9 @@ extends CharacterBody3D
 class_name Player
 
 
+#distortion
+@onready var proximity_distortion: ColorRect = $neck/head/eyes/CanvasLayer/ProximityDistortion
+
 #slide variables
 # --- APEX SLIDE VARIABLES ---
 var is_sliding: bool = false
@@ -10,6 +13,7 @@ var slide_cooldown_timer: float = 0.0
 @export var slide_cooldown: float = 1.2 
 @export var slide_friction: float = 0.777
 @export var slope_acceleration: float = 18.0 
+@onready var slide_loop_sound: AudioStreamPlayer3D = $slide_loop_sound
 
 # --- NEW DYNAMIC MOMENTUM VARIABLES ---
 @export var sprint_acceleration: float = 7.777 # How fast you build up to max sprint speed
@@ -909,6 +913,7 @@ func _physics_process(delta: float) -> void:
 	handle_grabbed_object(delta)
 	check_bean_proximity()
 	update_exhaustion_visuals(delta)
+	update_proximity_distortion(delta)
 
 func update_crosshair(delta: float) -> void:
 	if not crosshair: return
@@ -973,9 +978,11 @@ func handle_timers(delta: float) -> void:
 
 	if speed_boost_timer > 0:
 		speed_boost_timer -= delta
-		if speed_lines: speed_lines.modulate.a = lerp(speed_lines.modulate.a, 1.0, delta * 15.0)
+		# Fades in quickly (about 0.15 seconds)
+		if speed_lines: speed_lines.modulate.a = move_toward(speed_lines.modulate.a, 1.0, delta * 6.0)
 	else:
-		if speed_lines: speed_lines.modulate.a = lerp(speed_lines.modulate.a, 0.0, delta * 5.0)
+		# Fades out linearly and smoothly (about 0.8 seconds)
+		if speed_lines: speed_lines.modulate.a = move_toward(speed_lines.modulate.a, 0.0, delta * 1.2)
 
 	if bean_count >= 7:
 		if exit_door and exit_door.has_node("light"):
@@ -1043,7 +1050,13 @@ func handle_movement(delta: float) -> void:
 
 	# --- FIXED CROUCHING & SLIDING TRIGGER ---
 	if Input.is_action_pressed('crouch') or is_sliding or (crouching and ceiling_detection.is_colliding()):
-		current_speed = lerp(current_speed, crouching_speed * speed_multiplier, delta * lerp_speed)
+		
+		# --- THE MINISLIDE FIX ---
+		# Removed "and not is_sliding". Your target speed now safely shrinks 
+		# down to 3.0 WHILE you slide, preventing the post-slide acceleration bounce!
+		if is_on_floor():
+			current_speed = lerp(current_speed, crouching_speed * speed_multiplier, delta * lerp_speed)
+			
 		head.position.y = lerp(head.position.y, crouching_depth, delta * lerp_speed)
 		standing_collision_shape.disabled = true
 		crouching_collision_shape.disabled = false
@@ -1071,6 +1084,7 @@ func handle_movement(delta: float) -> void:
 			mouse_sens = slide_sens
 		else:
 			is_sliding = false 
+			mouse_sens = default_mouse_sens # <-- NEW: Prevents your mouse sensitivity from getting stuck!
 			
 		walking = false; sprinting = false; crouching = true
 		
@@ -1079,6 +1093,7 @@ func handle_movement(delta: float) -> void:
 		head.position.y = lerp(head.position.y, 0.0, (delta * lerp_speed) * 0.8)
 		
 		is_sliding = false
+		mouse_sens = default_mouse_sens # <-- NEW: Resets sensitivity if you just stand up
 		if not Input.is_action_pressed("crouch"):
 			slide_boost_available = true 
 			
@@ -1124,6 +1139,11 @@ func handle_movement(delta: float) -> void:
 			else: 
 				var friction_amount = slide_friction * delta * 15.0
 				var flat_vel = Vector2(velocity.x, velocity.z)
+				if in_heaven and target_dir != Vector3.ZERO:
+					var current_slide_speed = flat_vel.length()
+					var desired_direction = Vector2(target_dir.x, target_dir.z).normalized() * current_slide_speed
+					# Tweak the '4.0' to make the steering tighter or looser!
+					flat_vel = flat_vel.lerp(desired_direction, delta * 4.0)
 				flat_vel = flat_vel.move_toward(Vector2.ZERO, friction_amount)
 				velocity.x = flat_vel.x
 				velocity.z = flat_vel.y
@@ -1154,7 +1174,7 @@ func handle_movement(delta: float) -> void:
 					# Instead of pulling the vector to a slow stop, we bend the 
 					# high-speed momentum toward your input direction!
 					var high_speed_target = Vector2(direction.x, direction.z).normalized() * flat_vel.length()
-					flat_vel = flat_vel.lerp(high_speed_target, delta * 4.0)
+					flat_vel = flat_vel.lerp(high_speed_target, delta * 6.0)
 					
 					# Slowly lose the extra speed while falling
 					var new_length = move_toward(flat_vel.length(), current_speed, 5.0 * delta)
@@ -1175,12 +1195,45 @@ func handle_movement(delta: float) -> void:
 			if in_heaven and not is_on_floor(): pass
 			else:
 				var decel = 15.0 * delta
-				if crouching and is_on_floor(): decel = 40.0 * delta 
-				elif flat_vel.length() <= current_speed: decel = current_speed
+				if crouching and is_on_floor(): 
+					decel = 40.0 * delta 
+				elif flat_vel.length() <= current_speed: 
+					# --- THE MIDAIR FREEZE FIX ---
+					# If you let go of the keyboard in the air, don't stop instantly!
+					if is_on_floor():
+						decel = current_speed
+					else:
+						decel = 2.0 * delta # Smooth air drag instead of an instant stop
 				
 				velocity.x = move_toward(velocity.x, 0, decel)
 				velocity.z = move_toward(velocity.z, 0, decel)
+				
+	# --- DYNAMIC SLIDING AUDIO ---
+	if is_sliding and is_on_floor():
+		if not slide_loop_sound.playing:
+			slide_loop_sound.play()
 		
+		# Get our current horizontal speed
+		var current_slide_speed = Vector2(velocity.x, velocity.z).length()
+		
+		# Map the speed to the pitch (Faster = higher pitch squeal, Slower = deep gravel crunch)
+		# Assuming max slide speed is around 15.0, and min is around 2.0
+		var target_pitch = clamp(current_slide_speed / 10.0, 0.7, 1.3)
+		slide_loop_sound.pitch_scale = lerp(slide_loop_sound.pitch_scale, target_pitch, delta * 10.0)
+		
+		# Map the speed to the volume (Faster = louder, Slower = quieter)
+		# Decibels (db) are logarithmic. 0 is max volume, -40 is practically silent.
+		var target_volume = -40.0 + (clamp(current_slide_speed / 15.0, 0.0, 1.0) * 40.0)
+		slide_loop_sound.volume_db = lerp(slide_loop_sound.volume_db, target_volume, delta * 15.0)
+		
+	else:
+		# If we stop sliding, or fly off a ramp into the air, kill the friction sound!
+		if slide_loop_sound.playing:
+			# Smoothly fade it out real quick so it doesn't pop
+			slide_loop_sound.volume_db = lerp(slide_loop_sound.volume_db, -60.0, delta * 25.0)
+			if slide_loop_sound.volume_db <= -50.0:
+				slide_loop_sound.stop()
+					
 	last_velocity = velocity
 	move_and_slide()
 
@@ -1711,3 +1764,24 @@ func wipe_inventory_on_death() -> void:
 	if save_file:
 		save_file.store_string(JSON.stringify(save_data))
 		print("Player died. Inventory wiped, stash preserved.")
+
+func update_proximity_distortion(delta: float) -> void:
+	if not proximity_distortion or not proximity_distortion.material: return
+	
+	var target_intensity = 0.0
+	
+	# If the enemy exists and is currently chasing us around
+	if is_instance_valid(active_enemy) and not active_enemy.is_ragdolled:
+		var distance = global_position.distance_to(active_enemy.global_position)
+		
+		# If the enemy is closer than 15 meters, start panicking!
+		if distance < 15.0:
+			# Maps the distance into a 0.0 to 1.0 scale (Max panic at 3 meters)
+			target_intensity = clamp(1.0 - ((distance - 3.0) / 12.0), 0.0, 1.0)
+			
+	# Smoothly turn the shader dial up or down
+	var current_intensity = proximity_distortion.material.get_shader_parameter("intensity")
+	if current_intensity == null: current_intensity = 0.0
+	
+	var new_intensity = move_toward(current_intensity, target_intensity, delta * 1.5)
+	proximity_distortion.material.set_shader_parameter("intensity", new_intensity)

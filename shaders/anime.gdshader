@@ -15,7 +15,12 @@ void fragment() {
     float mask = smoothstep(center_radius, center_radius + edge_blur, radius);
     float is_line = step(0.85, noise);
 
+    // 1. Save the alpha that your GDScript is smoothly fading!
+    float script_fade = COLOR.a; 
+
+    // 2. Apply your custom white color
     COLOR = line_color;
-    // THE FIX: Multiply the alpha by COLOR.a so it fades perfectly!
-    COLOR.a = is_line * mask * COLOR.a;
+    
+    // 3. Multiply your shapes by the script's smooth fade
+    COLOR.a = is_line * mask * script_fade;
 }

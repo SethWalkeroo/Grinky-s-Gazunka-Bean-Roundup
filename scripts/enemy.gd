@@ -95,6 +95,7 @@ var is_ragdolled: bool = false
 const ANIM_IDLE = "idle" 
 const ANIM_RUN = "run"
 const ANIM_ATTACK = "attack"
+const ANIM_CANT_SEE_PLAYER = "forward_sad"
 
 func _ready():
 	icon_component.get_node('icon_sprite').pixel_size = 0.0003
@@ -222,6 +223,7 @@ func _physics_process(delta):
 		current_move_speed = min(current_move_speed, 7.5) 
 	
 	update_animation_speed_dynamic(current_move_speed)
+	
 	head_bobbing_walking_speed = 14.0 * (current_move_speed / 3.0)
 
 	apply_movement(current_move_speed, has_arrived, delta)
@@ -468,7 +470,13 @@ func apply_movement(current_move_speed: float, has_arrived: bool, delta: float) 
 				if global_position.distance_squared_to(look_target) > 0.01:
 					var target_transform = global_transform.looking_at(look_target, Vector3.UP)
 					global_transform = global_transform.interpolate_with(target_transform, rotation_speed * delta)
-				play_animation(ANIM_RUN)
+				
+				# --- DYNAMIC WALKING ANIMATIONS ---
+				if is_chasing or beans_collected >= 7:
+					play_animation(ANIM_RUN)
+				else:
+					play_animation(ANIM_CANT_SEE_PLAYER)
+					
 			else:
 				velocity.x = 0.0
 				velocity.z = 0.0
@@ -550,7 +558,14 @@ func play_animation(anim_name: String):
 
 func update_animation_speed_dynamic(temp_speed: float):
 	var anim_scale = max(0.5, temp_speed / 3.0) 
-	if anim_player: anim_player.speed_scale = anim_scale
+	
+	if anim_player: 
+		# --- NEW: Boost the sad animation speed to match the fast footstep math! ---
+		if anim_player.current_animation == ANIM_CANT_SEE_PLAYER:
+			anim_player.speed_scale = anim_scale * 1.6 
+		else:
+			anim_player.speed_scale = anim_scale
+			
 	if enemy_footsteps: enemy_footsteps.pitch_scale = lerp(0.8, 1.4, (anim_scale - 1.0) / 2.0)
 
 func target_in_range() -> bool:

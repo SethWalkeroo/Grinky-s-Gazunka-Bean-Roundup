@@ -123,7 +123,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.460794, 0.71483874, 8.0461
 [node name="gazunka_bean7" parent="Gazunka_Beans" unique_id=132393142 instance=ExtResource("6_tipki")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37.368572, 0.7029433, 62.758442)
 
-[node name="player" parent="." unique_id=286832902 instance=ExtResource("6_o6xl0")]
+[node name="player" parent="." unique_id=286832902 node_paths=PackedStringArray("active_enemy") instance=ExtResource("6_o6xl0")]
+active_enemy = NodePath("../NavigationRegion3D/Enemy")
 impact_scene = ExtResource("9_jbj1t")
 footprint_scene = ExtResource("9_jkv2x")
 
