@@ -504,8 +504,19 @@ func _input(event: InputEvent) -> void:
 				for i in object_grabber_shapecast.get_collision_count():
 					var collided = object_grabber_shapecast.get_collider(i)
 					if (collided is RigidBody3D or collided is PhysicalBone3D) and !grabbed_object:
-						try_grabbing(collided)
-						break 
+						
+						# --- NEW: GRAB LINE OF SIGHT CHECK ---
+						# ShapeCast pushes through walls. This invisible laser makes sure
+						# there isn't a table blocking the item!
+						var space_state = get_world_3d().direct_space_state
+						var query = PhysicsRayQueryParameters3D.create(eyes.global_position, collided.global_position)
+						query.exclude = [self.get_rid(), collided.get_rid()]
+						query.collision_mask = 1 # We only care if Layer 1 (walls/tables) blocks us
+						
+						var hit_wall = space_state.intersect_ray(query)
+						if not hit_wall:
+							try_grabbing(collided)
+							break 
 
 	if event is InputEventMouseMotion:
 		if rotating_object and grabbed_object:
@@ -629,7 +640,17 @@ func fire_shotgun() -> void:
 						
 				# --- DAMAGE LOGIC (Ready for your enemies) ---
 				if result.collider.has_method("take_damage"):
-					result.collider.take_damage(10)
+					# 1. Calculate exactly how far this pellet traveled
+					var hit_distance = origin.distance_to(result.position)
+					
+					# 2. Scale the damage. 
+					# Up close (0m) = 15 damage per pellet. Far away (50m) = 2 damage per pellet.
+					var pellet_damage = remap(hit_distance, 0.0, range_distance, 15.0, 2.0)
+					
+					# Clamp it just to be safe, and convert to integer
+					var final_damage = int(clamp(pellet_damage, 2.0, 15.0))
+					
+					result.collider.take_damage(final_damage)
 					# --- PUSH PHYSICS OBJECTS & RAGDOLLS ---
 				if result.collider is RigidBody3D or result.collider is PhysicalBone3D:
 					# Calculate exactly the direction the camera is facing
@@ -926,8 +947,17 @@ func update_crosshair(delta: float) -> void:
 		for i in object_grabber_shapecast.get_collision_count():
 			var collided = object_grabber_shapecast.get_collider(i)
 			if collided is RigidBody3D:
-				is_interactable = true
-				break
+				
+				# --- NEW: CROSSHAIR LINE OF SIGHT CHECK ---
+				var space_state = get_world_3d().direct_space_state
+				var query = PhysicsRayQueryParameters3D.create(camera_3d.global_position, collided.global_position)
+				query.exclude = [self.get_rid(), collided.get_rid()]
+				query.collision_mask = 1 
+				
+				var hit_wall = space_state.intersect_ray(query)
+				if not hit_wall:
+					is_interactable = true
+					break
 				
 	# 2. Check for enemies (Long range via Raycast)
 	var space_state = get_world_3d().direct_space_state

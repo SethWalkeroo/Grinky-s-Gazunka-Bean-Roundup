@@ -479,7 +479,7 @@ text = "View Leaderboard"
 [node name="main_menu" type="Button" parent="neck/head/eyes/CanvasLayer/VBoxContainer" unique_id=1676753012]
 modulate = Color(1, 0, 0.05021286, 1)
 layout_mode = 2
-mouse_default_cursor_shape = 8
+mouse_default_cursor_shape = 2
 text = "Quit To Main Menu"
 
 [node name="settings_panel" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=1676582262]
@@ -727,6 +727,16 @@ mouse_default_cursor_shape = 2
 text = "Lean Left"
 
 [node name="LeanrightBtn" type="Button" parent="neck/head/eyes/CanvasLayer/controls_settings/ScrollContainer/GridContainer" unique_id=1892920410]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Lean Right"
+
+[node name="ReloadBtn" type="Button" parent="neck/head/eyes/CanvasLayer/controls_settings/ScrollContainer/GridContainer" unique_id=1700320037]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Lean Right"
+
+[node name="InventoryBtn" type="Button" parent="neck/head/eyes/CanvasLayer/controls_settings/ScrollContainer/GridContainer" unique_id=1784939848]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Lean Right"
@@ -1189,15 +1199,15 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="quit_confirm_panel" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=376631897]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7647059)
+color = Color(0, 0, 0, 0.8156863)
 
 [node name="confirm_quit_btn" type="Button" parent="neck/head/eyes/CanvasLayer/quit_confirm_panel" unique_id=902883364]
+modulate = Color(1, 0.8713381, 0, 1)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1205,14 +1215,16 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -99.0
-offset_top = 25.5
+offset_top = -15.5
 offset_right = 99.0
-offset_bottom = 56.5
+offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
+mouse_default_cursor_shape = 2
 text = "Yes, Quit and Lose Items"
 
 [node name="cancel_quit_btn" type="Button" parent="neck/head/eyes/CanvasLayer/quit_confirm_panel" unique_id=1165892124]
+modulate = Color(1, 0.006820798, 0, 1)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1220,11 +1232,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -30.0
-offset_top = -12.5
+offset_top = 22.5
 offset_right = 30.0
-offset_bottom = 18.5
+offset_bottom = 53.5
 grow_horizontal = 2
 grow_vertical = 2
+mouse_default_cursor_shape = 2
 text = "Cancel"
 
 [node name="BackBufferCopy2" type="BackBufferCopy" parent="neck/head/eyes/CanvasLayer" unique_id=1294578810]
@@ -1363,7 +1376,7 @@ bus = &"effects"
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
-[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_check_box_toggled"]
 [connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
+[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_check_box_toggled"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

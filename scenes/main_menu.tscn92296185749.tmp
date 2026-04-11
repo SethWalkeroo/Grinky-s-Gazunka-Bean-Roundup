@@ -522,16 +522,6 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Lean Right"
 
-[node name="ReloadBtn" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=406371111]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "Lean Right"
-
-[node name="InventoryBtn" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=361923831]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "Lean Right"
-
 [node name="save_settings" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=1409489092]
 modulate = Color(0, 1, 0.20977783, 1)
 layout_mode = 2
@@ -689,7 +679,6 @@ mouse_default_cursor_shape = 2
 text = "Your Stash"
 
 [node name="shop_panel" type="ColorRect" parent="." unique_id=777782643]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -711,7 +700,6 @@ offset_right = 45.0
 offset_bottom = -11.0
 grow_horizontal = 2
 grow_vertical = 0
-mouse_default_cursor_shape = 2
 text = "close shop"
 
 [node name="buy_shotgun_ammo_btn" type="Button" parent="shop_panel" unique_id=1619174523]
@@ -727,7 +715,6 @@ offset_right = 79.5
 offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
-mouse_default_cursor_shape = 2
 text = "Buy shotgun ammo "
 
 [node name="ammo_price" type="RichTextLabel" parent="shop_panel/buy_shotgun_ammo_btn" unique_id=1632973824]
@@ -752,7 +739,6 @@ offset_right = 52.5
 offset_bottom = -24.5
 grow_horizontal = 2
 grow_vertical = 2
-mouse_default_cursor_shape = 2
 text = "Buy shotgun"
 
 [node name="shotgun_price" type="RichTextLabel" parent="shop_panel/buy_shotgun_btn" unique_id=568806838]
@@ -1128,7 +1114,6 @@ offset_right = 75.0
 offset_bottom = -28.0
 grow_horizontal = 2
 grow_vertical = 0
-mouse_default_cursor_shape = 2
 text = "close stash"
 
 [node name="sell_zone" type="ColorRect" parent="stash_panel" unique_id=1827928967]
@@ -2115,47 +2100,6 @@ offset_right = 123.0
 offset_bottom = 210.0
 mouse_default_cursor_shape = 2
 text = "Heaven"
-
-[node name="beanfarm_button" type="Button" parent="." unique_id=2078089040]
-visible = false
-offset_left = 332.0
-offset_top = 101.0
-offset_right = 456.0
-offset_bottom = 132.0
-text = "The Bean Farm"
-
-[node name="beanfarm_panel" type="ColorRect" parent="." unique_id=615966237]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 1, 0.13945818, 1)
-
-[node name="Button" type="Button" parent="beanfarm_panel" unique_id=475103630]
-layout_mode = 0
-offset_left = 173.0
-offset_top = 305.0
-offset_right = 285.0
-offset_bottom = 336.0
-text = "Collect Beans"
-
-[node name="Label" type="Label" parent="beanfarm_panel" unique_id=1197380933]
-layout_mode = 0
-offset_left = 175.0
-offset_top = 265.0
-offset_right = 283.0
-offset_bottom = 289.0
-text = "Beans Grown:"
-
-[node name="Button2" type="Button" parent="beanfarm_panel" unique_id=1843061866]
-layout_mode = 0
-offset_left = 120.0
-offset_top = 148.0
-offset_right = 363.0
-offset_bottom = 179.0
-text = "click to encourage bean plants"
 
 [connection signal="pressed" from="ProfilePanel/CreateButton" to="." method="_on_create_button_pressed"]
 [connection signal="pressed" from="MenuButtons/StartButton" to="." method="_on_start_button_pressed"]

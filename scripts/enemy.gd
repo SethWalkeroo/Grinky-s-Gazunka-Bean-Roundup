@@ -4,6 +4,15 @@ class_name Enemy
 
 signal enemy_dead
 
+
+# --- NEW COMBAT VARIABLES ---
+var max_health: int = 200
+var current_health: int = max_health
+
+var is_staggered: bool = false
+var stagger_timer: float = 0.0
+@export var stagger_duration: float = 0.6 # How long they freeze when shot
+
 #impact sound
 @onready var ragdoll_impact_sound: AudioStreamPlayer3D = $ragdoll_impact_sound
 var last_impact_time: float = 0.0
@@ -178,6 +187,21 @@ func _physics_process(delta):
 		return
 
 	if not nav_map_ready: return
+	
+	# --- NEW: THE STAGGER INTERCEPT ---
+	if is_staggered:
+		stagger_timer -= delta
+		if stagger_timer <= 0.0:
+			is_staggered = false
+			
+		# Slam on the brakes so they slide to a halt while flinching
+		velocity.x = move_toward(velocity.x, 0, 40.0 * delta)
+		velocity.z = move_toward(velocity.z, 0, 40.0 * delta)
+		move_and_slide()
+		
+		# 'return' forces the script to stop reading here. 
+		# They won't chase, attack, or turn until the stagger is over!
+		return 
 		
 	if beans_collected == 0 or player_is_dead:
 		velocity = Vector3.ZERO
@@ -256,7 +280,20 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
 		if target_bone:
 			target_bone.apply_central_impulse(push_direction * 250.0)
 		return
+		
+	# --- NEW HEALTH LOGIC ---
+	current_health -= amount
+	print("Enemy took ", amount, " damage! Health: ", current_health)
 	
+	if current_health > 0:
+		# They survived! Trigger the stagger
+		is_staggered = true
+		stagger_timer = stagger_duration
+		
+		# (Optional: Play a flinch/pain sound effect right here if you add one later!)
+		return
+	
+	# --- DEATH LOGIC (Only runs if health <= 0) ---
 	is_ragdolled = true
 	collision_shape_3d.disabled = true
 	

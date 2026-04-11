@@ -63,6 +63,7 @@ scale_curve = SubResource("CurveTexture_ya4ey")
 color = Color(1, 0.8862745, 0.6901961, 1)
 color_ramp = SubResource("GradientTexture1D_85g3d")
 alpha_curve = SubResource("CurveTexture_eb6dy")
+collision_mode = 2
 collision_use_scale = true
 
 [sub_resource type="QuadMesh" id="QuadMesh_x1r1x"]
@@ -100,6 +101,7 @@ scale_min = 0.04
 scale_max = 0.089999996
 scale_curve = SubResource("CurveTexture_ndh0a")
 color = Color(1, 0.75600576, 0, 1)
+collision_mode = 2
 
 [sub_resource type="QuadMesh" id="QuadMesh_xugk2"]
 
@@ -388,6 +390,9 @@ script = ExtResource("1_r3k50")
 [node name="fire" type="GPUParticles3D" parent="." unique_id=75582458]
 transform = Transform3D(0.99999994, -5.215952e-10, 0, -8.310508e-11, 0.99999994, 0, 0, -2.3283064e-10, 0.9999999, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_gybtl")
+visibility_range_end = 50.0
+visibility_range_end_margin = 2.0
+visibility_range_fade_mode = 1
 amount = 50
 lifetime = 1.2
 process_material = SubResource("ParticleProcessMaterial_etrdt")
@@ -396,14 +401,19 @@ draw_pass_1 = SubResource("QuadMesh_x1r1x")
 [node name="sparks" type="GPUParticles3D" parent="." unique_id=221754983]
 transform = Transform3D(0.9999999, -9.870291e-10, 0, -8.299139e-11, 0.9999999, -2.3283064e-10, 5.820766e-11, -6.9849193e-10, 0.99999976, -5.4240227e-05, -0.007370472, 1.8239021e-05)
 material_override = SubResource("StandardMaterial3D_o1df0")
+visibility_range_end = 50.0
+visibility_range_end_margin = 2.0
+visibility_range_fade_mode = 1
 amount = 7
 process_material = SubResource("ParticleProcessMaterial_if6sk")
 draw_pass_1 = SubResource("QuadMesh_xugk2")
 
 [node name="torchlight" type="OmniLight3D" parent="." unique_id=1621173894]
-layers = 3
 light_color = Color(1, 0.9265426, 0.6850681, 1)
 light_energy = 0.694
+shadow_enabled = true
+shadow_caster_mask = 4294967291
+distance_fade_enabled = true
 
 [node name="light_animation" type="AnimationPlayer" parent="." unique_id=1330501846]
 libraries/ = SubResource("AnimationLibrary_1cq4k")
@@ -411,6 +421,7 @@ autoplay = &"init"
 
 [node name="CSGCylinder3D" type="CSGCylinder3D" parent="." unique_id=1773947644]
 transform = Transform3D(0.998364, -0.011688584, 0.0010923943, -0.014690911, -0.79433244, -8.206453e-06, 0.0010902043, -6.2468916e-06, -1.0004802, 0.0014818311, -0.4084103, -0.00053441525)
+layers = 4
 radius = 0.063
 height = 0.797
 sides = 7
@@ -431,6 +442,10 @@ transform = Transform3D(0.99999994, 8.7538865e-10, 1.0477379e-08, -8.310508e-11,
 stream = ExtResource("5_ndh0a")
 volume_db = -22.857
 bus = &"effects"
+
+[node name="RayCast3D" type="RayCast3D" parent="." unique_id=73024456]
+transform = Transform3D(0.99999964, -9.858923e-10, 5.820766e-11, -8.2536644e-11, 0.99999964, -4.656613e-10, 5.820766e-11, -2.0954758e-09, 0.9999993, 0.009431395, -0.118490316, 0.0002995577)
+target_position = Vector3(0, 0.25, 0)
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

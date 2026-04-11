@@ -25,7 +25,8 @@ var minimap_on = false
 var keybinds_to_save: Array = [
 	"forward", "backward", "left", "right", 
 	"jump", "sprint", "crouch", "interact", "interact2",
-	"throw", "torch", "freelook", "leanleft", "leanright", "screenshot"
+	"throw", "torch", "freelook", "leanleft", "leanright", "screenshot",
+	"reload", "inventory"
 ]
 
 const SAVE_PATH = "user://gazunka_records.cfg"

@@ -30,8 +30,8 @@ const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 # Example prices
 var shotgun_price = 35
 var shotgun_ammo_price = 7
-@onready var shotgun_ammo_price_label: Label = $shop_panel/buy_shotgun_ammo_btn/ammo_price
-@onready var shotgun_price_label: Label = $shop_panel/buy_shotgun_btn/shotgun_price
+@onready var shotgun_ammo_price_label: RichTextLabel = $shop_panel/buy_shotgun_ammo_btn/ammo_price
+@onready var shotgun_price_label: RichTextLabel = $shop_panel/buy_shotgun_btn/shotgun_price
 
 @onready var number_1_player: RichTextLabel = $number_1_player
 @onready var motd_button: Button = $motd_button
@@ -119,6 +119,18 @@ var motds = [
 	'“[i]Keep your face always toward the [color=gold]sunshine[/color]—and [color=black]shadows[/color] will fall behind you.[/i]” –Walt Whitman',
 	'“[i][color=gold]Motivation[/color] is what gets you started. [color=green]Habit[/color] is what keeps you going.[/i]” [color=orange]–Jim Ryun[/color]',
 	'“[i]The secret of getting [color=cyan]ahead[/color] is getting [color=green]started[/color].[/i]” [color=red]–Mark Twain[/color]',
+	'"[i]A [color=gold]great man[/color] is [color=red]hard on himself[/color]; [color=gray]a small man[/color] is [color=red]hard on others[/color].[/i] [color=red]-Confucius[/color]',
+	'"[i]When you find [rainbow]peace[/rainbow] within yourself, you also find [rainbow]peace[/rainbow] without.[/i]" [color=gold]-Naga Devi[/color]',
+	'"[i]The inner [color=orange]fire[/color] is the most important thing [color=red]mankind[/color] possesses.[/i]" [color=gold]-Edith Sodergran[/color]',
+	'"[i]It always seems [color=red]impossible[/color] until it’s [color=gold]done[/color].[/i]" [color=green]-Nelson Mandela[/color]',
+	'"[i]Try not to become a man of [color=green]success[/color] but rather to become a man of [color=gold]value[/color][/i]." [rainbow]-Albert Einstein[/rainbow]',
+	'"[i]The weak can [color=red]never forgive[/color]. [color=pink]Forgiveness[/color] is the attribute of the [color=gold]strong[/color].[/i]" [rainbow]-Mahatma Gandhi[/rainbow]',
+	'"[i]The [color=cyan]unexamined life[/color] is not worth living.[/i]" [color=brown]-Socrates[/color]',
+	'"[i]A man who stands for [color=black]nothing[/color] will fall for [rainbow]anything[/rainbow].[/i]" [color=red]-Malcolm X[/color]',
+	'"[i][rainbow]It’s fun to do the impossible.[/rainbow][/i]" [color=cyan]-Walt Disney[/color]',
+	'"[i]Have no [color=red]fear[/color] of [color=gold]perfection[/color], you’ll never reach it.[/i]" [rainbow]-Salvador Dali[/rainbow]',
+	'"[i]Do to others as you would have them do to you.[/i]" [color=gold]-Jesus Christ[/color]'
+	
 ]
 
 var last_motd_index: int = -1
@@ -193,8 +205,8 @@ var sarah_bus = AudioServer.get_bus_index("sarah")
 
 func _ready() -> void:
 	
-	shotgun_ammo_price_label.text = str(shotgun_ammo_price)
-	shotgun_price_label.text = str(shotgun_price)
+	shotgun_ammo_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(shotgun_ammo_price) + ' beans[/wave][/color]'
+	shotgun_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(shotgun_price) + ' beans[/wave][/color]'
 	
 	if heaven_button:
 		heaven_button.mouse_entered.connect(_play_hover_sound)
