@@ -564,7 +564,6 @@ func toggle_inventory() -> void:
 		if inventory_menu: inventory_menu.visible = false
 		crosshair.visible = true
 
-# --- WEAPON LOGIC ---
 func fire_shotgun() -> void:
 	if is_switching_weapons or is_reloading: return
 	
@@ -647,11 +646,33 @@ func fire_shotgun() -> void:
 					if impact.has_method("play_impact"):
 						impact.play_impact(surface_type)
 						
-				if result.collider.has_method("take_damage"):
+				# --- DYNAMIC HEADSHOT & DAMAGE LOGIC ---
+				var hit_node = result.collider
+				var is_headshot = false
+
+				if hit_node is PhysicalBone3D and "Head" in hit_node.name:
+					is_headshot = true
+					var temp_node = hit_node
+					while temp_node and not temp_node is Enemy:
+						temp_node = temp_node.get_parent()
+					if temp_node is Enemy:
+						hit_node = temp_node
+
+				elif hit_node is Enemy:
+					var local_y = result.position.y - hit_node.global_position.y
+					print("Pellet hit height: ", local_y)
+					if local_y > 2.5:
+						is_headshot = true
+						
+				if hit_node and hit_node.has_method("take_damage"):
 					var hit_distance = origin.distance_to(result.position)
 					var pellet_damage = remap(hit_distance, 0.0, range_distance, 15.0, 2.0)
-					var final_damage = int(clamp(pellet_damage, 2.0, 15.0))
-					result.collider.take_damage(final_damage)
+					
+					if is_headshot:
+						pellet_damage *= 2.5
+						
+					var final_damage = int(clamp(pellet_damage, 2.0, 50.0))
+					hit_node.take_damage(final_damage, result.position, is_headshot)
 					
 				if result.collider is RigidBody3D or result.collider is PhysicalBone3D:
 					if result.collider is RigidBody3D:

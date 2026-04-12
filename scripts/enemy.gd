@@ -257,7 +257,7 @@ func _physics_process(delta):
 	apply_movement(current_move_speed, has_arrived, delta)
 
 
-func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
+func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot: bool = false) -> void:
 	var push_direction = Vector3.UP
 	if player != null:
 		push_direction = (global_position - player.global_position).normalized()
@@ -283,6 +283,12 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
 		
 	current_health -= amount
 	print("Enemy took ", amount, " damage! Health: ", current_health)
+	
+	# --- DOPAMINE UPGRADE: HEADSHOT FEEDBACK ---
+	if is_headshot and player and player.has_method("spawn_floating_text"):
+		var scatter = Vector3(randf_range(-0.3, 0.3), randf_range(-0.1, 0.3), randf_range(-0.3, 0.3))
+		var text_pos = hit_position + scatter
+		player.spawn_floating_text(text_pos, "HEADSHOT!", Color(1.0, 0.1, 0.1))
 	
 	if current_health > 0:
 		is_staggered = true
@@ -351,6 +357,7 @@ func reset_investigation_variables():
 	path_timer = 0.0 
 	investigation_timer = 0.0
 	group_scream_delay = randf_range(0.0, 0.5) # Reset micro-delay!
+
 
 func investigate_sound(sound_pos: Vector3, loudness: float) -> void:
 	if player_is_dead or beans_collected >= 7: return
