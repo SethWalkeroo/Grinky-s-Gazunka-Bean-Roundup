@@ -19,7 +19,7 @@
 [sub_resource type="Environment" id="Environment_o6xl0"]
 background_mode = 2
 ambient_light_source = 2
-ambient_light_color = Color(0.0703125, 0.054077957, 0.003890628, 1)
+ambient_light_color = Color(0.078125, 0.061383933, 0, 1)
 ambient_light_energy = 1.6
 tonemap_mode = 2
 glow_enabled = true

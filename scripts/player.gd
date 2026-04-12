@@ -620,20 +620,28 @@ func fire_shotgun() -> void:
 					elif hit_normal == Vector3.DOWN:
 						impact.rotation_degrees.x = -90
 						
-					# --- NEW: CHECK MATERIAL AND PLAY SOUND ---
+					# --- NEW: CHECK MATERIAL AND PLAY SOUND (GRIDMAP HACK) ---
 					var surface_type = "default"
-					if result.collider.is_in_group("wood"):
-						surface_type = "wood"
-					elif result.collider.is_in_group("metal"):
-						surface_type = "metal"
-					elif result.collider.is_in_group("flesh") or result.collider is Enemy:
-						surface_type = "flesh"
-					else:
-						var hit_node = result.collider
-						if hit_node.is_in_group("flesh"):
-							surface_type = "flesh"
+					var hit_node = result.collider
 					
-					print("Hit: ", result.collider.name, " Groups: ", result.collider.get_groups())
+					# 1. First, check if we hit the GridMap
+					if hit_node is GridMap:
+						# If the face is pointing straight up, it's the floor!
+						if hit_normal.is_equal_approx(Vector3.UP):
+							surface_type = "wood"
+						# Otherwise, it must be a wall or ceiling!
+						else:
+							surface_type = "stone" 
+							
+					# 2. Then, run your standard checks for props and enemies
+					elif hit_node.is_in_group("wood"):
+						surface_type = "wood"
+					elif hit_node.is_in_group("metal"):
+						surface_type = "metal"
+					elif hit_node.is_in_group("flesh") or hit_node is Enemy:
+						surface_type = "flesh"
+					
+					print("Hit: ", result.collider.name, " Groups: ", result.collider.get_groups(), " Surface: ", surface_type)
 					# Tell the impact scene to play the right sound!
 					if impact.has_method("play_impact"):
 						impact.play_impact(surface_type)
@@ -651,7 +659,8 @@ func fire_shotgun() -> void:
 					var final_damage = int(clamp(pellet_damage, 2.0, 15.0))
 					
 					result.collider.take_damage(final_damage)
-					# --- PUSH PHYSICS OBJECTS & RAGDOLLS ---
+					
+				# --- PUSH PHYSICS OBJECTS & RAGDOLLS ---
 				if result.collider is RigidBody3D or result.collider is PhysicalBone3D:
 					# Calculate exactly the direction the camera is facing
 					var push_dir = -camera_3d.global_transform.basis.z.normalized()

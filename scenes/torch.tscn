@@ -409,6 +409,7 @@ process_material = SubResource("ParticleProcessMaterial_if6sk")
 draw_pass_1 = SubResource("QuadMesh_xugk2")
 
 [node name="torchlight" type="OmniLight3D" parent="." unique_id=1621173894]
+layers = 3
 light_color = Color(1, 0.9265426, 0.6850681, 1)
 light_energy = 0.694
 shadow_enabled = true
