@@ -1,5 +1,8 @@
 extends Node
 
+
+var last_run_profit: int = 0 # Tracks the exact payout of the previous run
+
 # --- RECORD DATA ---
 var best_time_float: float = 999999.0
 var best_time_string: String = "--:--"

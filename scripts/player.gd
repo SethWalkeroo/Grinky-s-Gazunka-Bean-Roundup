@@ -1,7 +1,6 @@
 extends CharacterBody3D
 class_name Player
 
-
 #distortion
 @onready var proximity_distortion: ColorRect = $neck/head/eyes/CanvasLayer/ProximityDistortion
 
@@ -54,6 +53,7 @@ var inventory_open: bool = false
 var shotgun_ammo: int = 4
 var is_reloading: bool = false
 var is_chambered: bool = true
+var cancel_reload: bool = false
 
 @onready var hotbar: Control = $neck/head/eyes/CanvasLayer/Hotbar
 @onready var slot_0: ColorRect = $neck/head/eyes/CanvasLayer/Hotbar/slot0
@@ -78,6 +78,7 @@ var is_chambered: bool = true
 var bhop_jump_buffer: float = 0.0
 const BHOP_BUFFER_MAX: float = 0.15 # 150ms window to buffer a jump
 const SOURCE_AIR_ACCEL: float = 12.0 # Gives you that smooth air-strafing feel
+var jump_cooldown: float = 0.0
 
 @onready var gui: CanvasLayer = $neck/head/eyes/CanvasLayer
 @onready var wall_torches: Node3D = get_node_or_null("../wall_torches")
@@ -133,6 +134,7 @@ signal bean_collected
 signal player_paused
 signal player_unpaused
 
+var bonus_beans = 0
 var rotating_object = false
 var bean_count = 0
 var win = false
@@ -323,13 +325,11 @@ func _ready() -> void:
 	if inventory_menu: inventory_menu.visible = false
 	if shotgun_model: shotgun_model.visible = false
 		
-	# Load our saved data from the hard drive (replaces testing logic)
 	load_inventory()
 	
 	update_hotbar_ui()
 	refresh_all_slots()
 	
-	# --- SET HOVER CURSORS ---
 	for slot in get_all_ui_slots():
 		if slot is Control:
 			slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -351,13 +351,18 @@ func setup_heaven() -> void:
 	if GlobalStats.needs_upload:
 		upload_new_best_score()
 		
-	# Check if we beat the game, or just clicked the button in the main menu
 	if not GlobalStats.came_from_main_menu:
 		if win_label:
 			var report = "Final Time: " + GlobalStats.final_time_string
 			report += "\nPersonal Best: " + GlobalStats.best_time_string
 			if GlobalStats.final_time_string == GlobalStats.best_time_string:
 				report += "\nNEW PERSONAL RECORD!"
+				
+			# --- DOPAMINE UPGRADE: SHOW THE MONEY ---
+			report += "\n\nTotal Profit: +" + str(GlobalStats.last_run_profit) + " Beans!"
+			if GlobalStats.final_time < 120.0:
+				report += " (2x Speed Bonus!)"
+				
 			win_label.text = report
 			win_label.visible = true
 			win_label.modulate.a = 1.0
@@ -368,7 +373,6 @@ func setup_heaven() -> void:
 			tween.tween_property(win_label, "modulate:a", 0.0, 2.0)
 			tween.tween_callback(win_label.hide)
 	else:
-		# We came from the menu! Hide the label and reset the flag for the next real run.
 		if win_label: 
 			win_label.visible = false
 
@@ -379,6 +383,17 @@ func setup_level() -> void:
 	open_noise = get_node_or_null("../open_noise")
 	if win_label: win_label.visible = false
 	start_voiceline.play()
+	
+	# TURN REVERB BACK ON FOR THE DUNGEON
+	var effects_bus = AudioServer.get_bus_index("effects")
+	for i in range(AudioServer.get_bus_effect_count(effects_bus)):
+		if AudioServer.get_bus_effect(effects_bus, i) is AudioEffectReverb:
+			AudioServer.set_bus_effect_enabled(effects_bus, i, true)
+			
+	var voice_bus = AudioServer.get_bus_index("game_voicelines")
+	for i in range(AudioServer.get_bus_effect_count(voice_bus)):
+		if AudioServer.get_bus_effect(voice_bus, i) is AudioEffectReverb:
+			AudioServer.set_bus_effect_enabled(voice_bus, i, true)
 
 func upload_new_best_score():
 	var sw_result = await SilentWolf.Scores.get_scores(100, "main").sw_get_scores_complete
@@ -445,7 +460,6 @@ func _input(event: InputEvent) -> void:
 		return
 		
 	if event.is_action_pressed('pause') and !paused and !dead:
-		# If the inventory is open, this closes it first
 		if inventory_open:
 			toggle_inventory()
 			
@@ -455,7 +469,7 @@ func _input(event: InputEvent) -> void:
 		menu_vbox.visible = true
 		menu_vbox.move_to_front()
 		paused = true
-		if hotbar: hotbar.visible = false # Hide hotbar when pausing
+		if hotbar: hotbar.visible = false
 		return
 	elif event.is_action_pressed('pause') and paused and !dead:
 		if settings_panel.visible or video_settings.visible or controls_settings.visible:
@@ -468,10 +482,9 @@ func _input(event: InputEvent) -> void:
 			menu_vbox.visible = false
 			settings_panel.visible = false
 			paused = false
-			if hotbar: hotbar.visible = true # Show hotbar when unpausing
+			if hotbar: hotbar.visible = true
 			return
 			
-	# --- INVENTORY TOGGLE (TAB KEY) ---
 	if event is InputEventKey and event.is_pressed() and not event.is_echo() and not paused and not dead:
 		if event.keycode == KEY_TAB:
 			GlobalStats.play_click()
@@ -479,7 +492,6 @@ func _input(event: InputEvent) -> void:
 		
 	if dead or paused or inventory_open: return
 
-	# --- HOTBAR INPUTS ---
 	if event is InputEventKey and event.is_pressed() and not event.is_echo():
 		if event.keycode == KEY_1:
 			equip_slot(0)
@@ -492,10 +504,14 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_R:
 			reload_shotgun()
 
-	# --- INTERACT & FIRE LOGIC ---
+# --- INTERACT & FIRE LOGIC ---
 	if event.is_action_pressed('interact'):
 		if active_slot_index != -1 and inventory[active_slot_index] == "shotgun":
-			fire_shotgun()
+			# --- THE FIX: RELOAD CANCEL ---
+			if is_reloading:
+				cancel_reload = true
+			else:
+				fire_shotgun()
 		else:
 			if grabbed_object:
 				grabbed_object = null
@@ -504,19 +520,15 @@ func _input(event: InputEvent) -> void:
 				for i in object_grabber_shapecast.get_collision_count():
 					var collided = object_grabber_shapecast.get_collider(i)
 					if (collided is RigidBody3D or collided is PhysicalBone3D) and !grabbed_object:
-						
-						# --- NEW: GRAB LINE OF SIGHT CHECK ---
-						# ShapeCast pushes through walls. This invisible laser makes sure
-						# there isn't a table blocking the item!
 						var space_state = get_world_3d().direct_space_state
 						var query = PhysicsRayQueryParameters3D.create(eyes.global_position, collided.global_position)
 						query.exclude = [self.get_rid(), collided.get_rid()]
-						query.collision_mask = 1 # We only care if Layer 1 (walls/tables) blocks us
+						query.collision_mask = 1 
 						
 						var hit_wall = space_state.intersect_ray(query)
 						if not hit_wall:
 							try_grabbing(collided)
-							break 
+							break
 
 	if event is InputEventMouseMotion:
 		if rotating_object and grabbed_object:
@@ -562,56 +574,52 @@ func fire_shotgun() -> void:
 	if shotgun_ammo > 0:
 		shotgun_ammo -= 1
 		hotbar_slots[active_slot_index].quantity = shotgun_ammo
-		# --- 1. MUZZLE FLASH ---
 		var flash = view_model_camera.get_node_or_null('shotgun_rig/shotgun/muzzle_flash')
 		if flash:
 			flash.visible = true
-			# Turn the light off after 50 milliseconds
 			var flash_timer = get_tree().create_timer(0.05)
 			flash_timer.timeout.connect(func(): flash.visible = false)
 			
-		# Optional: Add a tiny bit of screen shake for recoil!
 		trigger_screen_shake(0.2, "shotgun")
 		
-		# Get the exact backward direction of the camera (+Z) and apply velocity
 		var knockback_dir = camera_3d.global_transform.basis.z.normalized()
-		# Add a tiny bit of upward lift so shooting the floor pops you up slightly
 		knockback_dir += Vector3(0, 0.2, 0) 
-		velocity += knockback_dir * 4.0 # Tweak this 4.0 multiplier to make the push harder/softer
+		velocity += knockback_dir * 4.0 
 		
-		# --- 2. SHOTGUN PELLET HITSCAN ---
 		var space_state = get_world_3d().direct_space_state
 		var origin = camera_3d.global_position
 		
-		var pellets = 8          # How many bullets fire out
-		var spread_amount = 0.08 # How wide the cone is
-		var range_distance = 50.0 # How far the bullets go
+		var pellets = 8          
+		var spread_amount = 0.08 
+		var range_distance = 50.0 
+		
+		var shot_excludes = [self.get_rid()]
+		if is_instance_valid(gazunka_beans):
+			for bean in gazunka_beans.get_children():
+				if is_instance_valid(bean) and bean is CollisionObject3D:
+					shot_excludes.append(bean.get_rid())
 		
 		for i in range(pellets):
-			# Create a randomized spread vector
 			var spread_offset = Vector3(
 				randf_range(-spread_amount, spread_amount), 
 				randf_range(-spread_amount, spread_amount), 
 				randf_range(-spread_amount, spread_amount)
 			)
 			
-			# Calculate exactly where this specific pellet is going
 			var pellet_direction = (-camera_3d.global_transform.basis.z + spread_offset).normalized()
 			var end_point = origin + (pellet_direction * range_distance)
 			
 			var query = PhysicsRayQueryParameters3D.create(origin, end_point)
-			query.exclude = [self.get_rid()] # Don't shoot ourselves!
+			query.exclude = shot_excludes 
 			
 			var result = space_state.intersect_ray(query)
 			
 			if result:
-				# A pellet hit something!
 				if impact_scene:
 					var impact = impact_scene.instantiate()
 					get_tree().current_scene.add_child(impact)
 					impact.global_position = result.position
 					
-					# Rotate the impact sparks/decal so they sit flat on the wall
 					var hit_normal = result.normal
 					if hit_normal != Vector3.UP and hit_normal != Vector3.DOWN:
 						impact.look_at(result.position + hit_normal, Vector3.UP)
@@ -620,20 +628,15 @@ func fire_shotgun() -> void:
 					elif hit_normal == Vector3.DOWN:
 						impact.rotation_degrees.x = -90
 						
-					# --- NEW: CHECK MATERIAL AND PLAY SOUND (GRIDMAP HACK) ---
 					var surface_type = "default"
 					var hit_node = result.collider
 					
-					# 1. First, check if we hit the GridMap
 					if hit_node is GridMap:
-						# If the face is pointing straight up, it's the floor!
 						if hit_normal.is_equal_approx(Vector3.UP):
 							surface_type = "wood"
-						# Otherwise, it must be a wall or ceiling!
 						else:
 							surface_type = "stone" 
 							
-					# 2. Then, run your standard checks for props and enemies
 					elif hit_node.is_in_group("wood"):
 						surface_type = "wood"
 					elif hit_node.is_in_group("metal"):
@@ -641,33 +644,24 @@ func fire_shotgun() -> void:
 					elif hit_node.is_in_group("flesh") or hit_node is Enemy:
 						surface_type = "flesh"
 					
-					print("Hit: ", result.collider.name, " Groups: ", result.collider.get_groups(), " Surface: ", surface_type)
-					# Tell the impact scene to play the right sound!
 					if impact.has_method("play_impact"):
 						impact.play_impact(surface_type)
 						
-				# --- DAMAGE LOGIC (Ready for your enemies) ---
 				if result.collider.has_method("take_damage"):
-					# 1. Calculate exactly how far this pellet traveled
 					var hit_distance = origin.distance_to(result.position)
-					
-					# 2. Scale the damage. 
-					# Up close (0m) = 15 damage per pellet. Far away (50m) = 2 damage per pellet.
 					var pellet_damage = remap(hit_distance, 0.0, range_distance, 15.0, 2.0)
-					
-					# Clamp it just to be safe, and convert to integer
 					var final_damage = int(clamp(pellet_damage, 2.0, 15.0))
-					
 					result.collider.take_damage(final_damage)
 					
-				# --- PUSH PHYSICS OBJECTS & RAGDOLLS ---
 				if result.collider is RigidBody3D or result.collider is PhysicalBone3D:
-					# Calculate exactly the direction the camera is facing
+					if result.collider is RigidBody3D:
+						result.collider.freeze = false
+						result.collider.gravity_scale = 1.0 
+						result.collider.sleeping = false 
+
 					var push_dir = -camera_3d.global_transform.basis.z.normalized()
-					# apply_impulse takes (force, hit_location_offset) so it spins based on where you shot it!
 					result.collider.apply_impulse(push_dir * 50.0, result.position - result.collider.global_position) 
 
-		# --- 3. ANIMATIONS & UI ---
 		if shotgun_animator.has_animation("fire"):
 			shotgun_animator.play("fire")
 			shotgun_audio.get_node('fire').play()
@@ -692,43 +686,43 @@ func reload_shotgun() -> void:
 	if active_slot_index == -1 or inventory[active_slot_index] != "shotgun": return
 	if shotgun_ammo >= 4: return # Already full
 	
-	# Check our inventory slots to see if we have ANY shotgun_ammo items
 	var ammo_available = get_total_item_count("shotgun_ammo")
 	if ammo_available <= 0:
 		print("No ammo in inventory to reload with!")
 		return
 		
 	is_reloading = true
+	cancel_reload = false
 	var shells_needed = 4 - shotgun_ammo
 	var shells_to_load = min(shells_needed, ammo_available)
 	
-	# Phase 1: Begin
 	if shotgun_animator.has_animation("begin_reload"):
 		shotgun_animator.play("begin_reload", 0.05)
 		await shotgun_animator.animation_finished
 		
-	# Phase 2: Insert Shells
 	for i in range(shells_to_load):
+		if cancel_reload: break
+		
 		if shotgun_animator.has_animation("inserting_shells"):
 			shotgun_animator.play("inserting_shells", 0.05)
 			shotgun_audio.get_node('load_shell').play()
 			await shotgun_animator.animation_finished
 			
-		# The shell is physically in the gun now, update data
+		# Physically add the shell we just finished animating
 		shotgun_ammo += 1
 		hotbar_slots[active_slot_index].quantity = shotgun_ammo
 		consume_item("shotgun_ammo", 1) 
 		refresh_all_slots()
 		
-		# Give Godot one frame to breathe before looping
+		# Did the player click while that shell was being loaded? Abort the loop!
+		if cancel_reload: break
 		await get_tree().process_frame
 		
-	# Phase 3: End and Chamber
 	if shotgun_animator.has_animation("end_reload"):
 		shotgun_animator.play("end_reload", 0.05)
 		await shotgun_animator.animation_finished
 		
-	if not is_chambered:
+	if not is_chambered and shotgun_ammo > 0:
 		if shotgun_animator.has_animation("pump"):
 			shotgun_animator.play("pump", 0.05)
 			shotgun_audio.get_node('pump').play()
@@ -736,10 +730,10 @@ func reload_shotgun() -> void:
 		is_chambered = true
 		
 	is_reloading = false
+	cancel_reload = false
 
 # --- NEW INVENTORY BACKEND HELPERS ---
 
-# Combines hotbar slots and grid slots into one big array so we can search them
 func get_all_ui_slots() -> Array:
 	var all = []
 	all.append_array(hotbar_slots)
@@ -747,7 +741,6 @@ func get_all_ui_slots() -> Array:
 		all.append_array(inventory_grid.get_children())
 	return all
 
-# Scans all UI slots and counts the total quantity of a specific item
 func get_total_item_count(target_item: String) -> int:
 	var total = 0
 	for slot in get_all_ui_slots():
@@ -755,7 +748,6 @@ func get_total_item_count(target_item: String) -> int:
 			total += slot.quantity
 	return total
 
-# Finds stacks of an item and subtracts from them (Used when reloading)
 func consume_item(target_item: String, amount: int) -> void:
 	var amount_left_to_remove = amount
 	for slot in get_all_ui_slots():
@@ -764,23 +756,19 @@ func consume_item(target_item: String, amount: int) -> void:
 				slot.set_item(slot.item_name, slot.quantity - amount_left_to_remove)
 				return
 			else:
-				# This stack isn't big enough, consume it entirely and keep searching
 				amount_left_to_remove -= slot.quantity
 				slot.set_item("empty", 0)
 
-# Tells all UI slots to refresh their text labels
 func refresh_all_slots():
 	for slot in get_all_ui_slots():
 		if slot.has_method("refresh_label"):
 			slot.refresh_label()
 
 func sync_inventory_arrays() -> void:
-	# What were we holding BEFORE the UI updated?
 	var old_held_item = "empty"
 	if active_slot_index != -1:
 		old_held_item = inventory[active_slot_index]
 		
-	# Update simple array for equip logic
 	for i in range(hotbar_slots.size()):
 		inventory[i] = hotbar_slots[i].item_name
 		
@@ -791,10 +779,7 @@ func sync_inventory_arrays() -> void:
 			shotgun_ammo = hotbar_slots[active_slot_index].quantity
 			is_chambered = (shotgun_ammo > 0)
 		
-		# CRITICAL FIX: Only run equip/unequip animations if the item in our HANDS actually changed!
 		if current_held_item != old_held_item:
-			
-			# If we dragged our equipped weapon into the backpack
 			if current_held_item == "empty":
 				if shotgun_model.visible and shotgun_animator.has_animation("put_away"):
 					shotgun_animator.play("put_away")
@@ -804,7 +789,6 @@ func sync_inventory_arrays() -> void:
 				active_slot_index = -1
 				update_hotbar_ui()
 			else:
-				# Swapped weapons directly in hands
 				var temp = active_slot_index
 				active_slot_index = -1 
 				equip_slot(temp)
@@ -884,7 +868,6 @@ func try_grabbing(collided):
 	grabbed_object = collided
 	add_collision_exception_with(grabbed_object)
 	
-	# --- NEW: Safe sleeping check ---
 	if "sleeping" in grabbed_object:
 		grabbed_object.sleeping = false 
 		
@@ -902,6 +885,11 @@ func handle_bean_pickup(collided):
 		collided.remove_child(sfx)
 		get_tree().current_scene.add_child(sfx)
 		sfx.global_position = collided.global_position
+		
+		# --- DOPAMINE UPGRADE: DYNAMIC PITCH SHIFTING ---
+		# Each bean makes the pickup sound slightly higher pitched!
+		sfx.pitch_scale = 1.0 + (bean_count * 0.08)
+		
 		sfx.play()
 		sfx.finished.connect(sfx.queue_free)
 
@@ -916,8 +904,9 @@ func handle_bean_pickup(collided):
 		timer_p.timeout.connect(p.queue_free)
 	
 	bean_found()
-	spawn_floating_text(collided.global_position)
+	spawn_floating_text(collided.global_position, "+1 Gazunka Bean!", Color(0.955, 1.0, 0.043, 1.0))
 	collided.queue_free()
+	
 	if grabbed_object == collided: 
 		if grabbed_object.has_meta("original_mask"):
 			grabbed_object.collision_mask = grabbed_object.get_meta("original_mask")
@@ -951,13 +940,10 @@ func update_crosshair(delta: float) -> void:
 	var is_interactable = false
 	var is_enemy = false
 	
-	# 1. Check for grabbable objects (Short range via Shapecast)
 	if object_grabber_shapecast.is_colliding():
 		for i in object_grabber_shapecast.get_collision_count():
 			var collided = object_grabber_shapecast.get_collider(i)
 			if collided is RigidBody3D:
-				
-				# --- NEW: CROSSHAIR LINE OF SIGHT CHECK ---
 				var space_state = get_world_3d().direct_space_state
 				var query = PhysicsRayQueryParameters3D.create(camera_3d.global_position, collided.global_position)
 				query.exclude = [self.get_rid(), collided.get_rid()]
@@ -968,10 +954,8 @@ func update_crosshair(delta: float) -> void:
 					is_interactable = true
 					break
 				
-	# 2. Check for enemies (Long range via Raycast)
 	var space_state = get_world_3d().direct_space_state
 	var origin = camera_3d.global_position
-	# Cast 50 meters straight forward (matching your shotgun range)
 	var end_point = origin + (-camera_3d.global_transform.basis.z * 50.0) 
 	
 	var query = PhysicsRayQueryParameters3D.create(origin, end_point)
@@ -979,23 +963,19 @@ func update_crosshair(delta: float) -> void:
 	
 	var result = space_state.intersect_ray(query)
 	if result:
-		# Use the exact same logic we set up for the flesh sounds!
 		if result.collider is Enemy or result.collider.is_in_group("flesh"):
 			is_enemy = true
 			
-	# 3. Determine target color and size
 	var target_color = Color.WHITE
 	var target_size = Vector2(1.0, 1.0)
 	
-	# Enemy highlight overrides the grab highlight if both happen
 	if is_enemy:
 		target_color = Color.RED
-		target_size = Vector2(1.5, 1.5) # Slightly larger when aiming at an enemy
+		target_size = Vector2(1.5, 1.5)
 	elif is_interactable:
 		target_color = Color.GREEN
 		target_size = Vector2(2.0, 2.0)
 	
-	# Smoothly animate the changes
 	crosshair.color = lerp(crosshair.color, target_color, delta * 20.0)
 	crosshair.size = lerp(crosshair.size, target_size, delta * 20.0)
 
@@ -1017,10 +997,8 @@ func handle_timers(delta: float) -> void:
 
 	if speed_boost_timer > 0:
 		speed_boost_timer -= delta
-		# Fades in quickly (about 0.15 seconds)
 		if speed_lines: speed_lines.modulate.a = move_toward(speed_lines.modulate.a, 1.0, delta * 6.0)
 	else:
-		# Fades out linearly and smoothly (about 0.8 seconds)
 		if speed_lines: speed_lines.modulate.a = move_toward(speed_lines.modulate.a, 0.0, delta * 1.2)
 
 	if bean_count >= 7:
@@ -1037,7 +1015,6 @@ func handle_interaction() -> void:
 		throw_sound.play()
 		var throw_dir = -eyes.global_basis.z + Vector3(0.0, 0.2, 0.0)
 		
-		# --- NEW: Safe sleeping check ---
 		if "sleeping" in grabbed_object:
 			grabbed_object.sleeping = false
 			
@@ -1089,10 +1066,6 @@ func handle_movement(delta: float) -> void:
 
 	# --- FIXED CROUCHING & SLIDING TRIGGER ---
 	if Input.is_action_pressed('crouch') or is_sliding or (crouching and ceiling_detection.is_colliding()):
-		
-		# --- THE MINISLIDE FIX ---
-		# Removed "and not is_sliding". Your target speed now safely shrinks 
-		# down to 3.0 WHILE you slide, preventing the post-slide acceleration bounce!
 		if is_on_floor():
 			current_speed = lerp(current_speed, crouching_speed * speed_multiplier, delta * lerp_speed)
 			
@@ -1100,7 +1073,6 @@ func handle_movement(delta: float) -> void:
 		standing_collision_shape.disabled = true
 		crouching_collision_shape.disabled = false
 		
-		# --- PURE PHYSICS SLIDE CHECK ---
 		var minimum_slide_speed = (walking_speed + 0.5) * speed_multiplier
 		
 		if ((speed_length > minimum_slide_speed and is_on_floor()) or is_sliding) and !is_exhausted:
@@ -1123,7 +1095,7 @@ func handle_movement(delta: float) -> void:
 			mouse_sens = slide_sens
 		else:
 			is_sliding = false 
-			mouse_sens = default_mouse_sens # <-- NEW: Prevents your mouse sensitivity from getting stuck!
+			mouse_sens = default_mouse_sens
 			
 		walking = false; sprinting = false; crouching = true
 		
@@ -1132,7 +1104,7 @@ func handle_movement(delta: float) -> void:
 		head.position.y = lerp(head.position.y, 0.0, (delta * lerp_speed) * 0.8)
 		
 		is_sliding = false
-		mouse_sens = default_mouse_sens # <-- NEW: Resets sensitivity if you just stand up
+		mouse_sens = default_mouse_sens
 		if not Input.is_action_pressed("crouch"):
 			slide_boost_available = true 
 			
@@ -1143,13 +1115,20 @@ func handle_movement(delta: float) -> void:
 			current_speed = lerp(current_speed, walking_speed * speed_multiplier, delta * lerp_speed)
 			walking = true; sprinting = false; crouching = false
 
+	# --- DOPAMINE UPGRADE: SLIDE FOV WARP ---
+	var target_fov = 75.0
+	if is_sliding: target_fov = 85.0
+	camera_3d.fov = lerp(camera_3d.fov, target_fov, delta * 6.0)
+
 	# --- GRAVITY & JUMPING ---
 	if not is_on_floor(): velocity += get_gravity() * delta
+	
+	if jump_cooldown > 0: jump_cooldown -= delta
 	
 	if Input.is_action_just_pressed("jump"): bhop_jump_buffer = BHOP_BUFFER_MAX
 	if bhop_jump_buffer > 0: bhop_jump_buffer -= delta
 
-	if bhop_jump_buffer > 0 and is_on_floor() and !ceiling_detection.is_colliding():
+	if bhop_jump_buffer > 0 and is_on_floor() and !ceiling_detection.is_colliding() and jump_cooldown <= 0.0:
 		if is_exhausted and not in_heaven:
 			if !out_of_breath_sound.playing: out_of_breath_sound.play()
 		else:
@@ -1158,6 +1137,7 @@ func handle_movement(delta: float) -> void:
 			is_sliding = false
 			free_looking = false
 			bhop_jump_buffer = 0.0
+			jump_cooldown = 0.25
 			jump_sound.play()
 			animation_player.play('jumping')
 
@@ -1181,7 +1161,6 @@ func handle_movement(delta: float) -> void:
 				if in_heaven and target_dir != Vector3.ZERO:
 					var current_slide_speed = flat_vel.length()
 					var desired_direction = Vector2(target_dir.x, target_dir.z).normalized() * current_slide_speed
-					# Tweak the '4.0' to make the steering tighter or looser!
 					flat_vel = flat_vel.lerp(desired_direction, delta * 4.0)
 				flat_vel = flat_vel.move_toward(Vector2.ZERO, friction_amount)
 				velocity.x = flat_vel.x
@@ -1209,13 +1188,9 @@ func handle_movement(delta: float) -> void:
 			
 			if flat_vel.length() > current_speed:
 				if not is_on_floor():
-					# --- THE AIR STRAFING FIX ---
-					# Instead of pulling the vector to a slow stop, we bend the 
-					# high-speed momentum toward your input direction!
 					var high_speed_target = Vector2(direction.x, direction.z).normalized() * flat_vel.length()
 					flat_vel = flat_vel.lerp(high_speed_target, delta * 6.0)
 					
-					# Slowly lose the extra speed while falling
 					var new_length = move_toward(flat_vel.length(), current_speed, 5.0 * delta)
 					flat_vel = flat_vel.normalized() * new_length
 				else:
@@ -1237,12 +1212,10 @@ func handle_movement(delta: float) -> void:
 				if crouching and is_on_floor(): 
 					decel = 40.0 * delta 
 				elif flat_vel.length() <= current_speed: 
-					# --- THE MIDAIR FREEZE FIX ---
-					# If you let go of the keyboard in the air, don't stop instantly!
 					if is_on_floor():
 						decel = current_speed
 					else:
-						decel = 2.0 * delta # Smooth air drag instead of an instant stop
+						decel = 2.0 * delta
 				
 				velocity.x = move_toward(velocity.x, 0, decel)
 				velocity.z = move_toward(velocity.z, 0, decel)
@@ -1252,23 +1225,16 @@ func handle_movement(delta: float) -> void:
 		if not slide_loop_sound.playing:
 			slide_loop_sound.play()
 		
-		# Get our current horizontal speed
 		var current_slide_speed = Vector2(velocity.x, velocity.z).length()
 		
-		# Map the speed to the pitch (Faster = higher pitch squeal, Slower = deep gravel crunch)
-		# Assuming max slide speed is around 15.0, and min is around 2.0
 		var target_pitch = clamp(current_slide_speed / 10.0, 0.7, 1.3)
 		slide_loop_sound.pitch_scale = lerp(slide_loop_sound.pitch_scale, target_pitch, delta * 10.0)
 		
-		# Map the speed to the volume (Faster = louder, Slower = quieter)
-		# Decibels (db) are logarithmic. 0 is max volume, -40 is practically silent.
 		var target_volume = -40.0 + (clamp(current_slide_speed / 15.0, 0.0, 1.0) * 40.0)
 		slide_loop_sound.volume_db = lerp(slide_loop_sound.volume_db, target_volume, delta * 15.0)
 		
 	else:
-		# If we stop sliding, or fly off a ramp into the air, kill the friction sound!
 		if slide_loop_sound.playing:
-			# Smoothly fade it out real quick so it doesn't pop
 			slide_loop_sound.volume_db = lerp(slide_loop_sound.volume_db, -60.0, delta * 25.0)
 			if slide_loop_sound.volume_db <= -50.0:
 				slide_loop_sound.stop()
@@ -1352,29 +1318,22 @@ func handle_grabbed_object(delta: float) -> void:
 		var target_pos = grabbed_anchor.global_position
 		var distance_vector = target_pos - grabbed_object.global_position
 		
-		# Pull the object toward the crosshair
 		var player_strength = 20.0 
 		var required_velocity = (distance_vector * player_strength) / grabbed_object.mass
 		grabbed_object.linear_velocity = required_velocity.clamp(Vector3(-50, -50, -50), Vector3(50, 50, 50))
 		
-		# --- NEW: PHYSICS-SAFE ROTATION ---
 		if rotating_object:
 			var cam_up = camera_3d.global_transform.basis.y
 			var cam_right = camera_3d.global_transform.basis.x
 			
-			# Convert the accumulated mouse movement into radians
 			var rot_x = deg_to_rad(object_rotation_input.x * object_rotation_sens)
 			var rot_y = deg_to_rad(object_rotation_input.y * object_rotation_sens)
 			
-			# Create a spin axis and apply it as angular velocity!
-			# Dividing by delta ensures it perfectly matches your mouse speed
 			var spin_axis = (cam_up * rot_x) + (cam_right * rot_y)
 			grabbed_object.angular_velocity = spin_axis / delta
 			
-			# Reset input for the next frame so it doesn't spin forever
 			object_rotation_input = Vector2.ZERO
 		else:
-			# Dampen rotation when not actively spinning it
 			grabbed_object.angular_velocity *= 0.1
 
 func check_bean_proximity():
@@ -1410,25 +1369,13 @@ func hit():
 		tween.tween_property(fade_rect, "modulate", Color(0, 0, 0, 1.0), 0.6).set_trans(Tween.TRANS_SINE)
 		tween.tween_callback(show_death_ui)
 
-func spawn_floating_text(pos: Vector3):
-	var popup = Label3D.new()
-	popup.text = "+1 Gazunka Bean!"
-	popup.pixel_size = 0.005; popup.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	popup.modulate = Color(0.955, 1.0, 0.043, 1.0); get_tree().current_scene.add_child(popup); popup.global_position = pos
-	var tween = get_tree().create_tween()
-	tween.tween_property(popup, "global_position:y", pos.y + 1.5, 1.2).set_trans(Tween.TRANS_SINE)
-	tween.parallel().tween_property(popup, "modulate:a", 0.0, 1.2)
-	tween.tween_callback(popup.queue_free)
-
 func trigger_screen_shake(intensity: float = 0.1, shake_type: String = "default"):
 	var tween = get_tree().create_tween()
 	
-	# 1. Base offset shake (Earthquake rumble) - Happens for BOTH
 	tween.tween_property(camera_3d, "h_offset", randf_range(-intensity, intensity), 0.04)
 	tween.parallel().tween_property(camera_3d, "v_offset", randf_range(-intensity, intensity), 0.04)
 	
 	if shake_type == "shotgun":
-		# 2. FOV Kick & Muzzle Climb - ONLY for the Shotgun
 		var base_fov = camera_3d.fov
 		var fov_kick = intensity * 40.0 
 		tween.parallel().tween_property(camera_3d, "fov", base_fov + fov_kick, 0.04).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
@@ -1437,14 +1384,12 @@ func trigger_screen_shake(intensity: float = 0.1, shake_type: String = "default"
 		var kick_angle = deg_to_rad(intensity * 25.0) 
 		tween.parallel().tween_property(camera_3d, "rotation:x", current_rot_x + kick_angle, 0.04).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 
-		# --- SNAP EVERYTHING BACK (Shotgun) ---
 		tween.chain().tween_property(camera_3d, "h_offset", 0.0, 0.1)
 		tween.parallel().tween_property(camera_3d, "v_offset", 0.0, 0.1)
 		tween.parallel().tween_property(camera_3d, "fov", base_fov, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.parallel().tween_property(camera_3d, "rotation:x", current_rot_x, 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		
 	else:
-		# --- SNAP EVERYTHING BACK (Default/Bean Pickup) ---
 		tween.chain().tween_property(camera_3d, "h_offset", 0.0, 0.1)
 		tween.parallel().tween_property(camera_3d, "v_offset", 0.0, 0.1)
 		
@@ -1452,7 +1397,7 @@ func trigger_screen_shake(intensity: float = 0.1, shake_type: String = "default"
 func show_death_ui():
 	wipe_inventory_on_death()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	if hotbar: hotbar.visible = false # Hide hotbar on death screen
+	if hotbar: hotbar.visible = false
 	menu_vbox.modulate.a = 0.0
 	menu_vbox.visible = true
 	menu_vbox.move_to_front()
@@ -1521,41 +1466,33 @@ func has_loot_to_lose() -> bool:
 			return true
 	return false
 
-# 2. The player clicked "Cancel" on the warning popup
 func _on_cancel_quit_pressed() -> void:
 	GlobalStats.play_click()
 	quit_confirm_panel.visible = false
 	menu_vbox.visible = true
 
-# 3. The player clicked "Yes, Quit" OR they are allowed to quit safely
 func _on_confirm_quit_pressed() -> void:
 	GlobalStats.play_click()
 	execute_quit()
 
-# The actual logic that processes the exit
 func execute_quit() -> void:
 	if not dead and (in_heaven or win):
 		save_inventory()
 	else:
-		wipe_inventory_on_death() # Force a wipe if abandoning the raid!
+		wipe_inventory_on_death()
 		
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
-
-#1. The player clicked "Main Menu" in the pause screen
 func _on_main_menu_pressed() -> void:
 	GlobalStats.play_click()
 	
 	if dead or (in_heaven or win):
-		# Safe to quit normally (they are dead, or in a safe zone)
 		execute_quit()
 	elif has_loot_to_lose():
-		# DANGER: They have items and are trying to bail! Show the warning.
 		menu_vbox.visible = false
 		quit_confirm_panel.visible = true
 	else:
-		# They have absolutely nothing in their pockets. Let them leave without a warning.
 		execute_quit()
 
 func _on_settings_button_pressed() -> void:
@@ -1642,7 +1579,17 @@ func spawn_landing_footprints() -> void:
 func save_final_time() -> void:
 	GlobalStats.final_time = total_time
 	GlobalStats.final_time_string = time.text
-	GlobalStats.add_to_jar(bean_count)
+	
+	var base_payout = bean_count + bonus_beans
+	var final_payout = base_payout
+	
+	if total_time < 120.0:
+		final_payout *= 2
+		print("Speedrun bonus achieved! Payout doubled from ", base_payout, " to ", final_payout)
+		
+	GlobalStats.last_run_profit = final_payout
+	GlobalStats.add_to_jar(final_payout)
+	
 	if total_time < GlobalStats.best_time_float:
 		GlobalStats.save_score(total_time, time.text)
 		GlobalStats.needs_upload = true
@@ -1658,7 +1605,7 @@ func _on_resume_pressed() -> void:
 		menu_vbox.visible = false
 		settings_panel.visible = false
 		paused = false
-		if hotbar: hotbar.visible = true # Show hotbar again when unpausing
+		if hotbar: hotbar.visible = true
 
 func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
 	GlobalStats.play_click()
@@ -1687,7 +1634,6 @@ func equip_slot(slot_index: int) -> void:
 	if active_slot_index != -1:
 		var new_item = inventory[active_slot_index]
 		if new_item == "shotgun":
-			# --- NEW: Load ammo from this specific shotgun's slot! ---
 			shotgun_ammo = hotbar_slots[active_slot_index].quantity
 			is_chambered = (shotgun_ammo > 0)
 			
@@ -1716,7 +1662,6 @@ func save_inventory() -> void:
 			if slot.has_method("set_item"):
 				grid_data.append({"item": slot.item_name, "qty": slot.quantity})
 
-	# --- CRITICAL FIX: READ THE FILE FIRST TO PRESERVE THE STASH ---
 	var save_data = {}
 	if FileAccess.file_exists(SAVE_FILE_PATH):
 		var save_file = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
@@ -1727,7 +1672,6 @@ func save_inventory() -> void:
 	save_data["hotbar"] = hotbar_data
 	save_data["grid"] = grid_data
 	save_data["shotgun_ammo"] = shotgun_ammo
-	# Notice we leave save_data["stash_grid"] completely alone!
 
 	var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
 	if file:
@@ -1735,10 +1679,10 @@ func save_inventory() -> void:
 		print("Inventory saved successfully to ", SAVE_FILE_PATH)
 	else:
 		print("ERROR: Could not open save file to write!")
+
 func load_inventory() -> void:
 	if not FileAccess.file_exists(SAVE_FILE_PATH):
 		print("No save file found. Using default inventory.")
-		# Fallback for brand new saves so you have something to test with
 		if inventory_grid and inventory_grid.get_child_count() > 0:
 			if inventory_grid.get_child(0).has_method("set_item"):
 				inventory_grid.get_child(0).set_item("shotgun_ammo", 12)
@@ -1775,10 +1719,8 @@ func load_inventory() -> void:
 		else:
 			print("ERROR: Failed to parse save file JSON.")
 
-# Triggers when the user force-quits the game (e.g. clicking the X on the window)
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		# Same rule here: Force-quitting during a raid destroys your backpack!
 		if dead or (not in_heaven and not win):
 			wipe_inventory_on_death()
 		else:
@@ -1792,12 +1734,9 @@ func wipe_inventory_on_death() -> void:
 		if json.parse(file.get_as_text()) == OK:
 			save_data = json.get_data()
 			
-	# Wipe the player's pockets
 	save_data["grid"] = []
 	save_data["hotbar"] = [{"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}]
 	save_data["shotgun_ammo"] = 0
-	
-	# Notice how we DO NOT touch save_data["stash_grid"]!
 	
 	var save_file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
 	if save_file:
@@ -1809,18 +1748,64 @@ func update_proximity_distortion(delta: float) -> void:
 	
 	var target_intensity = 0.0
 	
-	# If the enemy exists and is currently chasing us around
 	if is_instance_valid(active_enemy) and not active_enemy.is_ragdolled:
 		var distance = global_position.distance_to(active_enemy.global_position)
 		
-		# If the enemy is closer than 15 meters, start panicking!
 		if distance < 15.0:
-			# Maps the distance into a 0.0 to 1.0 scale (Max panic at 3 meters)
 			target_intensity = clamp(1.0 - ((distance - 3.0) / 12.0), 0.0, 1.0)
 			
-	# Smoothly turn the shader dial up or down
 	var current_intensity = proximity_distortion.material.get_shader_parameter("intensity")
 	if current_intensity == null: current_intensity = 0.0
 	
 	var new_intensity = move_toward(current_intensity, target_intensity, delta * 1.5)
 	proximity_distortion.material.set_shader_parameter("intensity", new_intensity)
+
+func play_inventory_pump_sound() -> void:
+	if shotgun_audio and shotgun_audio.has_node('pump'):
+		var pump_sfx = shotgun_audio.get_node('pump')
+		pump_sfx.pitch_scale = randf_range(0.95, 1.05) 
+		pump_sfx.play()
+
+func force_reload_sequence(slot_index: int) -> void:
+	if inventory_open:
+		toggle_inventory()
+
+	if active_slot_index != slot_index:
+		equip_slot(slot_index)
+		
+		while is_switching_weapons:
+			await get_tree().process_frame
+
+	reload_shotgun()
+
+
+func reward_kill() -> void:
+	total_time = max(0.0, total_time - 10.0)
+	bonus_beans += 5
+	var text_pos = eyes.global_position - (eyes.global_transform.basis.z * 1.5)
+	
+	# --- THE FIX: Double Payout Text ---
+	spawn_floating_text(text_pos, "-10 SECONDS!\n+5 BONUS BEANS!", Color(0.0, 1.0, 0.5))
+
+# --- DOPAMINE UPGRADE: ELASTIC BOUNCING TEXT ---
+func spawn_floating_text(pos: Vector3, msg: String = "+1 Gazunka Bean!", color: Color = Color(0.955, 1.0, 0.043, 1.0)):
+	var popup = Label3D.new()
+	popup.text = msg
+	popup.pixel_size = 0.005; popup.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	popup.modulate = color; 
+	
+	# Start tiny so we can scale it up!
+	popup.scale = Vector3.ZERO
+	get_tree().current_scene.add_child(popup); 
+	popup.global_position = pos
+	
+	var tween = get_tree().create_tween()
+	
+	# Bounce scale up to 1.5x, then settle back down to 1.0x
+	tween.tween_property(popup, "scale", Vector3(1.5, 1.5, 1.5), 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(popup, "scale", Vector3.ONE, 0.2)
+	
+	# Float upwards and fade out
+	tween.parallel().tween_property(popup, "global_position:y", pos.y + 1.5, 1.2).set_trans(Tween.TRANS_SINE)
+	tween.parallel().tween_property(popup, "modulate:a", 0.0, 1.2).set_delay(0.5)
+	tween.tween_callback(popup.queue_free)

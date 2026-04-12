@@ -205,6 +205,12 @@ var sarah_bus = AudioServer.get_bus_index("sarah")
 
 func _ready() -> void:
 	
+	# Ensure the main menu is also dry/outdoor acoustics
+	var effects_bus = AudioServer.get_bus_index("effects")
+	for i in range(AudioServer.get_bus_effect_count(effects_bus)):
+		if AudioServer.get_bus_effect(effects_bus, i) is AudioEffectReverb:
+			AudioServer.set_bus_effect_enabled(effects_bus, i, false)
+	
 	shotgun_ammo_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(shotgun_ammo_price) + ' beans[/wave][/color]'
 	shotgun_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(shotgun_price) + ' beans[/wave][/color]'
 	
@@ -1054,3 +1060,12 @@ func spawn_floating_text(amount: int, start_pos: Vector2) -> void:
 	
 	# Delete the label so it doesn't clutter memory
 	tween.tween_callback(popup.queue_free)
+
+
+@onready var pump_sound: AudioStreamPlayer = $pump_sound
+
+# --- INVENTORY AUDIO HELPERS ---
+func play_inventory_pump_sound() -> void:
+	if pump_sound:
+		pump_sound.pitch_scale = randf_range(0.95, 1.05)
+		pump_sound.play()

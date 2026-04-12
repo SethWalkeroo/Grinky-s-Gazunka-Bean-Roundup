@@ -15,15 +15,26 @@ extends Node3D
 var is_daytime: bool = false 
 
 func _ready() -> void:
+	# --- THE FIX: TURN OFF REVERB FOR OUTDOORS ---
+	var effects_bus = AudioServer.get_bus_index("effects")
+	for i in range(AudioServer.get_bus_effect_count(effects_bus)):
+		if AudioServer.get_bus_effect(effects_bus, i) is AudioEffectReverb:
+			AudioServer.set_bus_effect_enabled(effects_bus, i, false)
+	
+	var voice_bus = AudioServer.get_bus_index("game_voicelines")
+	for i in range(AudioServer.get_bus_effect_count(voice_bus)):
+		if AudioServer.get_bus_effect(voice_bus, i) is AudioEffectReverb:
+			AudioServer.set_bus_effect_enabled(voice_bus, i, false)
+			
 	if GlobalStats.came_from_main_menu:
-		sky_3d.current_time = 8
+		sky_3d.current_time = 6
 	else:
 		sky_3d.current_time = 0
 	player.minimap.visible = false
 	welcome_to_heaven.play()
 	
 	# Determine initial state so the fireflies/crickets start correctly
-	is_daytime = (sky_3d.current_time >= 7 and sky_3d.current_time < 19)
+	is_daytime = (sky_3d.current_time >= 6 and sky_3d.current_time < 19)
 	if not is_daytime:
 		show_fireflies()
 		setup_sound_group(crickets)
@@ -37,7 +48,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var current_time = sky_3d.current_time
-	var should_be_day = (current_time >= 7 and current_time < 19)
+	var should_be_day = (current_time >= 6 and current_time < 19)
 
 	# Transition to DAY
 	if should_be_day and not is_daytime:
@@ -95,4 +106,3 @@ func start_campfire():
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if body is Player:
 		better_call_saul.play()
-		

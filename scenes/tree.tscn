@@ -161,13 +161,13 @@ shadow_mesh = SubResource("ArrayMesh_r7adx")
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_18mvg"]
 radius = 2.5253906
 
-[node name="tree2" unique_id=1379716542 instance=ExtResource("1_viusy")]
+[node name="tree2" unique_id=1379716542 groups=["wood"] instance=ExtResource("1_viusy")]
 script = ExtResource("2_ake3r")
 
-[node name="tree" parent="." index="0" unique_id=1119934900]
+[node name="tree" parent="." index="0" unique_id=1939051219 groups=["wood"]]
 mesh = SubResource("ArrayMesh_xprpn")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="tree" index="0" unique_id=505841077]
+[node name="StaticBody3D" type="StaticBody3D" parent="tree" index="0" unique_id=505841077 groups=["wood"]]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="tree/StaticBody3D" index="0" unique_id=1721746005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

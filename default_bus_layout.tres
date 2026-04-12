@@ -6,6 +6,12 @@ room_size = 0.37
 hipass = 0.46
 wet = 0.38
 
+[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_g28q7"]
+resource_name = "Reverb"
+room_size = 0.27
+damping = 0.37
+wet = 0.2
+
 [sub_resource type="AudioEffectEQ10" id="AudioEffectEQ10_j3pel"]
 resource_name = "EQ10"
 band_db/31_hz = -60.0
@@ -50,6 +56,8 @@ bus/4/mute = false
 bus/4/bypass_fx = false
 bus/4/volume_db = 0.0
 bus/4/send = &"Master"
+bus/4/effect/0/effect = SubResource("AudioEffectReverb_g28q7")
+bus/4/effect/0/enabled = true
 bus/5/name = &"chase_music"
 bus/5/solo = false
 bus/5/mute = false

@@ -46,10 +46,10 @@ data = PackedVector3Array(-1, 1, -0.9009, -1, 1.0472, -0.9009, -1, 1.0472, -1, -
 
 [node name="saultable2" unique_id=445469896 instance=ExtResource("1_r10y2")]
 
-[node name="saultable" parent="." index="0" unique_id=1071146886]
+[node name="saultable" parent="." index="0" unique_id=1088501972]
 mesh = SubResource("ArrayMesh_sqn1b")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="saultable" index="0" unique_id=1015203759]
+[node name="StaticBody3D" type="StaticBody3D" parent="saultable" index="0" unique_id=1015203759 groups=["wood"]]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="saultable/StaticBody3D" index="0" unique_id=270457480]
 shape = SubResource("ConcavePolygonShape3D_1gt38")

@@ -21,6 +21,7 @@
 [ext_resource type="Script" uid="uid://dd5sto7rgxirb" path="res://scripts/bean_jar.gd" id="17_j7ex8"]
 [ext_resource type="Script" uid="uid://gbqrsvfccfii" path="res://scripts/sell_zone.gd" id="19_8egab"]
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="19_hstxw"]
+[ext_resource type="AudioStream" uid="uid://dwxshwq8f2wav" path="res://audio/shotgun_audio/shotgun_pump.wav" id="22_svtp6"]
 
 [sub_resource type="Gradient" id="Gradient_flqon"]
 offsets = PackedFloat32Array(0, 0.41970804, 0.6678832, 1)
@@ -2157,6 +2158,11 @@ offset_right = 363.0
 offset_bottom = 179.0
 text = "click to encourage bean plants"
 
+[node name="pump_sound" type="AudioStreamPlayer" parent="." unique_id=1756753740]
+stream = ExtResource("22_svtp6")
+volume_db = -16.096
+bus = &"effects"
+
 [connection signal="pressed" from="ProfilePanel/CreateButton" to="." method="_on_create_button_pressed"]
 [connection signal="pressed" from="MenuButtons/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuButtons/SettingsButton" to="." method="_on_settings_button_pressed"]
@@ -2168,8 +2174,8 @@ text = "click to encourage bean plants"
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer3/effects_slider" to="." method="_on_effects_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
-[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="pressed" from="video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="controls_settings/ScrollContainer/GridContainer/save_settings" to="." method="_on_save_settings_pressed"]

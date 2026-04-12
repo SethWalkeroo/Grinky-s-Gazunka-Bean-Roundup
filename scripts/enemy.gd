@@ -4,6 +4,13 @@ class_name Enemy
 
 signal enemy_dead
 
+@onready var enemy_hurt_noise: AudioStreamPlayer3D = $enemy_hurt_noise
+
+# --- NEW: UNIQUE CLONE VOICES ---
+var base_pitch_multiplier: float = 1.0
+
+# --- THE HYDRA WAVE TRACKER ---
+var current_wave_size: int = 1
 
 # --- NEW COMBAT VARIABLES ---
 var max_health: int = 200
@@ -97,6 +104,7 @@ var head_bobbing_index = 0.0
 var previous_eye_position = 0.0
 
 var sight_burst_timer: float = 0.0
+var group_scream_delay: float = 0.0 # --- HORDE AUDIO FIX: Micro-delay tracker ---
 
 # --- NEW RAGDOLL STATE ---
 var is_ragdolled: bool = false
@@ -112,28 +120,33 @@ func _ready():
 	add_to_group("enemy") 
 	speed = base_speed 
 	
-	# --- NEW AUTO-FIND PLAYER LOGIC ---
+	if current_wave_size == 1:
+		base_pitch_multiplier = 1.0
+	else:
+		base_pitch_multiplier = randf_range(0.75, 1.25)
+	
+	var all_audio_3d = find_children("*", "AudioStreamPlayer3D")
+	for audio_node in all_audio_3d:
+		audio_node.pitch_scale *= base_pitch_multiplier
+		
+	var all_audio_2d = find_children("*", "AudioStreamPlayer")
+	for audio_node in all_audio_2d:
+		audio_node.pitch_scale *= base_pitch_multiplier
+	
 	if player_path:
 		player = get_node_or_null(player_path)
 		
 	if player == null:
 		player = get_tree().get_first_node_in_group("player")
-		if player == null:
-			print("WARNING: Enemy cannot find the player! It will not chase.")
 			
-	# --- FIX: RECONNECT BROKEN SIGNALS & SYNC BEANS ---
 	if player != null:
-		# Instantly sync beans in case the enemy spawned AFTER the player got one
 		beans_collected = player.bean_count
-		
-		# Reconnect the signals through code so they never break again
 		if not player.bean_collected.is_connected(_on_player_bean_collected):
 			player.bean_collected.connect(_on_player_bean_collected)
 		if not player.player_paused.is_connected(_on_player_player_paused):
 			player.player_paused.connect(_on_player_player_paused)
 		if not player.player_unpaused.is_connected(_on_player_player_unpaused):
 			player.player_unpaused.connect(_on_player_player_unpaused)
-	# --------------------------------------------------
 			
 	current_target_pos = global_position 
 	
@@ -162,49 +175,40 @@ func _on_nav_map_changed(_map_rid):
 	nav_map_ready = true
 
 func _physics_process(delta):
-	# --- VELOCITY IMPACT TRACKING ---
+	# --- VOID SAFETY NET ---
+	if global_position.y < -15.0 and not is_ragdolled:
+		take_damage(current_health)
+		return
+
 	if is_ragdolled:
 		if ragdoll_spine:
 			var current_vel = ragdoll_spine.linear_velocity
-			
-			# Hitting a wall/floor causes a sudden LOSS of speed
 			var speed_loss = previous_spine_velocity.length() - current_vel.length()
 			var current_time = Time.get_ticks_msec() / 1000.0
 			
-			# If he lost more than 4.0 speed instantly, he hit something hard!
-			# (The 0.15 delay prevents audio clipping/spamming)
 			if speed_loss > 4.0 and current_time > last_impact_time + 0.15:
 				last_impact_time = current_time
 				ragdoll_impact_sound.global_position = ragdoll_spine.global_position
-				
-				# Louder sound for harder impacts
 				ragdoll_impact_sound.volume_db = linear_to_db(clamp(speed_loss / 25.0, 0.2, 1.0))
-				ragdoll_impact_sound.pitch_scale = randf_range(0.8, 1.2)
+				ragdoll_impact_sound.pitch_scale = randf_range(0.8, 1.2) * base_pitch_multiplier
 				ragdoll_impact_sound.play()
 				
 			previous_spine_velocity = current_vel
-			
-		# Still return so the AI stops moving!
 		return
 
 	if not nav_map_ready: return
 	
-	# --- NEW: THE STAGGER INTERCEPT ---
 	if is_staggered:
 		stagger_timer -= delta
 		if stagger_timer <= 0.0:
 			is_staggered = false
 			
-		# Slam on the brakes so they slide to a halt while flinching
 		velocity.x = move_toward(velocity.x, 0, 40.0 * delta)
 		velocity.z = move_toward(velocity.z, 0, 40.0 * delta)
 		move_and_slide()
-		
-		# 'return' forces the script to stop reading here. 
-		# They won't chase, attack, or turn until the stagger is over!
 		return 
 		
-	if beans_collected == 0 or player_is_dead:
+	if (beans_collected == 0 and current_wave_size == 1) or player_is_dead:
 		velocity = Vector3.ZERO
 		if player_is_dead and enemy_footsteps.playing: enemy_footsteps.stop()
 		if anim_player and anim_player.current_animation != ANIM_ATTACK:
@@ -212,10 +216,9 @@ func _physics_process(delta):
 		move_and_slide()
 		return
 	
-	# ATTACK CHECK - This must happen before movement to ensure consistency
 	if target_in_range():
 		hit_player()
-		return # Stop execution so we don't try to move while attacking
+		return 
 
 	var sees_player = false if start_grace_period else can_see_player()
 	
@@ -255,61 +258,79 @@ func _physics_process(delta):
 
 
 func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
-	# Calculate the push direction based on player position
 	var push_direction = Vector3.UP
 	if player != null:
 		push_direction = (global_position - player.global_position).normalized()
 	else:
 		push_direction = global_transform.basis.z.normalized() 
 		
-	push_direction += Vector3(0, 0.5, 0) # Add upward lift
+	push_direction += Vector3(0, 0.5, 0)
 	
-	# --- THE ULTIMATE SPINE FINDER ---
 	var target_bone = null
 	var skeleton = physical_bone_simulator_3d.get_parent()
 	
-	# This forces Godot to recursively search every single node inside the skeleton
 	var all_bones = skeleton.find_children("*", "PhysicalBone3D")
 	for bone in all_bones:
 		if "Spine" in bone.name:
 			target_bone = bone
-			ragdoll_spine = bone # Save for the impact audio tracker
+			ragdoll_spine = bone 
 			break
 	
-	# If already dead, apply the force and skip the rest!
 	if is_ragdolled:
 		if target_bone:
 			target_bone.apply_central_impulse(push_direction * 250.0)
 		return
 		
-	# --- NEW HEALTH LOGIC ---
 	current_health -= amount
 	print("Enemy took ", amount, " damage! Health: ", current_health)
 	
 	if current_health > 0:
-		# They survived! Trigger the stagger
 		is_staggered = true
 		stagger_timer = stagger_duration
 		
-		# --- NEW: FLINCH ANIMATION ---
 		if anim_player:
 			play_animation(ANIM_TAKE_DAMAGE)
-			# Speed it up significantly to look like a painful, sudden gasp
-			# Adjust this 2.5 higher or lower to fit your specific animation
-			anim_player.speed_scale = 7
+			anim_player.speed_scale = 7.0 
+			
+		if enemy_hurt_noise and not enemy_hurt_noise.playing:
+			enemy_hurt_noise.pitch_scale = randf_range(0.85, 1.15) * base_pitch_multiplier
+			enemy_hurt_noise.play()
+			
+		if player and not player_is_dead:
+			last_known_pos = player.global_position
+			current_target_pos = player.global_position
+			has_last_known_pos = true
+			is_chasing = true
+			investigation_timer = investigation_time
+			has_screamed_this_chase = false
+			nav_agent.set_target_position(player.global_position)
+			stop_random_voicelines()
 		
-		# (Optional: Play a flinch/pain sound effect right here if you add one later!)
 		return
 	
-	# --- DEATH LOGIC (Only runs if health <= 0) ---
-	is_ragdolled = true
-	collision_shape_3d.disabled = true
+	if not is_ragdolled:
+		if player and player.has_method("reward_kill"):
+			player.reward_kill()
+			
+		is_ragdolled = true
+		collision_shape_3d.disabled = true
+		
+		if icon_component:
+			icon_component.visible = false
+		
+		var enemies = get_tree().get_nodes_in_group("enemy")
+		var any_alive = false
+		for e in enemies:
+			if e.process_mode != Node.PROCESS_MODE_DISABLED and not e.is_ragdolled and e != self:
+				any_alive = true
+				break
+				
+		if not any_alive:
+			call_deferred("spawn_revenge_enemies")
 	
-	# --- IMMERSION FIX: SHUT UP IMMEDIATELY ---
 	stop_random_voicelines()
 	if active_voiceline and active_voiceline.playing:
 		active_voiceline.stop()
-	# ------------------------------------------
 	
 	if enemy_footsteps.playing: enemy_footsteps.stop()
 	if anim_player: anim_player.stop()
@@ -318,7 +339,6 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
 	play_random_death_sound()
 	emit_signal('enemy_dead')
 	
-	# Apply initial death force using the bone we found!
 	if target_bone:
 		target_bone.apply_central_impulse(push_direction * 800.0)
 
@@ -330,6 +350,7 @@ func reset_investigation_variables():
 	has_acknowledged_hiding = false
 	path_timer = 0.0 
 	investigation_timer = 0.0
+	group_scream_delay = randf_range(0.0, 0.5) # Reset micro-delay!
 
 func investigate_sound(sound_pos: Vector3, loudness: float) -> void:
 	if player_is_dead or beans_collected >= 7: return
@@ -348,7 +369,7 @@ func investigate_sound(sound_pos: Vector3, loudness: float) -> void:
 
 func handle_overshoot(sees_player: bool) -> void:
 	if was_seeing_player and not sees_player and is_chasing and beans_collected < 7:
-		if player == null: return # <-- SAFETY CHECK ADDED
+		if player == null: return 
 		
 		if "is_hidden" in player and player.is_hidden:
 			return 
@@ -391,7 +412,7 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 		has_acknowledged_hiding = false
 
 	if beans_collected >= 7:
-		if player != null: # <-- SAFETY CHECK ADDED
+		if player != null: 
 			current_target_pos = player.global_position
 			nav_agent.set_target_position(current_target_pos)
 		is_chasing = false 
@@ -399,7 +420,7 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 		if not allsevenbeans_voiceline.playing:
 			allsevenbeans_voiceline.play()
 		
-	elif sees_player and player != null: # <-- SAFETY CHECK ADDED
+	elif sees_player and player != null: 
 		if not is_chasing:
 			sight_burst_timer = 2.0 
 			
@@ -410,9 +431,13 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 			chase_voiceline_timer = randf_range(chase_voiceline_min_interval, chase_voiceline_max_interval)
 			
 		elif not has_screamed_this_chase:
-			play_voiceline_from_node(player_seen_voicelines)
-			has_screamed_this_chase = true
-			chase_voiceline_timer = randf_range(chase_voiceline_min_interval, chase_voiceline_max_interval)
+			# --- HORDE AUDIO FIX: MICRO-DELAY ---
+			if group_scream_delay > 0.0:
+				group_scream_delay -= delta
+			else:
+				play_voiceline_from_node(player_seen_voicelines)
+				has_screamed_this_chase = true
+				chase_voiceline_timer = randf_range(chase_voiceline_min_interval, chase_voiceline_max_interval)
 			
 		last_known_pos = player.global_position
 		has_last_known_pos = true 
@@ -492,11 +517,9 @@ func calculate_patrol_route() -> void:
 		path_timer = next_path_timer
 
 func apply_movement(current_move_speed: float, has_arrived: bool, delta: float) -> void:
-	# 1. ALWAYS calculate gravity first, regardless of what state the enemy is in.
 	if not is_on_floor():
-		velocity.y -= 9.8 * delta # Standard Godot gravity
+		velocity.y -= 9.8 * delta 
 	else:
-		# Small downward force to keep them snapped to slopes/stairs
 		velocity.y = -2.0 
 		
 	if not player_is_dead:
@@ -506,7 +529,6 @@ func apply_movement(current_move_speed: float, has_arrived: bool, delta: float) 
 			dir.y = 0 
 			
 			if dir.length_squared() > 0.001:
-				# Apply movement to X and Z, PRESERVING the Y (gravity) we just calculated
 				var flat_velocity = dir.normalized() * current_move_speed
 				velocity.x = flat_velocity.x
 				velocity.z = flat_velocity.z
@@ -516,7 +538,6 @@ func apply_movement(current_move_speed: float, has_arrived: bool, delta: float) 
 					var target_transform = global_transform.looking_at(look_target, Vector3.UP)
 					global_transform = global_transform.interpolate_with(target_transform, rotation_speed * delta)
 				
-				# --- DYNAMIC WALKING ANIMATIONS ---
 				if is_chasing or beans_collected >= 7:
 					play_animation(ANIM_RUN)
 				else:
@@ -536,7 +557,6 @@ func apply_movement(current_move_speed: float, has_arrived: bool, delta: float) 
 		if allsevenbeans_voiceline.playing:
 			allsevenbeans_voiceline.stop()
 
-	# Check if we are moving horizontally (ignoring vertical falling speed)
 	var horizontal_speed = Vector2(velocity.x, velocity.z).length()
 	
 	if horizontal_speed > 0.1:
@@ -551,10 +571,8 @@ func apply_movement(current_move_speed: float, has_arrived: bool, delta: float) 
 				player.trigger_screen_shake(0.08) 
 		previous_eye_position = head_bobbing_vector_y
 
-	# Finally, move the enemy with gravity applied!
 	move_and_slide()
 
-# --- FOOTPRINT LOGIC ---
 func spawn_footprint() -> void:
 	if footprint_scene and footprint_raycast and footprint_raycast.is_colliding():
 		var footprint = footprint_scene.instantiate()
@@ -583,7 +601,9 @@ func stop_random_voicelines():
 
 func start_random_voicelines():
 	if timer and timer.is_stopped() and not player_is_dead:
-		if not is_chasing and not has_last_known_pos: timer.start()
+		if not is_chasing and not has_last_known_pos: 
+			timer.wait_time = randf_range(4.0, 12.0) # HORDE AUDIO FIX
+			timer.start()
 
 func play_voiceline_from_node(target_node: Node3D):
 	if target_node:
@@ -605,40 +625,36 @@ func update_animation_speed_dynamic(temp_speed: float):
 	var anim_scale = max(0.5, temp_speed / 3.0) 
 	
 	if anim_player: 
-		# --- NEW: Boost the sad animation speed to match the fast footstep math! ---
 		if anim_player.current_animation == ANIM_CANT_SEE_PLAYER:
 			anim_player.speed_scale = anim_scale * 1.6 
 		else:
 			anim_player.speed_scale = anim_scale
 			
-	if enemy_footsteps: enemy_footsteps.pitch_scale = lerp(0.8, 1.4, (anim_scale - 1.0) / 2.0)
+	if enemy_footsteps: 
+		enemy_footsteps.pitch_scale = lerp(0.8, 1.4, (anim_scale - 1.0) / 2.0) * base_pitch_multiplier
 
 func target_in_range() -> bool:
 	if player == null: return false
 	var player_is_hidden = "is_hidden" in player and player.is_hidden
 	
-	# DISTANCE CHECK
 	var dist_sq = global_position.distance_squared_to(player.global_position)
-	
-	# VERTICAL CHECK (Ensures enemy doesn't kill you from the floor above)
 	var vertical_dist = abs(global_position.y - player.global_position.y)
 	if vertical_dist > 2.0: return false
 
 	if player_is_hidden:
-		# If seen hiding, allow a much larger attack range (reaching under table)
 		if was_seeing_player: 
-			return dist_sq < (3.7 * 3.7) # Increased reach for tables
+			return dist_sq < (3.7 * 3.7) 
 		return false
 			
 	return dist_sq < (attack_range * attack_range)
 	
+# --- ATTACK INTERRUPTION ---
 func hit_player():
 	if not player_is_dead:
 		player_is_dead = true 
 		is_chasing = false
 		stop_random_voicelines()
 		
-		# Look at the player instantly
 		var look_pos = player.global_position
 		look_pos.y = global_position.y
 		look_at(look_pos, Vector3.UP)
@@ -648,6 +664,11 @@ func hit_player():
 		play_animation(ANIM_ATTACK)
 		
 		await get_tree().create_timer(0.4).timeout
+		
+		if is_ragdolled or is_staggered:
+			player_is_dead = false 
+			return
+			
 		if player and player.has_method("hit"): player.hit()
 
 func _on_timer_timeout() -> void:
@@ -661,15 +682,14 @@ func _on_timer_timeout() -> void:
 		if voicelines.size() > 0:
 			chosen_voiceline = voicelines.pick_random()
 			
-			# Ensure we don't connect the signal multiple times
 			if not chosen_voiceline.finished.is_connected(_on_random_voiceline_finished):
 				chosen_voiceline.finished.connect(_on_random_voiceline_finished)
 				
 			chosen_voiceline.play()
 
 func _on_random_voiceline_finished() -> void:
-	# Only restart the timer if we are STILL in a calm state
 	if not is_chasing and not has_last_known_pos and not player_is_dead:
+		timer.wait_time = randf_range(4.0, 12.0) # HORDE AUDIO FIX
 		timer.start()
 
 func _on_player_player_paused() -> void:
@@ -733,6 +753,100 @@ func play_random_death_sound():
 		if valid_sounds.size() > 0:
 			var sound_to_play = valid_sounds.pick_random()
 			sound_to_play.play()
-			print("Playing death sound: ", sound_to_play.name) # Debug print to console
-		else:
-			print("WARNING: No audio players found inside death_sounds!")
+
+# --- THE WAKE UP CALL ---
+func wake_up_from_pool(new_wave_size: int, current_beans: int, target_pos: Vector3) -> void:
+	process_mode = Node.PROCESS_MODE_INHERIT
+	visible = true
+	collision_shape_3d.disabled = false
+	
+	if icon_component:
+		icon_component.visible = true
+	
+	current_health = max_health
+	is_ragdolled = false
+	is_staggered = false
+	stagger_timer = 0.0
+
+	current_wave_size = new_wave_size
+	beans_collected = current_beans
+	speed = (beans_collected * 0.7) + base_speed
+	
+	base_pitch_multiplier = randf_range(0.75, 1.25)
+	var all_audio_3d = find_children("*", "AudioStreamPlayer3D")
+	for audio_node in all_audio_3d:
+		audio_node.pitch_scale = base_pitch_multiplier
+
+	var all_audio_2d = find_children("*", "AudioStreamPlayer")
+	for audio_node in all_audio_2d:
+		audio_node.pitch_scale = base_pitch_multiplier
+
+	global_position = target_pos
+
+	if player:
+		last_known_pos = player.global_position
+		current_target_pos = player.global_position
+		has_last_known_pos = true
+		is_chasing = true
+		investigation_timer = investigation_time
+		
+		# --- HORDE AUDIO FIX ---
+		has_screamed_this_chase = true
+		chase_voiceline_timer = randf_range(0.1, 3.5)
+		
+		nav_agent.set_target_position(player.global_position)
+
+
+# --- ENEMY CLONING SPAWNER ---
+func spawn_revenge_enemies() -> void:
+	await get_tree().create_timer(4.0).timeout
+	var new_wave_size = current_wave_size * 2
+	var main_scene = get_tree().current_scene
+	
+	for i in range(new_wave_size):
+		var rough_spawn_pos = global_position
+		var map = nav_agent.get_navigation_map()
+		var valid_spawn = false
+		var attempts = 0
+		
+		if player:
+			var space_state = get_world_3d().direct_space_state
+			
+			while not valid_spawn and attempts < 30:
+				attempts += 1
+				var random_dir = Vector3(randf_range(-1.0, 1.0), 0, randf_range(-1.0, 1.0)).normalized()
+				var desired_dist = randf_range(25.0, 45.0)
+				var target_pos = player.global_position + (random_dir * desired_dist)
+				
+				var ray_start = target_pos + Vector3(0, 10.0, 0)
+				var ray_end = target_pos + Vector3(0, -10.0, 0)
+				var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
+				query.collision_mask = 1 
+				
+				var result = space_state.intersect_ray(query)
+				if result:
+					if map.is_valid():
+						var safe_pos = NavigationServer3D.map_get_closest_point(map, result.position)
+						if safe_pos.distance_to(player.global_position) >= 15.0:
+							rough_spawn_pos = safe_pos
+							valid_spawn = true
+					
+			if not valid_spawn:
+				var behind_dir = player.global_transform.basis.z.normalized()
+				var desperate_pos = player.global_position + (behind_dir * 25.0)
+				if map.is_valid():
+					rough_spawn_pos = NavigationServer3D.map_get_closest_point(map, desperate_pos)
+				else:
+					rough_spawn_pos = desperate_pos
+		
+		var scatter = Vector3(randf_range(-3.0, 3.0), 0, randf_range(-3.0, 3.0))
+		var raw_scatter_pos = rough_spawn_pos + scatter
+		
+		if map.is_valid():
+			raw_scatter_pos = NavigationServer3D.map_get_closest_point(map, raw_scatter_pos)
+			
+		var final_pos = raw_scatter_pos + Vector3(0, 0.5, 0)
+		
+		if main_scene and main_scene.has_method("request_enemy"):
+			var new_enemy = main_scene.request_enemy()
+			new_enemy.wake_up_from_pool(new_wave_size, self.beans_collected, final_pos)

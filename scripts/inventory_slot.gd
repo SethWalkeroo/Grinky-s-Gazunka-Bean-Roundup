@@ -31,6 +31,9 @@ func set_item(new_item: String, new_qty: int) -> void:
 		quantity = 0
 		icon.texture = null
 		qty_label.text = ""
+		
+		# --- THE FIX: RESET TO NORMAL ARROW ---
+		mouse_default_cursor_shape = Control.CURSOR_ARROW 
 	else:
 		var tex_path = "res://icons/" + item_name + ".png"
 		if ResourceLoader.exists(tex_path):
@@ -48,6 +51,9 @@ func set_item(new_item: String, new_qty: int) -> void:
 			qty_label.text = str(quantity)
 		else:
 			qty_label.text = ""
+			
+		# --- THE FIX: CHANGE TO POINTING HAND ---
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func refresh_label():
 	set_item(item_name, quantity)
@@ -100,7 +106,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 # --- CLICK DETECTION (Shift-Click & Right-Click Split) ---
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		# --- NEW: SHIFT-CLICK TRANSFER ---
+		# --- SHIFT-CLICK TRANSFER ---
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.shift_pressed:
 			if item_name != "empty":
 				var main_scene = get_tree().current_scene
@@ -170,9 +176,33 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var incoming_qty = data["dragged_qty"]
 	var is_split = data.get("is_split", false)
 
-	# --- NEW: LOAD SHOTGUN BY DRAGGING AMMO ---
+	# --- DYNAMIC NODE FETCHING ---
+	var current_player = get_tree().get_first_node_in_group("player")
+	var main_scene = get_tree().current_scene
+
+	# --- LOAD SHOTGUN BY DRAGGING AMMO ---
 	if item_name == "shotgun" and incoming_item == "shotgun_ammo":
-		var space_left = 4 - quantity # quantity represents ammo for shotguns
+		
+		# 1. IN-GAME CINEMATIC RELOAD INTERCEPT
+		if current_player:
+			if quantity >= 4:
+				return # Gun is already full, do nothing!
+				
+			if get_parent().name != "Hotbar":
+				# Gun is in the backpack grid, not the hotbar.
+				# You can't reload a gun in your backpack!
+				GlobalStats.play_click() 
+				return
+				
+			# The gun is in the hotbar! Trigger the sequence.
+			var slot_index = name.right(1).to_int()
+			if current_player.has_method("force_reload_sequence"):
+				current_player.force_reload_sequence(slot_index)
+				
+			return # ABORT THE INSTANT DROP! The animation handles the rest.
+
+		# 2. MAIN MENU / STASH INSTANT RELOAD (Only runs if current_player is null)
+		var space_left = 4 - quantity 
 		if space_left > 0:
 			var amount_to_load = min(space_left, incoming_qty)
 			quantity += amount_to_load
@@ -181,13 +211,10 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 			self.set_item("shotgun", quantity)
 			source_slot.set_item(source_slot.item_name, source_slot.quantity)
 			
-			GlobalStats.play_click()
-			if player and player.has_method("sync_inventory_arrays"):
-				player.sync_inventory_arrays()
+			if main_scene and main_scene.has_method("play_inventory_pump_sound"):
+				main_scene.play_inventory_pump_sound()
 				
-			# If we are in the stash, save the changes immediately!
-			var main_scene = get_tree().current_scene
-			if main_scene.has_method("save_stash_to_json"):
+			if main_scene and main_scene.has_method("save_stash_to_json"):
 				main_scene.save_stash_to_json()
 			return
 			
@@ -218,5 +245,5 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 			
 	GlobalStats.play_click()
 	
-	if player and player.has_method("sync_inventory_arrays"):
-		player.sync_inventory_arrays()
+	if current_player and current_player.has_method("sync_inventory_arrays"):
+		current_player.sync_inventory_arrays()
