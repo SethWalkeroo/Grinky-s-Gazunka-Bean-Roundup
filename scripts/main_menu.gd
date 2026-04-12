@@ -195,6 +195,11 @@ var button_to_rebind: Button = null
 @onready var controls: AudioStreamPlayer = $menu_noises/controls
 @onready var leaderboard_noise: AudioStreamPlayer = $menu_noises/leaderboard_noise
 @onready var purchase_made: AudioStreamPlayer = $menu_noises/purchase_made
+@onready var shop_noise: AudioStreamPlayer = $menu_noises/shop_noise
+@onready var stash_noise: AudioStreamPlayer = $menu_noises/stash_noise
+
+
+
 
 var master_bus = AudioServer.get_bus_index("Master")
 var menu_music_bus = AudioServer.get_bus_index("menu_music")
@@ -706,6 +711,7 @@ func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
 
 func _on_bean_shop_button_pressed() -> void:
 	GlobalStats.play_click()
+	shop_noise.play()
 	menu_container.visible = false
 	motd_button.visible = false
 	bean_jar.visible = false
@@ -719,6 +725,7 @@ func _on_bean_shop_button_pressed() -> void:
 
 func _on_stash_button_pressed() -> void:
 	GlobalStats.play_click()
+	stash_noise.play()
 	menu_container.visible = false
 	motd_button.visible = false
 	bean_jar.visible = false

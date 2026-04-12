@@ -19,8 +19,10 @@
 [ext_resource type="AudioStream" uid="uid://gluyq60rlooh" path="res://audio/SARAH.wav" id="17_a8gd2"]
 [ext_resource type="AudioStream" uid="uid://crkbaigrb4ufy" path="res://audio/purchase_made.wav" id="17_gw5y6"]
 [ext_resource type="Script" uid="uid://dd5sto7rgxirb" path="res://scripts/bean_jar.gd" id="17_j7ex8"]
+[ext_resource type="AudioStream" uid="uid://blckm5d68tmxg" path="res://audio/shop.wav" id="18_1dfpl"]
 [ext_resource type="Script" uid="uid://gbqrsvfccfii" path="res://scripts/sell_zone.gd" id="19_8egab"]
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="19_hstxw"]
+[ext_resource type="AudioStream" uid="uid://dl0w8atk3rgwa" path="res://audio/stash.wav" id="19_qywvv"]
 [ext_resource type="AudioStream" uid="uid://dwxshwq8f2wav" path="res://audio/shotgun_audio/shotgun_pump.wav" id="22_svtp6"]
 
 [sub_resource type="Gradient" id="Gradient_flqon"]
@@ -636,6 +638,16 @@ bus = &"ambient_noise"
 stream = ExtResource("17_gw5y6")
 volume_db = -32.19
 bus = &"effects"
+
+[node name="shop_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=233124425]
+stream = ExtResource("18_1dfpl")
+volume_db = 1.238
+bus = &"game_voicelines"
+
+[node name="stash_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1267404699]
+stream = ExtResource("19_qywvv")
+volume_db = -3.715
+bus = &"game_voicelines"
 
 [node name="Button" type="Button" parent="." unique_id=1088281270]
 modulate = Color(1, 0, 0.9798479, 1)
