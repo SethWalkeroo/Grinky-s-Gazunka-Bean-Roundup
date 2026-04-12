@@ -69,7 +69,7 @@ data = {
 [node name="tables" type="Node3D" parent="NavigationRegion3D" unique_id=1205569278]
 
 [node name="table2" parent="NavigationRegion3D/tables" unique_id=372385754 instance=ExtResource("14_a8y0u")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 2.1137195, 0.043629408, 31.708477)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 2.1137195, 0.043629408, 31.868973)
 
 [node name="table3" parent="NavigationRegion3D/tables" unique_id=312556668 instance=ExtResource("14_a8y0u")]
 transform = Transform3D(-2.1855694e-08, 0, 0.5, 0, 0.5, 0, -0.5, 0, -2.1855694e-08, 48.26762, 0.043629408, 27.8215)

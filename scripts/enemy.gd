@@ -105,6 +105,7 @@ const ANIM_IDLE = "idle"
 const ANIM_RUN = "run"
 const ANIM_ATTACK = "attack"
 const ANIM_CANT_SEE_PLAYER = "forward_sad"
+const ANIM_TAKE_DAMAGE = "shrug_1"
 
 func _ready():
 	icon_component.get_node('icon_sprite').pixel_size = 0.0003
@@ -289,6 +290,13 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO) -> void:
 		# They survived! Trigger the stagger
 		is_staggered = true
 		stagger_timer = stagger_duration
+		
+		# --- NEW: FLINCH ANIMATION ---
+		if anim_player:
+			play_animation(ANIM_TAKE_DAMAGE)
+			# Speed it up significantly to look like a painful, sudden gasp
+			# Adjust this 2.5 higher or lower to fit your specific animation
+			anim_player.speed_scale = 7
 		
 		# (Optional: Play a flinch/pain sound effect right here if you add one later!)
 		return
