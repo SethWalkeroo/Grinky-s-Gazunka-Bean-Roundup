@@ -19,7 +19,7 @@ extends Node3D
 
 # --- NEW: ENEMY POOLING ---
 @export_group("Enemy Pooling")
-@export var max_pool_size: int = 14
+@export var max_pool_size: int = 31
 var enemy_pool: Array[CharacterBody3D] = []
 
 var current_name = GlobalStats.player_name

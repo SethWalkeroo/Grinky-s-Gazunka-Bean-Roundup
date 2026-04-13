@@ -76,11 +76,11 @@ var motds = [
 	'"[i]Aww man[/i]" [color=green]-creepah[/color]',
 	'"[i]This is how I [color=gold]Gelmar[/color] my life up[/i]" [rainbow]-Pinegrove[/rainbow]',
 	'"[i]China number 1[/i]" [color=red]-China[/color] [color=yellow](probably)[/color]',
-	'"[i]The successful warrior is the average man, with [color=red]laser-like[/color] focus.[/i]" [rainbow]-Bruce Lee[/rainbow]',
+	'"[i]The successful [color=orange]warrior[/color] is the average man, with [color=red]laser-like[/color] focus.[/i]" [rainbow]-Bruce Lee[/rainbow]',
 	'"[i]The [color=brown]root[/color] of suffering is [color=pink]attachment[/color].[/i]" [color=gold]-Buddha[/color]',
 	'"[i]All I was doing was trying to get home from work.[/i]" [rainbow]-Rosa Parks[/rainbow]',
 	'"[i]I [color=white]came[/color], I [color=cyan]saw[/color], I [color=gold]conquered[/color].[/i]" [color=red]-Julius Caesar[/color]',
-	'"[i]Good artists copy, great artists steal.[/i]" [rainbow]-Pablo Picasso[/rainbow]',
+	'"[i]Good artists [color=orange]copy[/color], great artists [color=red]steal[/color].[/i]" [rainbow]-Pablo Picasso[/rainbow]',
 	'"[i]The only thing that [color=red]interferes[/color] with my learning is my education.[/i]" [rainbow]-Albert Einstein[/rainbow]',
 	'[color=yellow]"[/color][i][color=orange]Fire will attract more [color=purple]attention[/color] than any other [color=purple]cry[/color] for help[/color][/i][color=yellow]" [/color] [color=white]-Jean-Michel Basquiat[/color]',
 	'"[i]I [color=red]need[/color] your [color=tan]feet[/color] more than [color=pink]you[/color] do.[/i]" [color=cyan]-Cameron Winter[/color]',
@@ -90,7 +90,7 @@ var motds = [
 	'"[i]You’ll never find a [rainbow]rainbow[/rainbow] if you’re looking [color=gray]down[/color].[/i]" [color=cyan]-Charlie Chaplin[/color]',
 	'"[i]Well done is better than well said.[/i]" [color=lightgreen]-Benjamin Franklin[/color]',
 	'"[i][color=red]No.[/color][/i]" [rainbow]-Rosa Parks[/rainbow]',
-	'"[i]Genius is [color=gold]eternal[/color] patience.[/i]" [rainbow]-Michelangelo[/rainbow]',
+	'"[i][color=pink]Genius[/color] is [color=gold]eternal[/color] patience.[/i]" [rainbow]-Michelangelo[/rainbow]',
 	'"[i]If you [color=red]judge[/color] people, you have no time to [color=pink]love[/color] them.[/i]" [color=gold]-Mother Teresa[/color]',
 	'"[i]Those who [color=red]judge[/color] people, you have no time to [color=pink]love[/color] them.[/i]" [color=gold]-Mother Teresa[/color]',
 	'"[i]Those who [color=red]dare[/color] to [color=red]fail miserably[/color] can achieve greatly.[/i]" [color=blue]-John F. Kennedy[/color]',
@@ -103,20 +103,20 @@ var motds = [
 	 '[color=black]"[/color][color=cyan][i]Don[color=black]\'[/color]t you know[color=black]?[/color] She[color=black]\'[/color]s been here all along[color=black],[/color] in a [color=pink]d[/color][color=white]r[/color][color=pink]e[/color][color=white]a[/color][color=pink]m[/color][color=black],[/color] she belongs in a [color=pink]d[/color][color=white]r[/color][color=pink]e[/color][color=white]a[/color][color=pink]m[/color][/i][/color][color=black]."[/color] [color=brown]-Alex G[/color]',
 	'"[i][color=cyan]Sometimes you never realize the value of a moment until it becomes a memory[/color][/i]" [color=red]-Dr.[/color] [color=white]Seuss[/color]',
 	'"[i]A man who wants to [color=green]lead[/color] the [color=brown]orchestra[/color] must turn his [color=black]back[/color] on the crowd.[/i]" [color=brown]-Max Lucado[/color]',
-	'"[i]The only way to do [color=green]great work[/color] is to [color=pink]love[/color] what you do.[/i]” [color=red]–Steve Jobs[/color]',
+	'"[i]The [color=orange]only way[/color] to do [color=green]great work[/color] is to [color=pink]love[/color] what you do.[/i]” [color=red]–Steve Jobs[/color]',
 	'“[i][color=cyan]Life[/color] is what happens when you’re [color=red]busy[/color] making other plans.[/i]” [color=gold]–John Lennon[/color]',
-	'“[i]It is [color=red]never[/color] too late to be what you might have been.[/i]” [color=cyan]–George Eliot[/color]',
+	'“[i]It is [color=red]never[/color] too late to be what you [color=-gold]might have been[/color].[/i]” [color=cyan]–George Eliot[/color]',
 	'“[i][color=red]Doubt[/color] kills more dreams than [color=red]failure[/color] ever will.[/i]” [color=cyan]–Suzy Kassem[/color]',
 	'“[i][color=gold]The greatest glory[/color] in living lies not in never falling, but in [color=gold]rising[/color] every time we fall.[/i]” [color=brown]–Nelson Mandela[/color]',
 	'“[i]Your time is [color=red]limited[/color], don’t waste it living someone else’s [color=cyan]life[/color].[/i]” [color=red]–Steve Jobs[/color]',
-	'“[i]The future belongs to those who [color=gold]believe[/color] in the [color=purple]beauty[/color] of their dreams.[/i]” –Eleanor Roosevelt',
-	'“[i]Change your thoughts and you change your [color=green]world[/color].[/i]” [color=cyan]–Norman Vincent Peale[/color]',
+	'“[i][color=cyan]The future[/color] belongs to those who [color=gold]believe[/color] in the [color=purple]beauty[/color] of their [color=pink]dreams[/color].[/i]” [color=orange]–Eleanor Roosevelt[/color]',
+	'“[i][color=orange]Change[/color] your [color=red]thoughts[/color] and you [color=orange]change[/color] your [color=green]world[/color].[/i]” [color=cyan]–Norman Vincent Peale[/color]',
 	'“[i]The man who moves a [color=green]mountain[/color] begins by carrying away [color=gray]small stones[/color].[/i]” [color=red]–Confucius[/color]',
 	'“[i]It does not matter how [color=orange]slowly[/color] you go as long as you do not [color=red]stop[/color].[/i]” [color=red]–Confucius[/color]',
 	'“[i]We do not [color=cyan]remember[/color] days; we remember [color=gold]moments[/color].[/i]” [color=cyan]–Cesare Pavese[/color]',
 	'“[i][color=green]Success[/color] usually comes to those who are [color=orange]too busy[/color] to be looking for it.[/i]” [color=red]–Henry David Thoreau[/color]',
 	'“[i]What we [color=brown]think[/color], we [color=green]become[/color].[/i]” [color=gold]–Buddha[/color]',
-	'“[i]Keep your face always toward the [color=gold]sunshine[/color]—and [color=black]shadows[/color] will fall behind you.[/i]” –Walt Whitman',
+	'“[i]Keep [color=tan]your face[/color] always toward the [color=gold]sunshine[/color]—and [color=black]shadows[/color] will fall behind you.[/i]” –Walt Whitman',
 	'“[i][color=gold]Motivation[/color] is what gets you started. [color=green]Habit[/color] is what keeps you going.[/i]” [color=orange]–Jim Ryun[/color]',
 	'“[i]The secret of getting [color=cyan]ahead[/color] is getting [color=green]started[/color].[/i]” [color=red]–Mark Twain[/color]',
 	'"[i]A [color=gold]great man[/color] is [color=red]hard on himself[/color]; [color=gray]a small man[/color] is [color=red]hard on others[/color].[/i] [color=red]-Confucius[/color]',
@@ -128,9 +128,15 @@ var motds = [
 	'"[i]The [color=cyan]unexamined life[/color] is not worth living.[/i]" [color=brown]-Socrates[/color]',
 	'"[i]A man who stands for [color=black]nothing[/color] will fall for [rainbow]anything[/rainbow].[/i]" [color=red]-Malcolm X[/color]',
 	'"[i][rainbow]It’s fun to do the impossible.[/rainbow][/i]" [color=cyan]-Walt Disney[/color]',
-	'"[i]Have no [color=red]fear[/color] of [color=gold]perfection[/color], you’ll never reach it.[/i]" [rainbow]-Salvador Dali[/rainbow]',
-	'"[i]Do to others as you would have them do to you.[/i]" [color=gold]-Jesus Christ[/color]'
-	
+	'"[i]Have no [color=red]fear[/color] of [color=gold]perfection[/color], you’ll never [color=green]reach it[/color].[/i]" [rainbow]-Salvador Dali[/rainbow]',
+	'"[i]Do to others as you would have them do to you.[/i]" [color=gold]-Jesus Christ[/color]',
+	'"[i]Give me 6 hours to [color=brown]chop a tree[/color], I will spend the first 4 [color=silver]sharpening my axe[/color].[/i]" [color=red]-Abe Lincoln[/color]',
+	'"[i][color=green]Learn[/color] a lot, [color=red]play[/color] a lot, [color=pink]care[/color] a lot.[/i]" [color=cyan]-some dude\'s Dad[/color]',
+	'"[i]In [color=gold]three words[/color] I can sum up [rainbow]everything[/rainbow] I\'ve [color=red]learned[/color] about life: [color=green]it goes on.[/color][/i]" [color=cyan]-Robert Frost[/color]',
+	'"[i][color=gray]Silence[/color] is part of the [color=cyan]music[/color] and our [color=pink]love[/color] is an [color=gold]orchestra[/color].[/i]" [color=brown]-some dude\'s Grandpa[/color]',
+	'"In the depths of [color=blue]winter[/color], I finally learned that [color=pink]within me[/color] there lay an [color=gold]invincible summer[/color]" [color=black]-Albert Camus[/color]',
+	'“[i]If you [color=cyan]remember[/color] [color=red]me[/color], then I don\'t care if everyone else [color=gray]forgets[/color].[/i]” [color=cyan]-Haruki Murakami[/color]',
+	'"Son, you don\'t have [color=red]bad[/color] [color=gold]luck[/color]. The reason [color=red]bad things[/color] happen to [color=gold]you[/color] is because [color=green]you\'re a dumbass[/color]." [color=red]-Red[/color]'
 ]
 
 var last_motd_index: int = -1
@@ -197,6 +203,7 @@ var button_to_rebind: Button = null
 @onready var purchase_made: AudioStreamPlayer = $menu_noises/purchase_made
 @onready var shop_noise: AudioStreamPlayer = $menu_noises/shop_noise
 @onready var stash_noise: AudioStreamPlayer = $menu_noises/stash_noise
+@onready var heaven_menu_voiceline: AudioStreamPlayer = $menu_noises/heaven_menu_voiceline
 
 
 
@@ -978,6 +985,7 @@ func update_bean_jar_display() -> void:
 
 func _on_heaven_button_pressed() -> void:
 	GlobalStats.play_click()
+	heaven_menu_voiceline.play()
 	GlobalStats.came_from_main_menu = true # Tell the next scene how we got here!
 	get_tree().change_scene_to_file("res://scenes/heaven.tscn")
 

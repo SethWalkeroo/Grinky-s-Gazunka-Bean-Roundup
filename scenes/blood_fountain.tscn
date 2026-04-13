@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://brkhqkono1xxi"]
+
+[ext_resource type="AudioStream" uid="uid://lt2pua6juxnv" path="res://audio/limb_dismemberment_noise.wav" id="1_bgyvm"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_6me8k"]
+collision_mode = 1
+collision_friction = 0.0
+collision_bounce = 0.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bb58l"]
+albedo_color = Color(0.36328125, 0, 0.04377698, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_m5g50"]
+material = SubResource("StandardMaterial3D_bb58l")
+
+[node name="GPUParticles3D" type="GPUParticles3D" unique_id=167845659]
+emitting = false
+lifetime = 0.8
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_6me8k")
+draw_pass_1 = SubResource("BoxMesh_m5g50")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=449864628]
+stream = ExtResource("1_bgyvm")
+volume_db = -5.714
+autoplay = true
+bus = &"effects"

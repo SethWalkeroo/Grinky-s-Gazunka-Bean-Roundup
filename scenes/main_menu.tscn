@@ -23,6 +23,7 @@
 [ext_resource type="Script" uid="uid://gbqrsvfccfii" path="res://scripts/sell_zone.gd" id="19_8egab"]
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="19_hstxw"]
 [ext_resource type="AudioStream" uid="uid://dl0w8atk3rgwa" path="res://audio/stash.wav" id="19_qywvv"]
+[ext_resource type="AudioStream" uid="uid://cw3kmqm612lf1" path="res://audio/heaven_menu_voiceline.wav" id="20_3wgol"]
 [ext_resource type="AudioStream" uid="uid://dwxshwq8f2wav" path="res://audio/shotgun_audio/shotgun_pump.wav" id="22_svtp6"]
 
 [sub_resource type="Gradient" id="Gradient_flqon"]
@@ -649,6 +650,11 @@ stream = ExtResource("19_qywvv")
 volume_db = -3.715
 bus = &"game_voicelines"
 
+[node name="heaven_menu_voiceline" type="AudioStreamPlayer" parent="menu_noises" unique_id=318431736]
+stream = ExtResource("20_3wgol")
+volume_db = -4.444
+bus = &"game_voicelines"
+
 [node name="Button" type="Button" parent="." unique_id=1088281270]
 modulate = Color(1, 0, 0.9798479, 1)
 offset_left = 37.0
@@ -684,12 +690,13 @@ script = ExtResource("17_j7ex8")
 [node name="bean_shop_button" type="Button" parent="." unique_id=2043684098]
 modulate = Color(0, 1, 0.010425568, 1)
 custom_minimum_size = Vector2(125, 55.555)
-offset_left = 333.0
+offset_left = 324.0
 offset_top = 178.0
-offset_right = 424.0
-offset_bottom = 209.0
+offset_right = 469.0
+offset_bottom = 233.555
 mouse_default_cursor_shape = 2
-text = "Bean Shop"
+theme_override_font_sizes/font_size = 14
+text = "Bean Shop (express)"
 
 [node name="stash_button" type="Button" parent="." unique_id=1352261791]
 modulate = Color(1, 0, 0.4691782, 1)
@@ -2186,8 +2193,8 @@ bus = &"effects"
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer3/effects_slider" to="." method="_on_effects_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
-[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
+[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
 [connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="pressed" from="video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="controls_settings/ScrollContainer/GridContainer/save_settings" to="." method="_on_save_settings_pressed"]

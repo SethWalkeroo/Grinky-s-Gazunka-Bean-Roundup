@@ -1055,6 +1055,30 @@ tracks/20/keys = {
 "update": 0,
 "values": [Vector3(0.11835503, -0.15646225, -0.43747672)]
 }
+tracks/21/type = "value"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("shotgun_model:position")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.097340286, -0.3022269, -0.6557297)]
+}
+tracks/22/type = "value"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("right_hand/hand:rotation")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-3.1085764e-14, -4.9738005e-14, 1.9371512e-07)]
+}
 
 [sub_resource type="Animation" id="Animation_8wutx"]
 resource_name = "begin_reload"
@@ -1756,7 +1780,287 @@ tracks/1/keys = {
 "values": [Vector3(0, 0, 0), Vector3(-0.2459867, 2.7133176e-09, -2.194935e-08)]
 }
 
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_nr30m"]
+[sub_resource type="Animation" id="Animation_gxm3o"]
+resource_name = "shove"
+length = 0.33
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("shotgun_model/Forend_lowpoly:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("left_hand/hand:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.010581678, 0.023087297, 0.03174503, 0.050984446, 0.065414004, 0.07503372, 0.09138721, 0.105816774, 0.11543648, 0.12409422, 0.12986605, 0.13948575, 0.15968713, 0.21451946, 0.2789715, 0.33),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.54206514, -0.69232106, 0.4850521), Vector3(0.5122347, -0.5723474, 0.67125034), Vector3(0.29634142, 0.29594183, -0.02836132), Vector3(0.13988972, 0.92516804, -0.059657097), Vector3(-0.12054157, 1.9725842, 0.6265955), Vector3(-0.093372345, 1.8633137, 1.3149338), Vector3(-0.13793898, 2.0425558, 1.534873), Vector3(-0.14300537, 2.062933, 2.0030718), Vector3(0.04827547, 1.2936316, 2.3301458), Vector3(0.07780552, 1.1748695, 2.1398811), Vector3(0.12706614, 0.9767492, 2.2212076), Vector3(0.2399826, 0.5226202, 2.241087), Vector3(0.3276124, 0.17018533, 2.4298296), Vector3(0.16042233, 0.84259796, 2.44905), Vector3(-0.18078423, 2.2148767, 2.238287), Vector3(0.0063066483, 1.4624257, 0.8101721), Vector3(0.54206514, -0.69232106, 0.4850521)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("shotgun_model:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.14, 0.33),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 1.5707964, 0), Vector3(0, 4.1887903, 0), Vector3(0, 1.5707964, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("right_hand/hand:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.02885912, 0.034630943, 0.03751686, 0.04328868, 0.048098534, 0.05771824, 0.0721478, 0.08272948, 0.09331115, 0.11543648, 0.12601817, 0.13371393, 0.13852377, 0.14718151, 0.17604063, 0.19912793, 0.22221524, 0.26646587, 0.28666726, 0.3184123, 0.33),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0.9167175), Vector3(0.21681213, -2.3336747, -0.63770485), Vector3(0.27543902, -2.9055178, -1.882412), Vector3(0.2933092, -3.1126425, -1.849657), Vector3(0.32905006, -3.526892, -3.5114756), Vector3(0.32179546, -3.61706, -3.8778524), Vector3(0.57874775, -3.8079073, -4.23717), Vector3(0.6828432, -4.3405895, -5.840852), Vector3(0.6548209, -4.1624613, -6.7803516), Vector3(0.6771419, -4.330991, -8.057805), Vector3(0.530571, -3.3527315, -10.953698), Vector3(0.48438048, -3.049494, -11.90651), Vector3(0.38730597, -2.3918374, -12.84735), Vector3(0.32318997, -1.9570835, -12.510072), Vector3(0.34384894, -2.1114714, -11.90297), Vector3(0.54965186, -3.5690491, -10.141973), Vector3(0.62787867, -4.140067, -8.483644), Vector3(0.6528146, -4.3441315, -6.355117), Vector3(0.5246496, -3.5236304, -2.9132051), Vector3(0.39081097, -2.6303456, -1.3471394), Vector3(0.10450745, -0.70338655, 0.3113346), Vector3(0, 0, 0.9167175)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("left_hand/hand/ring_0/ring_1/ring_2:rotation")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.37513378, -1.2343519, 0.24675436)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("left_hand/hand/pinky_0/pinky_1:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.5525987, -1.2980888, 0.57540447)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("left_hand/hand/pinky_0/pinky_1/pinky_2:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.80773985, -0.28406718, -0.12358806)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("left_hand/hand/pinky_0:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.74700093, 0, 0)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("left_hand/hand/middle_0:rotation")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.1308997, -0.08552113, -0.05235988)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("left_hand/hand/index_0:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.14414537, -0.067929514, 0.5749957)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("left_hand/hand/thumb_0:rotation")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.4331214, 0.13567448, -1.0314115)]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("left_hand/hand/index_0/index_1:rotation")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.010471975, 0, 0)]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("left_hand/hand/index_0/index_1/index_2:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.010471975, 0, 0)]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("left_hand/hand/middle_0/middle_1:rotation")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.112157725, 0.17926967, 0.09038967)]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("left_hand/hand/middle_0/middle_1/middle_2:rotation")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.26597494, -0.14223668, -0.032677438)]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("left_hand/hand/ring_0/ring_1:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.3333579, 0, 0)]
+}
+tracks/18/type = "value"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("left_hand/hand/thumb_0/thumb_1:rotation")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.27044207, 0.008589756, -0.4540735)]
+}
+tracks/19/type = "value"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("left_hand/hand:rotation")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"times": PackedFloat32Array(0, 0.008657736, 0.010581678, 0.023087297, 0.03174503, 0.050984446, 0.065414004, 0.07503372, 0.09138721, 0.105816774, 0.11543648, 0.12409422, 0.12890407, 0.12986605, 0.13467589, 0.13948575, 0.15968713, 0.21451946, 0.2789715, 0.33),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-0.007201446, -0.15145381, 1.0225929), Vector3(0.34207192, -0.06977228, 0.9834549), Vector3(0.33998072, -0.07026127, 0.9836894), Vector3(0.32638818, -0.07344016, 0.98521245), Vector3(0.31697792, -0.07564089, 0.986267), Vector3(0.2960662, -0.08053132, 0.9886102), Vector3(0.28038234, -0.084199116, 0.9903677), Vector3(0.26992643, -0.0866443, 0.9915394), Vector3(0.25215143, -0.09080115, 0.9935311), Vector3(0.23646758, -0.094468996, 0.99528867), Vector3(0.2260117, -0.096914224, 0.9964603), Vector3(0.21660148, -0.09911487, 0.99751484), Vector3(0.21137358, -0.100337476, 0.998101), Vector3(0.21032797, -0.100581996, 0.99821824), Vector3(0.20510006, -0.10180464, 0.99880385), Vector3(0.19987212, -0.10302726, 0.9993895), Vector3(0.17791486, -0.10816223, 1.00185), Vector3(0.11831653, -0.122099936, 1.0085282), Vector3(0.048262402, -0.13848288, 1.0163782), Vector3(-0.007201446, -0.15145381, 1.0225929)]
+}
+tracks/20/type = "value"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("right_hand:position")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.11835503, -0.15646225, -0.43747672)]
+}
+tracks/21/type = "value"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("shotgun_model:position")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"times": PackedFloat32Array(0.0009999999, 0.13333334, 0.33),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0.097340286, -0.3022269, -0.6557297), Vector3(0.0973403, -0.30222687, -0.83747756), Vector3(0.097340286, -0.3022269, -0.6557297)]
+}
+tracks/22/type = "value"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("right_hand/hand:rotation")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"times": PackedFloat32Array(0, 0.02885912, 0.03751686, 0.04328868, 0.048098534, 0.05771824, 0.0721478, 0.08272948, 0.09331115, 0.11543648, 0.12601817, 0.13371393, 0.13852377, 0.14718151, 0.17604063, 0.19912793, 0.22221524, 0.26646587, 0.28666726, 0.3184123, 0.33333334),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-3.1085764e-14, -4.9738005e-14, 1.9371512e-07), Vector3(0.3152393, 0.0473776, 0.0075316993), Vector3(0.4516579, 0.0715585, 0.017654844), Vector3(0.54260355, 0.08767912, 0.024403587), Vector3(0.5426036, 0.08767914, 0.024403607), Vector3(1.0669587, 0.26657027, 0.15804598), Vector3(1.2415031, 0.4389209, 0.31632155), Vector3(1.4158597, 1.1938827, 1.0537724), Vector3(1.3725138, 2.3337636, 2.1796684), Vector3(1.0019325, 2.9124544, 2.7273083), Vector3(0.8635653, 2.9708562, 2.7743373), Vector3(0.7708466, 3.000062, 2.7956588), Vector3(0.5617844, 3.0500548, 2.8267326), Vector3(0.6227032, 3.0371315, 2.8195152), Vector3(1.0756158, 2.8693373, 2.690124), Vector3(1.3693111, 2.3506877, 2.1962557), Vector3(1.3555663, 0.7265419, 0.59393156), Vector3(0.90038973, 0.1841917, 0.089212656), Vector3(0.63946587, 0.10821609, 0.035861187), Vector3(0.033127815, 0.004812179, 8.0256796e-05), Vector3(-3.1085764e-14, -4.9738005e-14, 1.9371512e-07)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_joagq"]
 _data = {
 &"RESET": SubResource("Animation_prr7q"),
 &"begin_reload": SubResource("Animation_8wutx"),
@@ -1765,7 +2069,8 @@ _data = {
 &"inserting_shells": SubResource("Animation_hxw52"),
 &"pull_out": SubResource("Animation_eq4rv"),
 &"pump": SubResource("Animation_48lih"),
-&"put_away": SubResource("Animation_nr30m")
+&"put_away": SubResource("Animation_nr30m"),
+&"shove": SubResource("Animation_gxm3o")
 }
 
 [sub_resource type="Animation" id="Animation_qfgrs"]
@@ -2367,7 +2672,7 @@ script = ExtResource("1_prr7q")
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
 
 [node name="shotgun_model" type="Node3D" parent="shotgun_rig/shotgun" unique_id=1963365875]
-transform = Transform3D(-4.3711385e-08, 0, 1, 0, 0.9999998, 0, -0.99999994, 0, -4.371139e-08, 0.097340286, -0.3022269, -0.6557297)
+transform = Transform3D(-4.3711374e-08, 0, 0.99999946, 0, 0.9999992, 0, -0.99999964, 0, -4.3711363e-08, 0.097340286, -0.3022269, -0.6557297)
 
 [node name="Body_lowpoly" type="MeshInstance3D" parent="shotgun_rig/shotgun/shotgun_model" unique_id=510925235]
 layers = 2
@@ -2404,7 +2709,7 @@ mesh = SubResource("ArrayMesh_uitm0")
 transform = Transform3D(0.011479671, -0.046169415, -0.013625793, 0.04802569, 0.011941217, 3.956969e-09, 0.0032878364, -0.013223175, 0.047575187, 0.038326554, -0.1894558, -0.7575833)
 
 [node name="hand" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand" unique_id=492938704]
-transform = Transform3D(0.5161167, -0.84312564, -0.15087138, 0.8534408, 0.5211409, 0.007201376, 0.07255377, -0.1324765, 0.98852605, 0.54206514, -0.69232106, 0.4850521)
+transform = Transform3D(0.5161151, -0.84312403, -0.15087062, 0.8534382, 0.5211399, 0.00720134, 0.07255355, -0.13247624, 0.9885211, 0.54206514, -0.69232106, 0.4850521)
 layers = 2
 material_override = ExtResource("2_prr7q")
 mesh = SubResource("ArrayMesh_s20c1")
@@ -2417,7 +2722,7 @@ mesh = SubResource("ArrayMesh_m4lkb")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="index_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=105184758]
-transform = Transform3D(0.8319568, -0.55075926, -0.067173295, 0.53819126, 0.8304912, -0.14364663, 0.13490167, 0.08335573, 0.987346, 0.6355164, -2.861023e-06, -1.8432941)
+transform = Transform3D(0.8319568, -0.55075926, -0.06717329, 0.53819126, 0.8304912, -0.14364663, 0.13490167, 0.08335573, 0.98734593, 0.6355164, -2.861023e-06, -1.8432941)
 layers = 2
 mesh = SubResource("ArrayMesh_06fy6")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2435,19 +2740,19 @@ mesh = SubResource("ArrayMesh_q3unt")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=1400321696]
-transform = Transform3D(0.9955624, 0.041010786, -0.08468614, -0.05188817, 0.99008536, -0.13052616, 0.078493536, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
+transform = Transform3D(0.9955623, 0.041010786, -0.08468614, -0.051888168, 0.99008536, -0.13052616, 0.07849353, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
 layers = 2
 mesh = SubResource("ArrayMesh_urq86")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_1" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0" unique_id=1942702148]
-transform = Transform3D(0.9817581, -0.06894444, 0.17719047, 0.08969944, 0.9896598, -0.111922614, -0.16764198, 0.12577496, 0.9777907, 0, -9.536743e-07, -0.5954528)
+transform = Transform3D(0.98175806, -0.06894443, 0.17719045, 0.08969943, 0.9896597, -0.1119226, -0.16764197, 0.12577495, 0.9777906, 0, -9.536743e-07, -0.5954528)
 layers = 2
 mesh = SubResource("ArrayMesh_5pyow")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_2" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0/middle_1" unique_id=1221415525]
-transform = Transform3D(0.98815495, 0.069582805, -0.13677295, -0.031522762, 0.9643221, 0.26285014, 0.1501828, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
+transform = Transform3D(0.9881549, 0.069582805, -0.13677295, -0.03152276, 0.9643221, 0.26285014, 0.15018278, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
 layers = 2
 mesh = SubResource("ArrayMesh_db5fc")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2510,7 +2815,7 @@ surface_material_override/0 = ExtResource("2_prr7q")
 transform = Transform3D(0.0071122725, -0.04897423, -3.7045997e-09, 0.04897422, 0.007112271, 4.281463e-09, -3.704602e-09, -4.2814623e-09, 0.04948797, 0.11835503, -0.15646225, -0.43747672)
 
 [node name="hand" type="MeshInstance3D" parent="shotgun_rig/shotgun/right_hand" unique_id=1763634211]
-transform = Transform3D(0.9999997, -2.9802322e-08, -3.5527137e-14, 4.4703484e-08, 0.9999996, -1.2923029e-15, 4.2632564e-14, 1.670271e-15, 0.9999996, 0, 0, 0.9167175)
+transform = Transform3D(1.0000024, -1.937148e-07, -4.9737964e-14, 1.937156e-07, 0.99999833, 3.1085736e-14, 4.9738117e-14, -3.1085723e-14, 0.99999917, 0, 0, 0.9167175)
 layers = 2
 material_override = ExtResource("2_prr7q")
 mesh = SubResource("ArrayMesh_s20c1")
@@ -2617,7 +2922,7 @@ mesh = SubResource("ArrayMesh_02ff0")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="shotgun_rig/shotgun" unique_id=894825513]
-libraries/ = SubResource("AnimationLibrary_nr30m")
+libraries/ = SubResource("AnimationLibrary_joagq")
 
 [node name="shotgun_audio" type="Node3D" parent="shotgun_rig/shotgun" unique_id=949234203]
 

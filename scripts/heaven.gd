@@ -30,7 +30,10 @@ func _ready() -> void:
 		sky_3d.current_time = 6
 	else:
 		sky_3d.current_time = 0
-	player.minimap.visible = false
+		
+	# THE FIX: Route the minimap command through the new GUI node!
+	player.gui.minimap.visible = false
+	
 	welcome_to_heaven.play()
 	
 	# Determine initial state so the fireflies/crickets start correctly

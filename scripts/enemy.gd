@@ -257,7 +257,8 @@ func _physics_process(delta):
 	apply_movement(current_move_speed, has_arrived, delta)
 
 
-func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot: bool = false) -> void:
+# Add 'hit_bone' to the end of the arguments!
+func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot: bool = false, hit_bone: PhysicalBone3D = null) -> void:
 	var push_direction = Vector3.UP
 	if player != null:
 		push_direction = (global_position - player.global_position).normalized()
@@ -275,7 +276,31 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 			target_bone = bone
 			ragdoll_spine = bone 
 			break
+			
+	# --- THE GORE HACK: POP THE HEAD! ---
+	# MOVED TO THE TOP! This triggers if the shot is lethal, OR if the enemy is already dead!
+	if is_headshot and (current_health - amount <= 0 or is_ragdolled) and skeleton is Skeleton3D:
+		var head_bone = null
+		for bone in all_bones:
+			if "head" in bone.name.to_lower():
+				head_bone = bone
+				break
+		
+		# Ensure we only pop it once so we don't spawn 8 blood fountains for 1 shotgun blast
+		if head_bone and head_bone.scale.x > 0.1:
+			var bone_idx = head_bone.get_bone_id()
+			# 1. Shrink visual bone
+			skeleton.set_bone_pose_scale(bone_idx, Vector3(0.01, 0.01, 0.01))
+			# 2. Shrink physics bone
+			head_bone.scale = Vector3(0.01, 0.01, 0.01)
+			
+			# 3. Safely spawn blood fountain
+			if ResourceLoader.exists("res://scenes/blood_fountain.tscn"):
+				var blood = load("res://scenes/blood_fountain.tscn").instantiate()
+				get_tree().current_scene.add_child(blood)
+				blood.global_position = head_bone.global_position
 	
+	# If they are already dead, apply the physical push and stop running the rest of the code
 	if is_ragdolled:
 		if target_bone:
 			target_bone.apply_central_impulse(push_direction * 250.0)
@@ -314,6 +339,7 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 		
 		return
 	
+	# --- DEATH LOGIC ---
 	if not is_ragdolled:
 		if player and player.has_method("reward_kill"):
 			player.reward_kill()
@@ -323,7 +349,7 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 		
 		if icon_component:
 			icon_component.visible = false
-		
+			
 		var enemies = get_tree().get_nodes_in_group("enemy")
 		var any_alive = false
 		for e in enemies:
@@ -347,6 +373,34 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 	
 	if target_bone:
 		target_bone.apply_central_impulse(push_direction * 800.0)
+
+# --- THE SHOVE REACTION ---
+func apply_shove(push_dir: Vector3) -> void:
+	if is_ragdolled: return
+	
+	# 1. Physically push the enemy backward
+	var push_strength = 14.0
+	velocity = push_dir * push_strength
+	move_and_slide()
+	
+	# 2. Trigger the stagger state so they stop attacking you
+	is_staggered = true
+	stagger_timer = stagger_duration * 1.5 # Make the shove stun last a bit longer than a bullet stun!
+	
+	# 3. Play the hit reaction animation
+	if anim_player:
+		play_animation(ANIM_TAKE_DAMAGE)
+		anim_player.speed_scale = 5.0 
+		
+	if enemy_hurt_noise and not enemy_hurt_noise.playing:
+		enemy_hurt_noise.pitch_scale = randf_range(0.85, 1.15) * base_pitch_multiplier
+		enemy_hurt_noise.play()
+		
+	# 4. Wake them up if you shoved a sleeping clone
+	if not is_chasing:
+		last_known_pos = global_position
+		has_last_known_pos = true
+		is_chasing = true
 
 
 func reset_investigation_variables():
@@ -655,9 +709,11 @@ func target_in_range() -> bool:
 			
 	return dist_sq < (attack_range * attack_range)
 	
+
 # --- ATTACK INTERRUPTION ---
 func hit_player():
 	if not player_is_dead:
+		# We temporarily hijack this variable to freeze the enemy AI while he kicks!
 		player_is_dead = true 
 		is_chasing = false
 		stop_random_voicelines()
@@ -670,13 +726,27 @@ func hit_player():
 		if anim_player: anim_player.speed_scale = 1.0 
 		play_animation(ANIM_ATTACK)
 		
+		# Wait for the leg to swing forward
 		await get_tree().create_timer(0.4).timeout
 		
+		# Did the player shoot him during the 0.4 seconds?!
 		if is_ragdolled or is_staggered:
 			player_is_dead = false 
 			return
 			
-		if player and player.has_method("hit"): player.hit()
+		# The player was too slow, deal the damage!
+		if player and player.has_method("hit"): 
+			player.hit()
+			
+			# --- THE FIX: DID THE PLAYER SURVIVE? ---
+			if "dead" in player and not player.dead:
+				# The player survived! Let the leg pull back down to the ground...
+				await get_tree().create_timer(0.6).timeout
+				
+				# If Gordon hasn't been killed or staggered while pulling his leg back, wake him up!
+				if not is_ragdolled and not is_staggered:
+					player_is_dead = false 
+					is_chasing = true
 
 func _on_timer_timeout() -> void:
 	timer.stop()
