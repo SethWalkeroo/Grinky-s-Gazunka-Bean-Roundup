@@ -45,6 +45,7 @@ mesh = SubResource("SphereMesh_sfvx2")
 surface_material_override/0 = SubResource("StandardMaterial3D_cmelp")
 
 [node name="PixieDust" type="GPUParticles3D" parent="." unique_id=660581012]
+cast_shadow = 0
 amount = 26
 process_material = SubResource("ParticleProcessMaterial_cmelp")
 draw_pass_1 = SubResource("QuadMesh_swwvk")
@@ -58,3 +59,7 @@ unit_size = 5.0
 autoplay = true
 max_distance = 50.0
 bus = &"effects"
+
+[node name="WispLight" type="OmniLight3D" parent="." unique_id=108133577]
+light_color = Color(0.54358685, 0.94765145, 1, 1)
+shadow_enabled = true

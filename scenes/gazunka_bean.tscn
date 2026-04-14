@@ -11,11 +11,19 @@
 
 [sub_resource type="SphereMesh" id="SphereMesh_ijm6s"]
 
+[sub_resource type="Curve" id="Curve_m3ktk"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_4ixw8"]
+curve = SubResource("Curve_m3ktk")
+
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_guios"]
 spread = 180.0
 initial_velocity_min = 3.0
 initial_velocity_max = 6.0
 gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveTexture_4ixw8")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6ppwc"]
 shading_mode = 0
@@ -32,6 +40,18 @@ rim_enabled = true
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vs7v5"]
 shading_mode = 0
 albedo_color = Color(1, 0.90270585, 0, 1)
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="Curve" id="Curve_qtloj"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_n4jo2"]
+curve = SubResource("Curve_qtloj")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_m3ktk"]
 emission_shape = 1
@@ -40,6 +60,7 @@ spread = 25.646
 gravity = Vector3(0, 1, 0)
 scale_min = 0.01
 scale_max = 0.19999999
+scale_curve = SubResource("CurveTexture_n4jo2")
 
 [sub_resource type="PointMesh" id="PointMesh_vs7v5"]
 
@@ -84,11 +105,13 @@ transform = Transform3D(0.4576, 0, 0, 0, -2.000233e-08, 0.4576, 0, -0.4576, -2.0
 material_override = SubResource("StandardMaterial3D_m3ktk")
 mesh = ExtResource("2_vs7v5")
 
-[node name="SpotLight3D" type="SpotLight3D" parent="." unique_id=919239741]
-transform = Transform3D(1, 0, 0, 0, 2.9802322e-08, 1, 0, -1, 2.9802322e-08, 0, 2.9569376, 0)
+[node name="SpotLight3D" type="OmniLight3D" parent="." unique_id=1416038983]
+transform = Transform3D(1, 0, 0, 0, 2.9802322e-08, 1, 0, -1, 2.9802322e-08, 0, -0.109930515, 0)
 layers = 3
 light_color = Color(1, 0.91993177, 0.0009159446, 1)
-spot_angle = 22.846031
+light_energy = 0.276
+shadow_enabled = true
+omni_range = 1.054
 
 [node name="GPUParticles3D2" type="GPUParticles3D" parent="." unique_id=1527892706]
 material_override = SubResource("StandardMaterial3D_vs7v5")

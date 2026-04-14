@@ -183,6 +183,7 @@ shape = SubResource("CylinderShape3D_18mvg")
 stream = ExtResource("5_ake3r")
 volume_db = -32.381
 pitch_scale = 1.24
+bus = &"effects"
 
 [connection signal="body_entered" from="tree/Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_exited" from="tree/Area3D" to="." method="_on_area_3d_body_exited"]

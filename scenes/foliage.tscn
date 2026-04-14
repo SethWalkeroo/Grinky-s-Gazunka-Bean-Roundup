@@ -127,7 +127,7 @@ shadow_mesh = SubResource("ArrayMesh_6i53n")
 [node name="foliage" unique_id=453480413 instance=ExtResource("1_j12j6")]
 script = ExtResource("2_3wrhr")
 
-[node name="Plane" parent="." index="0" unique_id=1815914770]
+[node name="Plane" parent="." index="0" unique_id=390097458]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4366846, 0)
 mesh = SubResource("ArrayMesh_lvl4o")
 
@@ -140,5 +140,6 @@ shape = SubResource("SphereShape3D_5et1i")
 [node name="foliage_sound" type="AudioStreamPlayer3D" parent="." index="2" unique_id=1941899536]
 stream = ExtResource("4_42bwu")
 volume_db = -36.19
+bus = &"effects"
 
 [connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]

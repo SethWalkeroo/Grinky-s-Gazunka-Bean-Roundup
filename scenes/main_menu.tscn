@@ -5,7 +5,6 @@
 [ext_resource type="Shader" uid="uid://b22ys3o215xmt" path="res://shaders/player.gdshader" id="2_rcqid"]
 [ext_resource type="AudioStream" uid="uid://88ut83bhnox2" path="res://audio/gazunka_pickup_noise.wav" id="5_rtw2f"]
 [ext_resource type="AudioStream" uid="uid://bb5puy8mjg5bf" path="res://audio/byeah.wav" id="6_rtw2f"]
-[ext_resource type="AudioStream" uid="uid://cks72bjuhemok" path="res://audio/SNAP.wav" id="6_tbmy8"]
 [ext_resource type="AudioStream" uid="uid://bq3wlb10ukrjd" path="res://audio/ambeint_sound_smol.ogg" id="7_a8gd2"]
 [ext_resource type="AudioStream" uid="uid://cs1eujsi4w38y" path="res://audio/menumusicfin.wav" id="8_a8gd2"]
 [ext_resource type="AudioStream" uid="uid://dm21taa0wukn8" path="res://audio/excellent_choice.wav" id="8_jk1qb"]
@@ -593,31 +592,30 @@ offset_bottom = 40.0
 [node name="button_hover_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=868690126]
 volume_db = -43.588
 
-[node name="button_click_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1530758440]
-stream = ExtResource("6_tbmy8")
-volume_db = -36.706
-
 [node name="profile_creation_voiceline" type="AudioStreamPlayer" parent="menu_noises" unique_id=816392301]
 stream = ExtResource("8_jk1qb")
 volume_db = -37.471
+bus = &"game_voicelines"
 
 [node name="main_music" type="AudioStreamPlayer" parent="menu_noises" unique_id=350473728]
 stream = ExtResource("8_a8gd2")
 volume_db = -27.589
-autoplay = true
 bus = &"menu_music"
 
 [node name="name_taken" type="AudioStreamPlayer" parent="menu_noises" unique_id=817649156]
 stream = ExtResource("10_5dd4i")
 volume_db = -30.588
+bus = &"game_voicelines"
 
 [node name="bad_word_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1112392016]
 stream = ExtResource("11_lgwnu")
 volume_db = -32.882
+bus = &"game_voicelines"
 
 [node name="everyone_has_name_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=2034853343]
 stream = ExtResource("12_flqon")
 volume_db = -32.882
+bus = &"game_voicelines"
 
 [node name="sound" type="AudioStreamPlayer" parent="menu_noises" unique_id=1707064571]
 stream = ExtResource("13_7b55j")
@@ -642,7 +640,6 @@ bus = &"game_voicelines"
 [node name="test_ambient_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=283117483]
 stream = ExtResource("7_a8gd2")
 volume_db = -27.368
-autoplay = true
 bus = &"ambient_noise"
 
 [node name="purchase_made" type="AudioStreamPlayer" parent="menu_noises" unique_id=1443839235]

@@ -148,7 +148,7 @@ var motds = [
 	'"[i]If it [color=red]scares[/color] you, it might be a [color=green]good[/color] thing to try.[/i]" [color=gold]-Seth Godin[/color]',
 	'"[i]Sometimes you [color=green]win[/color], sometimes you [color=red]learn[/color].[/i]" [color=orange]-John Maxwell[/color]',
 	'"[i]I never [color=cyan]dream[/color] of [color=green]success[/color]. I [color=gray]worked[/color] for it.[/i]" [color=pink]-Estee Lauder[/color]',
-	'"Avoiding [color=red]failure[/color] is to avoid [color=gold]progress[/color]." [color=brown]-some dude[/color]'
+	'"Avoiding [color=red]failure[/color] is to avoid [color=gold]progress[/color]." [color=brown]-some dude[/color]',
 ]
 
 var last_motd_index: int = -1
@@ -227,6 +227,18 @@ var ambient_noise_bus = AudioServer.get_bus_index('ambient_noise')
 var sarah_bus = AudioServer.get_bus_index("sarah") 
 
 func _ready() -> void:
+	
+	master_slider.set_value_no_signal(GlobalStats.master_vol)
+	menu_music_slider.set_value_no_signal(GlobalStats.menu_music_vol)
+	effects_slider.set_value_no_signal(GlobalStats.effects_vol)
+	voicelines_slider.set_value_no_signal(GlobalStats.voicelines_vol)
+	ambient_noise_slider.set_value_no_signal(GlobalStats.ambient_noise_vol)
+	
+	AudioServer.set_bus_volume_db(master_bus, linear_to_db(GlobalStats.master_vol))
+	AudioServer.set_bus_volume_db(menu_music_bus, linear_to_db(GlobalStats.menu_music_vol))
+	AudioServer.set_bus_volume_db(effects_bus, linear_to_db(GlobalStats.effects_vol))
+	AudioServer.set_bus_volume_db(voicelines_bus, linear_to_db(GlobalStats.voicelines_vol))
+	AudioServer.set_bus_volume_db(ambient_noise_bus, linear_to_db(GlobalStats.ambient_noise_vol))
 	
 	# Ensure the main menu is also dry/outdoor acoustics
 	var effects_bus = AudioServer.get_bus_index("effects")
@@ -318,11 +330,7 @@ func _ready() -> void:
 	else:
 		setup_profile_creation()
 
-	master_slider.set_value_no_signal(GlobalStats.master_vol)
-	menu_music_slider.set_value_no_signal(GlobalStats.menu_music_vol)
-	effects_slider.set_value_no_signal(GlobalStats.effects_vol)
-	voicelines_slider.set_value_no_signal(GlobalStats.voicelines_vol)
-	ambient_noise_slider.set_value_no_signal(GlobalStats.ambient_noise_vol)
+
 
 func _init_background_vibe() -> void:
 	if menu_background:

@@ -6,16 +6,14 @@
 [ext_resource type="PackedScene" uid="uid://buek3paanpo0j" path="res://scenes/impact.tscn" id="3_rxqm5"]
 [ext_resource type="AudioStream" uid="uid://d35awvsjitcbm" path="res://audio/welcome_to_heaven.wav" id="5_chesl"]
 [ext_resource type="Texture2D" uid="uid://bj38ibpvoe6x0" path="res://heaven_assets/ground.png" id="5_nnobs"]
-[ext_resource type="AudioStream" uid="uid://dl3kjckdncm8x" path="res://audio/heaven_music.wav" id="6_nnobs"]
 [ext_resource type="Texture2D" uid="uid://ciu0jy0hwh15t" path="res://heaven_assets/ground_n.png" id="6_puekj"]
-[ext_resource type="AudioStream" uid="uid://bq3wlb10ukrjd" path="res://audio/ambeint_sound_smol.ogg" id="7_bcqvh"]
 [ext_resource type="PackedScene" uid="uid://bw05diy2v87dy" path="res://scenes/foliage.tscn" id="8_fd24p"]
 [ext_resource type="PackedScene" uid="uid://ouqyu3850dyf" path="res://scenes/campfire.tscn" id="9_sbrvq"]
 [ext_resource type="PackedScene" uid="uid://cqku5lnqphg1e" path="res://scenes/tree.tscn" id="11_uqftx"]
 [ext_resource type="AudioStream" uid="uid://bkboj65mdnc05" path="res://audio/circkets.wav" id="12_uqftx"]
 [ext_resource type="Texture2D" uid="uid://2yhnnf0g0u78" path="res://assets/assets/textures/T_VFX_Glow_1.PNG" id="23_ic6v4"]
 [ext_resource type="Script" uid="uid://c5541utl8wpif" path="res://addons/zylann.hterrain/hterrain.gd" id="24_wg2rn"]
-[ext_resource type="Resource" path="res://terrain_terror/data.hterrain" id="25_jmxq6"]
+[ext_resource type="Resource" uid="uid://cbrgwjari4adm" path="res://terrain_terror/data.hterrain" id="25_jmxq6"]
 [ext_resource type="Script" uid="uid://cf8mmkhm2d7b5" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="26_ar6ts"]
 [ext_resource type="Texture2D" uid="uid://8vsgrhac485i" path="res://rock_cliff.png" id="27_01rup"]
 [ext_resource type="Texture2D" uid="uid://ikpu46gm4ib3" path="res://ground_textures/ground.png" id="27_ar6ts"]
@@ -31,6 +29,7 @@
 [ext_resource type="AudioStream" uid="uid://bwxl6d08lmj06" path="res://audio/winning_bell.wav" id="35_i2y7s"]
 [ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="35_youii"]
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="36_j5lsf"]
+[ext_resource type="AudioStream" uid="uid://uhl4mub554ii" path="res://audio/mountain_ambiance.wav" id="36_jlo57"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="37_5dglg"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="38_qxbhr"]
 [ext_resource type="PackedScene" uid="uid://gvkknjagaolp" path="res://scenes/saultable.tscn" id="39_01rup"]
@@ -122,7 +121,7 @@ shader_parameter/moon_texture_flip_u = false
 shader_parameter/moon_texture_flip_v = false
 shader_parameter/moon_size = 0.07
 shader_parameter/atm_moon_mie_tint = Color(0.137255, 0.184314, 0.292196, 1)
-shader_parameter/atm_moon_mie_intensity = 0.3556649765372276
+shader_parameter/atm_moon_mie_intensity = 0.0
 shader_parameter/atm_moon_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
 shader_parameter/starmap_color = Color(0.709804, 0.709804, 0.709804, 0.854902)
 shader_parameter/starmap_texture = ExtResource("35_youii")
@@ -130,7 +129,7 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -8.98024635448906
+shader_parameter/star_rotation = -8.91440149412864
 shader_parameter/star_tilt = -1.2915436464758039
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("34_ipkb0")
@@ -146,8 +145,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.4416423, 0.4416423)
-shader_parameter/cirrus_position2 = Vector2(0.4416423, 0.4416423)
+shader_parameter/cirrus_position1 = Vector2(0.5304057, 0.5304057)
+shader_parameter/cirrus_position2 = Vector2(0.5304057, 0.5304057)
 shader_parameter/cirrus_texture = ExtResource("30_01rup")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -157,7 +156,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(2.2081325, 2.2081325)
+shader_parameter/cumulus_position = Vector2(2.6518052, 2.6518052)
 shader_parameter/cumulus_texture = ExtResource("31_8g5uk")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -167,7 +166,7 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(1.4901159e-08, -0.74727017, -0.66452044, -0.5248031, -0.56565547, 0.636094, -0.85122365, 0.3487424, -0.39216968)
+shader_parameter/moon_matrix = Basis(3.7252903e-09, -0.15814207, -0.9874164, -0.9231303, -0.37964916, 0.060803633, -0.38448736, 0.911514, -0.14598574)
 
 [sub_resource type="Sky" id="Sky_7niei"]
 sky_material = SubResource("ShaderMaterial_p7nha")
@@ -205,10 +204,7 @@ footprint_scene = ExtResource("3_gbqwe")
 transform = Transform3D(-1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, -1, 0, 0, 0)
 stream = ExtResource("5_chesl")
 volume_db = -39.262
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=466380482]
-stream = ExtResource("6_nnobs")
-volume_db = -43.334
+bus = &"game_voicelines"
 
 [node name="foliage" type="Node3D" parent="." unique_id=1672150387]
 
@@ -294,12 +290,6 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -2.4390388, 0.32530147, 7.926
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -7.623439, 0.32530147, 1.2064877)
 
 [node name="campfire" parent="." unique_id=2050365091 instance=ExtResource("9_sbrvq")]
-
-[node name="ambiance" type="AudioStreamPlayer" parent="." unique_id=1391867292]
-stream = ExtResource("7_bcqvh")
-volume_db = -30.952
-autoplay = true
-bus = &"ambient_noise"
 
 [node name="trees" type="Node3D" parent="." unique_id=695609666]
 
@@ -635,40 +625,35 @@ bus = &"game_voicelines"
 environment = SubResource("Environment_nxiix")
 camera_attributes = SubResource("CameraAttributesPractical_by87i")
 script = ExtResource("36_j5lsf")
-current_time = 10.52450666666685
+current_time = 10.077093333312819
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1726463381]
-transform = Transform3D(0.5582809, -0.7701086, 0.3086345, 0, 0.37200475, 0.9282308, -0.829652, -0.5182135, 0.20768313, 0.3086345, 0.9282308, 0.20768313)
+transform = Transform3D(0.46282664, -0.7840193, 0.4136487, 0, 0.46663573, 0.8844496, -0.8864488, -0.40934685, 0.21597145, 0.4136487, 0.8844496, 0.21597145)
 layers = 3
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=433551366]
-transform = Transform3D(0, -0.5248031, -0.85122365, -0.7472701, -0.56565547, 0.34874237, -0.6645204, 0.636094, -0.39216968, -0.85122365, 0.34874237, -0.39216968)
+transform = Transform3D(0, -0.9231302, -0.38448736, -0.15814206, -0.3796491, 0.9115139, -0.9874163, 0.060803622, -0.14598572, -0.38448736, 0.9115139, -0.14598572)
 layers = 3
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 
 [node name="SkyDome" type="Node" parent="Sky3D" unique_id=1682473994]
 script = ExtResource("37_5dglg")
-sun_azimuth = -2.1631086
-sun_altitude = -0.38116783
-moon_azimuth = -5.144116
-moon_altitude = -1.2145674
+sun_azimuth = -2.0519776
+sun_altitude = -0.48548314
+moon_azimuth = -5.0752645
+moon_altitude = -0.42384604
 wind_direction = 2.35619451204804
 
 [node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=2110156679]
 script = ExtResource("38_qxbhr")
 dome_path = NodePath("../SkyDome")
-current_time = 10.52450666666685
-day = 14
+current_time = 10.077093333312819
+day = 17
 month = 9
-
-[node name="heaven_music" type="AudioStreamPlayer3D" parent="." unique_id=688379087]
-stream = ExtResource("6_nnobs")
-volume_db = -22.316
-bus = &"menu_music"
 
 [node name="saultable3" parent="." unique_id=445469896 groups=["wood"] instance=ExtResource("39_01rup")]
 transform = Transform3D(-0.79910374, -0.59433204, -0.090567224, 0.021611439, 0.122150436, -0.992276, 0.6008045, -0.79488856, -0.084766455, 1.9302677, 0.87103975, 2.6355538)
@@ -678,19 +663,19 @@ transform = Transform3D(-0.79910374, -0.59433204, -0.090567224, 0.021611439, 0.1
 [node name="bird" type="AudioStreamPlayer3D" parent="birds" unique_id=927984126]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.962557, 12.7174, 34.151127)
 stream = ExtResource("40_8g5uk")
-volume_db = -8.165
+volume_db = -17.665
 bus = &"ambient_noise"
 
 [node name="bird3" type="AudioStreamPlayer3D" parent="birds" unique_id=1487715674]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.192554, 18.904873, -11.857954)
 stream = ExtResource("40_8g5uk")
-volume_db = -7.046
+volume_db = -17.665
 bus = &"ambient_noise"
 
 [node name="bird2" type="AudioStreamPlayer3D" parent="birds" unique_id=2042878421]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.093641, 10.623259, -36.35607)
 stream = ExtResource("40_8g5uk")
-volume_db = -7.379
+volume_db = -17.665
 bus = &"ambient_noise"
 
 [node name="tables" type="Node3D" parent="." unique_id=1483115479]
@@ -771,6 +756,56 @@ volume_db = -40.925
 
 [node name="victory_bell" type="AudioStreamPlayer3D" parent="." unique_id=1768308231]
 stream = ExtResource("35_i2y7s")
-volume_db = -20.952
+volume_db = -27.777
+
+[node name="mountain_ambiance" type="Node3D" parent="." unique_id=49415350]
+
+[node name="mountain" type="AudioStreamPlayer3D" parent="mountain_ambiance" unique_id=1375766311]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 223.09592, 190.69693, 88.750755)
+stream = ExtResource("36_jlo57")
+volume_db = -8.001
+unit_size = 13.57
+autoplay = true
+bus = &"ambient_noise"
+
+[node name="mountain2" type="AudioStreamPlayer3D" parent="mountain_ambiance" unique_id=461454979]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 223.09592, 190.69693, -114.36103)
+stream = ExtResource("36_jlo57")
+volume_db = -8.001
+unit_size = 13.57
+autoplay = true
+bus = &"ambient_noise"
+
+[node name="mountain3" type="AudioStreamPlayer3D" parent="mountain_ambiance" unique_id=2030016865]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.772545, 115.82582, -195.54224)
+stream = ExtResource("36_jlo57")
+volume_db = -8.001
+unit_size = 13.57
+autoplay = true
+bus = &"ambient_noise"
+
+[node name="mountain4" type="AudioStreamPlayer3D" parent="mountain_ambiance" unique_id=279645180]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -161.75797, 179.52931, -151.62686)
+stream = ExtResource("36_jlo57")
+volume_db = -8.001
+unit_size = 13.57
+autoplay = true
+bus = &"ambient_noise"
+
+[node name="mountain5" type="AudioStreamPlayer3D" parent="mountain_ambiance" unique_id=1851833789]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -161.75797, 128.945, 86.37314)
+stream = ExtResource("36_jlo57")
+volume_db = -8.001
+unit_size = 13.57
+autoplay = true
+bus = &"ambient_noise"
+
+[node name="mountain6" type="AudioStreamPlayer3D" parent="mountain_ambiance" unique_id=534479308]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4588966, 128.945, 226.03505)
+stream = ExtResource("36_jlo57")
+volume_db = -8.001
+unit_size = 13.57
+autoplay = true
+bus = &"ambient_noise"
 
 [connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]

@@ -3,11 +3,11 @@ extends Node3D
 @onready var player: CharacterBody3D = $player
 @onready var welcome_to_heaven: AudioStreamPlayer3D = $player/welcome_to_heaven
 @onready var crickets: Node3D = $crickets
-@onready var ambiance: AudioStreamPlayer = $ambiance
 @onready var campfire: Node3D = $campfire
 @onready var fireflies: Node3D = $fireflies
 @onready var better_call_saul: AudioStreamPlayer3D = $better_call_saul
 @onready var victory_bell: AudioStreamPlayer3D = $victory_bell
+@onready var mountain_ambiance: Node3D = $mountain_ambiance
 
 # --- GLOBAL BELL TRACKERS ---
 var bell_check_timer: float = 15.0 # Check every 15 seconds so we don't spam SilentWolf's servers
@@ -59,10 +59,13 @@ func _ready() -> void:
 	if not is_daytime:
 		show_fireflies()
 		setup_sound_group(crickets)
+		stop_sound_group(mountain_ambiance)
+		stop_sound_group(birds)
 	else:
 		extinguish_campfire()
 		stop_sound_group(crickets)
 		setup_sound_group(birds)
+		setup_sound_group(mountain_ambiance)
 		hide_fireflies()
 			
 	GlobalStats.came_from_main_menu = false
@@ -82,6 +85,7 @@ func _physics_process(delta: float) -> void:
 		hide_fireflies()
 		stop_sound_group(crickets)
 		setup_sound_group(birds)
+		setup_sound_group(mountain_ambiance)
 		extinguish_campfire()
 			
 	# Transition to NIGHT
@@ -89,6 +93,7 @@ func _physics_process(delta: float) -> void:
 		is_daytime = false
 		show_fireflies()
 		stop_sound_group(birds)
+		stop_sound_group(mountain_ambiance)
 		setup_sound_group(crickets)
 		start_campfire()
 
