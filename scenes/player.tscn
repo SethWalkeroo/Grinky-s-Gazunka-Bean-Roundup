@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="10_ujl30"]
 [ext_resource type="AudioStream" uid="uid://gem27cg43ie8" path="res://audio/slide.wav" id="11_d2wvv"]
 [ext_resource type="AudioStream" uid="uid://dgo27wuioswyo" path="res://audio/throw_sound.wav" id="12_3v2ag"]
+[ext_resource type="Texture2D" uid="uid://clda8ccxynkc0" path="res://assets/circle_for_game.png" id="12_wqfne"]
 [ext_resource type="AudioStream" uid="uid://w6gb3k71o1xc" path="res://audio/gazunk_wow.wav" id="13_4ni07"]
 [ext_resource type="AudioStream" uid="uid://b71kyi0om74cq" path="res://audio/jump.wav" id="13_jej6c"]
 [ext_resource type="AudioStream" uid="uid://byq7c0tos8qcj" path="res://audio/ymmy_gazunka_bean.wav" id="14_l71n6"]
@@ -26,11 +27,20 @@
 [ext_resource type="AudioStream" uid="uid://db4jjmn168ke5" path="res://audio/shhh.wav" id="21_i4ail"]
 [ext_resource type="AudioStream" uid="uid://da1ellfxvfr0" path="res://audio/out_of_breath.wav" id="23_4ni07"]
 [ext_resource type="AudioStream" uid="uid://dllqftmrvthhi" path="res://audio/slide_sound_final.wav" id="26_ujl30"]
+[ext_resource type="AudioStream" uid="uid://cumbh0dda0wf7" path="res://audio/heartbeat.wav" id="27_31cv2"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3v2ag"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jej6c"]
 height = 1.2
+
+[sub_resource type="PrismMesh" id="PrismMesh_31cv2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_31cv2"]
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(0, 1, 0.020008564, 1)
 
 [sub_resource type="Animation" id="Animation_sugp2"]
 length = 0.001
@@ -272,6 +282,15 @@ render_target_update_mode = 4
 transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0, 0, 0)
 fov = 77.7
 
+[node name="compass_arrow" type="Node3D" parent="neck/head/eyes/Camera3D" unique_id=501521381]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06673329, 0.22181535, -0.6152903)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="neck/head/eyes/Camera3D/compass_arrow" unique_id=245220958]
+transform = Transform3D(0.07670754, 1.1353439e-08, 8.241545e-10, -6.8581887e-09, -5.5507376e-09, 0.009218012, 6.858188e-09, -0.12698607, -4.0293202e-10, 0, -0.638, 0)
+gi_mode = 0
+mesh = SubResource("PrismMesh_31cv2")
+surface_material_override/0 = SubResource("StandardMaterial3D_31cv2")
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="neck/head/eyes" unique_id=178176517]
 libraries/ = SubResource("AnimationLibrary_f1ej7")
 
@@ -447,6 +466,7 @@ grow_vertical = 2
 modulate = Color(0.08960724, 1, 0, 1)
 layout_mode = 2
 size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
 text = "Resume"
 
 [node name="restart_button" type="Button" parent="neck/head/eyes/CanvasLayer/VBoxContainer" unique_id=921221769]
@@ -1249,6 +1269,22 @@ grow_vertical = 2
 mouse_default_cursor_shape = 2
 text = "Cancel"
 
+[node name="wisp_cooldown" type="TextureProgressBar" parent="neck/head/eyes/CanvasLayer" unique_id=564567651]
+modulate = Color(1, 1, 1, 0.87058824)
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -25.0
+offset_top = -25.0
+grow_horizontal = 0
+grow_vertical = 0
+step = 0.01
+fill_mode = 5
+nine_patch_stretch = true
+texture_progress = ExtResource("12_wqfne")
+
 [node name="BackBufferCopy2" type="BackBufferCopy" parent="neck/head/eyes/CanvasLayer" unique_id=1294578810]
 copy_mode = 2
 
@@ -1382,6 +1418,10 @@ volume_db = -38.095
 stream = ExtResource("26_ujl30")
 volume_db = 17.662
 bus = &"effects"
+
+[node name="heartbeat_sound" type="AudioStreamPlayer" parent="." unique_id=36555167]
+stream = ExtResource("27_31cv2")
+volume_db = -13.777
 
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/VBoxContainer/resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/VBoxContainer/restart_button" to="." method="_on_button_pressed"]

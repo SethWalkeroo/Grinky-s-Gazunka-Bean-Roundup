@@ -23,7 +23,6 @@
 [ext_resource type="Script" uid="uid://gbqrsvfccfii" path="res://scripts/sell_zone.gd" id="19_8egab"]
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="19_hstxw"]
 [ext_resource type="AudioStream" uid="uid://dl0w8atk3rgwa" path="res://audio/stash.wav" id="19_qywvv"]
-[ext_resource type="AudioStream" uid="uid://cw3kmqm612lf1" path="res://audio/heaven_menu_voiceline.wav" id="20_3wgol"]
 [ext_resource type="Script" uid="uid://ljh6db0sou04" path="res://scripts/motd_button.gd" id="21_1acrt"]
 [ext_resource type="AudioStream" uid="uid://dwxshwq8f2wav" path="res://audio/shotgun_audio/shotgun_pump.wav" id="22_svtp6"]
 
@@ -537,6 +536,16 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Lean Right"
 
+[node name="BeansenseBtn" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=2067483478]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Lean Right"
+
+[node name="ScreenshotBtn" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=931038611]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Lean Right"
+
 [node name="save_settings" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=1409489092]
 modulate = Color(0, 1, 0.20977783, 1)
 layout_mode = 2
@@ -649,11 +658,6 @@ bus = &"game_voicelines"
 [node name="stash_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1267404699]
 stream = ExtResource("19_qywvv")
 volume_db = -3.715
-bus = &"game_voicelines"
-
-[node name="heaven_menu_voiceline" type="AudioStreamPlayer" parent="menu_noises" unique_id=318431736]
-stream = ExtResource("20_3wgol")
-volume_db = -4.444
 bus = &"game_voicelines"
 
 [node name="Button" type="Button" parent="." unique_id=1088281270]

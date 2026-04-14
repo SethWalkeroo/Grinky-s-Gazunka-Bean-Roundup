@@ -1,5 +1,6 @@
 extends Node
 
+const HEAVEN_MENU_VOICELINE = preload("uid://cw3kmqm612lf1")
 
 var last_run_profit: int = 0 # Tracks the exact payout of the previous run
 
@@ -26,7 +27,7 @@ var minimap_on = false
 
 # --- KEYBINDS DATA ---
 var keybinds_to_save: Array = [
-	"forward", "backward", "left", "right", 
+	"forward", "backward", "left", "right", "beansense",
 	"jump", "sprint", "crouch", "interact", "interact2",
 	"throw", "torch", "freelook", "leanleft", "leanright", "screenshot",
 	"reload", "inventory"
@@ -47,6 +48,14 @@ func play_start_sound():
 	add_child(sfx)
 	sfx.stream = load("res://audio/start_sound.wav")
 	sfx.bus = "start" 
+	sfx.play()
+	sfx.finished.connect(sfx.queue_free)
+	
+func play_heaven_sound():
+	var sfx = AudioStreamPlayer.new()
+	add_child(sfx)
+	sfx.stream = HEAVEN_MENU_VOICELINE
+	sfx.bus = "poop" 
 	sfx.play()
 	sfx.finished.connect(sfx.queue_free)
 

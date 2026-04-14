@@ -18,6 +18,7 @@ var player: CharacterBody3D
 @onready var speed_lines: ColorRect = $SpeedLines
 @onready var exhaustion_effect: ColorRect = $ExhaustionEffect
 @onready var minimap: TextureRect = $circle_clip
+@onready var wisp_cooldown: TextureProgressBar = $wisp_cooldown
 
 # --- MENUS ---
 @onready var quit_confirm_panel: ColorRect = $quit_confirm_panel
@@ -385,6 +386,50 @@ func _on_check_box_toggled(toggled_on: bool) -> void:
 		
 func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
 	GlobalStats.play_click()
+
+func update_wisp_cooldown(current_time: float, max_time: float) -> void:
+	if wisp_cooldown:
+		wisp_cooldown.max_value = max_time
+		wisp_cooldown.value = current_time
+		
+		if current_time <= 0.0:
+			wisp_cooldown.visible = false
+			wisp_cooldown.modulate.a = 0.0
+		else:
+			wisp_cooldown.visible = true
+			
+			# Fade IN during the first 0.3 seconds of the cooldown
+			if current_time > max_time - 0.3:
+				wisp_cooldown.modulate.a = (max_time - current_time) / 0.3
+				
+			# Fade OUT during the last 0.3 seconds of the cooldown
+			elif current_time < 0.3:
+				wisp_cooldown.modulate.a = current_time / 0.3
+				
+			# Keep it solid at 100% opacity the rest of the time
+			else:
+				wisp_cooldown.modulate.a = 1.0
+
+
+func hide_hud_for_heaven() -> void:
+	# Hide the timer
+	if time: 
+		time.visible = false
+		
+	# Hide the new wisp cooldown we just made!
+	if wisp_cooldown:
+		wisp_cooldown.visible = false
+		
+	# --- IMPORTANT: UPDATE THESE NAMES! ---
+	# I am guessing the variable names for your stamina and bean labels. 
+	# Make sure you change 'stamina_bar' and 'bean_label' to whatever 
+	# they are actually called at the top of your playergui.gd script!
+	
+	if stamina_bar: 
+		stamina_bar.visible = false
+		
+	if beans_found_label: 
+		beans_found_label.visible = false
 
 func _on_master_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(master_bus, linear_to_db(value))
 func _on_chase_music_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(chase_music_bus, linear_to_db(value))

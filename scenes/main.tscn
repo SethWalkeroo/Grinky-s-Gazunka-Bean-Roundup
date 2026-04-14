@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dftrpkfy22rxb" path="res://scenes/player.tscn" id="6_o6xl0"]
 [ext_resource type="MeshLibrary" uid="uid://bt8e37v1kpmqo" path="res://tileset.tres" id="6_tefeu"]
 [ext_resource type="PackedScene" uid="uid://cosk0pq3r323u" path="res://scenes/gazunka_bean.tscn" id="6_tipki"]
+[ext_resource type="PackedScene" uid="uid://c56sysiyy5erj" path="res://scenes/bean_wisp.tscn" id="8_jbj1t"]
 [ext_resource type="PackedScene" uid="uid://c38fopnhn8ep2" path="res://scenes/gordan_door.tscn" id="8_tipki"]
 [ext_resource type="AudioStream" uid="uid://bmkiw6p6xo7le" path="res://audio/open_door.wav" id="9_85g3d"]
 [ext_resource type="PackedScene" uid="uid://buek3paanpo0j" path="res://scenes/impact.tscn" id="9_jbj1t"]
@@ -115,6 +116,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.460794, 0.71483874, 8.0461
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37.368572, 0.7029433, 62.758442)
 
 [node name="player" parent="." unique_id=286832902 node_paths=PackedStringArray("active_enemy") instance=ExtResource("6_o6xl0")]
+bean_wisp_scene = ExtResource("8_jbj1t")
 active_enemy = NodePath("../NavigationRegion3D/Enemy")
 impact_scene = ExtResource("9_jbj1t")
 footprint_scene = ExtResource("9_jkv2x")

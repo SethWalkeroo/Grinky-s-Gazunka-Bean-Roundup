@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://c56sysiyy5erj"]
+
+[ext_resource type="Script" uid="uid://cxs6m8nx86goj" path="res://scripts/bean_wisp.gd" id="1_7m13n"]
+[ext_resource type="AudioStream" uid="uid://cd7a7dp0pwjpv" path="res://audio/wisp_noise.wav" id="2_sfvx2"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_sfvx2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cmelp"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0, 1, 0.99391794, 1)
+
+[sub_resource type="Curve" id="Curve_7m13n"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_sfvx2"]
+curve = SubResource("Curve_7m13n")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_cmelp"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+gravity = Vector3(0, 0.5, 0)
+scale_curve = SubResource("CurveTexture_sfvx2")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tulh0"]
+shading_mode = 0
+albedo_color = Color(0.5906817, 0.9096735, 1, 1)
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_swwvk"]
+material = SubResource("StandardMaterial3D_tulh0")
+size = Vector2(0.05, 0.05)
+
+[node name="BeanWisp" type="Node3D" unique_id=1533993165]
+script = ExtResource("1_7m13n")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=886145819]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0, 0, 0)
+mesh = SubResource("SphereMesh_sfvx2")
+surface_material_override/0 = SubResource("StandardMaterial3D_cmelp")
+
+[node name="PixieDust" type="GPUParticles3D" parent="." unique_id=660581012]
+amount = 26
+process_material = SubResource("ParticleProcessMaterial_cmelp")
+draw_pass_1 = SubResource("QuadMesh_swwvk")
+
+[node name="chimes" type="AudioStreamPlayer3D" parent="." unique_id=1882159326]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21402168, 0)
+stream = ExtResource("2_sfvx2")
+attenuation_model = 3
+volume_db = -16.159
+unit_size = 5.0
+autoplay = true
+max_distance = 50.0
+bus = &"effects"

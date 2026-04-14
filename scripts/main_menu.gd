@@ -215,7 +215,6 @@ var button_to_rebind: Button = null
 @onready var purchase_made: AudioStreamPlayer = $menu_noises/purchase_made
 @onready var shop_noise: AudioStreamPlayer = $menu_noises/shop_noise
 @onready var stash_noise: AudioStreamPlayer = $menu_noises/stash_noise
-@onready var heaven_menu_voiceline: AudioStreamPlayer = $menu_noises/heaven_menu_voiceline
 
 
 
@@ -701,7 +700,7 @@ func _on_default_bindings_pressed() -> void:
 
 func _update_button_text(btn: Button, action: String) -> void:
 	var events = InputMap.action_get_events(action)
-	var display_name = action.capitalize().replace("Leanleft", "Lean Left").replace("Leanright", "Lean Right").replace("Freelook", "Free Look")
+	var display_name = action.capitalize().replace("Leanleft", "Lean Left").replace("Leanright", "Lean Right").replace("Freelook", "Free Look").replace("Beansense", "Bean Sense")
 	var key_name = "Unassigned"
 	if events.size() > 0:
 		key_name = events[0].as_text().get_slice(" (", 0).get_slice(" -", 0).strip_edges()
@@ -997,7 +996,7 @@ func update_bean_jar_display() -> void:
 
 func _on_heaven_button_pressed() -> void:
 	GlobalStats.play_click()
-	heaven_menu_voiceline.play()
+	GlobalStats.play_heaven_sound()
 	GlobalStats.came_from_main_menu = true # Tell the next scene how we got here!
 	get_tree().change_scene_to_file("res://scenes/heaven.tscn")
 

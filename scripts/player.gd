@@ -2,6 +2,11 @@ extends CharacterBody3D
 class_name Player
 
 @onready var gui: PlayerGUI = $neck/head/eyes/CanvasLayer
+@onready var compass_arrow: Node3D = $neck/head/eyes/Camera3D/compass_arrow
+
+@export var bean_wisp_scene: PackedScene
+@export var wisp_max_cooldown: float = 15.0
+var bean_sense_cooldown: float = 0.0
 
 # --- NEW COD HEALTH ---
 var max_health: int = 2
@@ -59,6 +64,7 @@ var jump_cooldown: float = 0.0
 @onready var exit_warning_voiceline: AudioStreamPlayer3D = $exit_warning_voiceline
 @onready var all_seven_beans_voiceline: AudioStreamPlayer3D = $all_seven_beans_voiceline
 @onready var out_of_breath_sound: AudioStreamPlayer3D = $out_of_breath_sound
+@onready var heartbeat_sound: AudioStreamPlayer = $heartbeat_sound
 
 # --- EXPORTS & CONFIG ---
 @export var min_grab_distance: float = 1.0 
@@ -171,6 +177,8 @@ var enemy_doors: Node3D = null
 var open_noise: AudioStreamPlayer3D = null
 
 func _ready() -> void:
+	if compass_arrow:
+		compass_arrow.visible = false
 	gui.setup(self)
 	
 	$neck/head/eyes/Camera3D/SubViewportContainer/SubViewport.size = DisplayServer.window_get_size()
@@ -218,6 +226,9 @@ func setup_heaven() -> void:
 			tween.tween_interval(5.0)
 			tween.tween_property(gui.win_label, "modulate:a", 0.0, 2.0)
 			tween.tween_callback(gui.win_label.hide)
+			
+			#turn off all the hud elements
+			gui.hide_hud_for_heaven()
 	else:
 		if gui.win_label: gui.win_label.visible = false
 
@@ -275,6 +286,10 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 		
+	
+	if event.is_action_pressed('beansense') and bean_sense_cooldown <= 0.0 and not dead:
+		trigger_bean_sense()
+	
 	if event.is_action_pressed("screenshot"):
 			GlobalStats.play_click()
 			await get_tree().process_frame
@@ -647,11 +662,24 @@ func handle_bean_pickup(collided):
 
 func _physics_process(delta: float) -> void:
 	$neck/head/eyes/Camera3D/SubViewportContainer/SubViewport/view_model_camera.global_transform = camera_3d.global_transform
+	
+# --- BEAN SENSE COOLDOWN ---
+	if bean_sense_cooldown > 0.0:
+		bean_sense_cooldown -= delta
+		# Send the sweeping UI the current time, and the max time (5 seconds)
+		gui.update_wisp_cooldown(bean_sense_cooldown, wisp_max_cooldown)
+	else:
+		bean_sense_cooldown = 0.0
+		# Tell the UI it's ready!
+		gui.update_wisp_cooldown(0.0, wisp_max_cooldown)
 
 	if not dead: 
 		if current_health < max_health:
 			regen_timer -= delta
-			if regen_timer <= 0.0: current_health = max_health
+			if regen_timer <= 0.0:
+				current_health = max_health
+				if heartbeat_sound and heartbeat_sound.playing:
+					heartbeat_sound.stop()
 		gui.update_vignette(current_health, max_health, delta)
 
 	if dead or paused or inventory_open: 
@@ -673,6 +701,43 @@ func _physics_process(delta: float) -> void:
 	handle_camera_and_bobbing(delta)
 	handle_grabbed_object(delta)
 	check_bean_proximity()
+	
+# --- THE VICTORY COMPASS ---
+	# THE FIX: Added "and not dead" so it doesn't pop back up while you are dying!
+	if bean_count >= 7 and is_instance_valid(exit_door) and compass_arrow and not dead:
+		if not compass_arrow.visible:
+			compass_arrow.visible = true
+			
+			compass_arrow.scale = Vector3.ZERO
+			var tween = get_tree().create_tween()
+			tween.tween_property(compass_arrow, "scale", Vector3.ONE, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			
+		# Make the arrow point at the door
+		var target_pos = exit_door.global_position
+		var arrow_pos = compass_arrow.global_position
+		var look_pos = Vector3(target_pos.x, arrow_pos.y, target_pos.z) 
+		
+		if arrow_pos.distance_squared_to(look_pos) > 0.01:
+			var target_transform = compass_arrow.global_transform.looking_at(look_pos, Vector3.UP)
+			compass_arrow.global_transform = compass_arrow.global_transform.interpolate_with(target_transform, delta * 8.0)
+			
+		# --- UPGRADE: SYNCHRONIZED BOB AND FADE ---
+		# 1. Calculate the wave exactly ONCE so the timing is permanently locked together
+		var sync_wave = sin(total_time * 4.0) 
+		
+		# 2. Apply the wave to the physical bobbing
+		compass_arrow.position.y = 0.3 + (sync_wave * 0.015)
+
+		# 3. Apply the exact same wave to the transparency
+		if compass_arrow.get_child_count() > 0:
+			var arrow_mesh = compass_arrow.get_child(0)
+			if arrow_mesh is GeometryInstance3D:
+				# Convert the wave (which goes from -1 to 1) into a 0.0 to 1.0 slider
+				var fade_slider = (sync_wave + 1.0) / 2.0
+				
+				# When sync_wave is 1 (Arrow is UP), fade_slider is 1.0 (Fades out!)
+				# When sync_wave is -1 (Arrow is DOWN), fade_slider is 0.0 (Fades in!)
+				arrow_mesh.transparency = fade_slider * 0.95
 	
 	gui.update_exhaustion(speed_boost_timer, is_exhausted, delta)
 	
@@ -1074,9 +1139,15 @@ func hit():
 		current_health -= 1
 		regen_timer = time_before_regen 
 		if current_health > 0:
-			trigger_screen_shake(0.4, "damage") 
+			trigger_screen_shake(0.4, "damage")
+			if heartbeat_sound and not heartbeat_sound.playing:
+				heartbeat_sound.play()
 		else:
 			dead = true
+			if heartbeat_sound and heartbeat_sound.playing:
+				heartbeat_sound.stop()
+			if compass_arrow:
+				compass_arrow.visible = false
 			final_time = gui.time.text 
 			gui.stamina_bar.visible = false
 			gui.time.visible = false
@@ -1351,6 +1422,57 @@ func spawn_floating_text(pos: Vector3, msg: String = "+1 Gazunka Bean!", color: 
 	tween.parallel().tween_property(popup, "global_position:y", pos.y + 1.5, 1.2).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(popup, "modulate:a", 0.0, 1.2).set_delay(0.5)
 	tween.tween_callback(popup.queue_free)
+
+
+func trigger_bean_sense() -> void:
+	# 1. Find all the beans currently in the level
+	var active_beans = []
+	for bean in get_tree().get_nodes_in_group("beans"):
+		if is_instance_valid(bean) and not bean.is_queued_for_deletion() and bean.is_inside_tree():
+			if "visible" in bean and bean.visible == false: continue 
+			active_beans.append(bean)
+			
+	if active_beans.size() == 0: return # No beans left!
+
+	# 2. Find the absolute closest one
+	var closest_bean = null
+	var closest_dist = INF
+	
+	for bean in active_beans:
+		var dist = global_position.distance_squared_to(bean.global_position)
+		if dist < closest_dist:
+			closest_dist = dist
+			closest_bean = bean
+			
+	if closest_bean:
+		# 3. Ask Godot's Navigation Server for the path
+		var map = get_world_3d().navigation_map
+		var start_pos = global_position
+		var end_pos = closest_bean.global_position
+		
+		# This returns an array of Vector3 points charting the path around walls!
+		var nav_path = NavigationServer3D.map_get_path(map, start_pos, end_pos, true)
+		
+		if nav_path.size() > 0 and bean_wisp_scene:
+			# Put the wisp on cooldown for 5 seconds
+			bean_sense_cooldown = wisp_max_cooldown
+			
+			# Spawn the wisp
+			var wisp = bean_wisp_scene.instantiate()
+			get_tree().current_scene.add_child(wisp)
+			
+			# Start it at the player's chest height
+			wisp.global_position = global_position + Vector3(0, 1.0, 0) 
+			
+			# Slightly elevate the path points so the wisp doesn't scrape the floor
+			var elevated_path: PackedVector3Array = []
+			for point in nav_path:
+				elevated_path.append(point + Vector3(0, 1.0, 0))
+				
+			# Give the wisp the path and let it fly!
+			wisp.path = elevated_path
+
+
 
 # --- GUI PROXY CALLBACKS (Preserves Editor Links!) ---
 func _on_button_pressed(): gui._on_button_pressed()
