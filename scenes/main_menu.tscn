@@ -24,6 +24,7 @@
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="19_hstxw"]
 [ext_resource type="AudioStream" uid="uid://dl0w8atk3rgwa" path="res://audio/stash.wav" id="19_qywvv"]
 [ext_resource type="AudioStream" uid="uid://cw3kmqm612lf1" path="res://audio/heaven_menu_voiceline.wav" id="20_3wgol"]
+[ext_resource type="Script" uid="uid://ljh6db0sou04" path="res://scripts/motd_button.gd" id="21_1acrt"]
 [ext_resource type="AudioStream" uid="uid://dwxshwq8f2wav" path="res://audio/shotgun_audio/shotgun_pump.wav" id="22_svtp6"]
 
 [sub_resource type="Gradient" id="Gradient_flqon"]
@@ -678,6 +679,7 @@ size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 13
 text = "Change quote"
+script = ExtResource("21_1acrt")
 
 [node name="bean_jar" type="RichTextLabel" parent="." unique_id=878206729]
 offset_left = 334.0
@@ -2193,8 +2195,8 @@ bus = &"effects"
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer3/effects_slider" to="." method="_on_effects_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
-[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="pressed" from="video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="controls_settings/ScrollContainer/GridContainer/save_settings" to="." method="_on_save_settings_pressed"]

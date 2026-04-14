@@ -17,8 +17,8 @@ func _process(delta: float) -> void:
 	
 
 func sway(sway_amount):
-	current_rig.position.x -= sway_amount.x * 0.000111777
-	current_rig.position.y += sway_amount.y * 0.000111777
+	current_rig.position.x -= sway_amount.x * 0.000777
+	current_rig.position.y += sway_amount.y * 0.000777
 	
 	
 

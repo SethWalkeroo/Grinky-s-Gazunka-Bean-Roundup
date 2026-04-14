@@ -399,6 +399,13 @@ func fire_shotgun() -> void:
 			
 		trigger_screen_shake(0.2, "shotgun")
 		
+		# Tell every enemy on the map to investigate this loud boom!
+		var shotgun_loudness = 50.0 # How far the sound travels in meters. Adjust to your liking!
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			if is_instance_valid(enemy) and enemy.has_method("investigate_sound"):
+				enemy.investigate_sound(global_position, shotgun_loudness)
+		
+		
 		var knockback_dir = camera_3d.global_transform.basis.z.normalized()
 		knockback_dir += Vector3(0, 0.2, 0) 
 		velocity += knockback_dir * 4.0 
@@ -752,6 +759,7 @@ func perform_shove() -> void:
 	
 	if shotgun_animator.has_animation("shove"):
 		shotgun_animator.play("shove", 0.1)
+		shotgun_audio.get_node('shove').play()
 
 	# --- ADDING THE MEAT ---
 	# 1. The Camera Thrust

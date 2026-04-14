@@ -103,12 +103,12 @@ shader_parameter/atm_darkness = 0.5
 shader_parameter/atm_sun_intensity = 18.0
 shader_parameter/atm_day_tint = Color(0.807843, 0.909804, 1, 1)
 shader_parameter/atm_horizon_light_tint = Color(0.980392, 0.635294, 0.462745, 1)
-shader_parameter/atm_night_tint = Color(0, 0, 0, 0)
+shader_parameter/atm_night_tint = Color(0.15266831, 0.18107222, 0.22722751, 0.90536106)
 shader_parameter/atm_level_params = Vector3(1, 0, 0)
 shader_parameter/atm_thickness = 0.7
 shader_parameter/atm_beta_ray = Vector3(5.804544e-06, 1.3562913e-05, 3.311258e-05)
 shader_parameter/atm_beta_mie = Vector3(3.038e-08, 3.038e-08, 3.038e-08)
-shader_parameter/sun_light_color = Color(1, 1, 1, 1)
+shader_parameter/sun_light_color = Color(0.98, 0.523, 0.294, 1)
 shader_parameter/sun_disk_color = Color(0.996094, 0.541334, 0.140076, 1)
 shader_parameter/sun_disk_intensity = 30.0
 shader_parameter/sun_disk_size = 0.02
@@ -122,7 +122,7 @@ shader_parameter/moon_texture_flip_u = false
 shader_parameter/moon_texture_flip_v = false
 shader_parameter/moon_size = 0.07
 shader_parameter/atm_moon_mie_tint = Color(0.137255, 0.184314, 0.292196, 1)
-shader_parameter/atm_moon_mie_intensity = 0.3556649765372276
+shader_parameter/atm_moon_mie_intensity = 0.0
 shader_parameter/atm_moon_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
 shader_parameter/starmap_color = Color(0.709804, 0.709804, 0.709804, 0.854902)
 shader_parameter/starmap_texture = ExtResource("35_youii")
@@ -130,7 +130,7 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -8.98024635448906
+shader_parameter/star_rotation = -6.864946198713733
 shader_parameter/star_tilt = -1.2915436464758039
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("34_ipkb0")
@@ -146,8 +146,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.4416423, 0.4416423)
-shader_parameter/cirrus_position2 = Vector2(0.4416423, 0.4416423)
+shader_parameter/cirrus_position1 = Vector2(0.9343237, 0.9343237)
+shader_parameter/cirrus_position2 = Vector2(0.9343237, 0.9343237)
 shader_parameter/cirrus_texture = ExtResource("30_01rup")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -157,7 +157,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(2.2081325, 2.2081325)
+shader_parameter/cumulus_position = Vector2(4.672418, 4.672418)
 shader_parameter/cumulus_texture = ExtResource("31_8g5uk")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -167,7 +167,7 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(1.4901159e-08, -0.74727017, -0.66452044, -0.5248031, -0.56565547, 0.636094, -0.85122365, 0.3487424, -0.39216968)
+shader_parameter/moon_matrix = Basis(-2.9802319e-08, 0.81582373, -0.57830054, -0.45243645, -0.51572645, -0.7275489, -0.8917966, 0.26164424, 0.36910847)
 
 [sub_resource type="Sky" id="Sky_7niei"]
 sky_material = SubResource("ShaderMaterial_p7nha")
@@ -176,7 +176,8 @@ sky_material = SubResource("ShaderMaterial_p7nha")
 background_mode = 2
 sky = SubResource("Sky_7niei")
 ambient_light_source = 3
-ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_color = Color(0.23515595, 0.27890673, 0.35, 1)
+ambient_light_sky_contribution = 0.7
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -635,34 +636,36 @@ bus = &"game_voicelines"
 environment = SubResource("Environment_nxiix")
 camera_attributes = SubResource("CameraAttributesPractical_by87i")
 script = ExtResource("36_j5lsf")
-current_time = 10.52450666666685
+current_time = 2.990960000011745
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1726463381]
-transform = Transform3D(0.5582809, -0.7701086, 0.3086345, 0, 0.37200475, 0.9282308, -0.829652, -0.5182135, 0.20768313, 0.3086345, 0.9282308, 0.20768313)
+transform = Transform3D(-0.3631639, 0.5640302, 0.74160767, 0, 0.795951, -0.60536104, -0.93172526, -0.21984527, -0.28906065, 0.74160767, -0.60536104, -0.28906065)
 layers = 3
-shadow_enabled = true
+light_color = Color(0.98, 0.523, 0.294, 1)
+light_energy = 0.0
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=433551366]
-transform = Transform3D(0, -0.5248031, -0.85122365, -0.7472701, -0.56565547, 0.34874237, -0.6645204, 0.636094, -0.39216968, -0.85122365, 0.34874237, -0.39216968)
+transform = Transform3D(0, -0.4524365, -0.89179665, 0.81582385, -0.5157265, 0.26164424, -0.57830054, -0.72754896, 0.36910847, -0.89179665, 0.26164424, 0.36910847)
 layers = 3
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
-light_energy = 0.0
+light_energy = 0.071064755
+shadow_enabled = true
 
 [node name="SkyDome" type="Node" parent="Sky3D" unique_id=1682473994]
 script = ExtResource("37_5dglg")
-sun_azimuth = -2.1631086
-sun_altitude = -0.38116783
-moon_azimuth = -5.144116
-moon_altitude = -1.2145674
+sun_azimuth = -1.199135
+sun_altitude = -2.2210157
+moon_azimuth = -4.3199635
+moon_altitude = -1.3060709
 wind_direction = 2.35619451204804
 
 [node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=2110156679]
 script = ExtResource("38_qxbhr")
 dome_path = NodePath("../SkyDome")
-current_time = 10.52450666666685
-day = 14
+current_time = 2.990960000011745
+day = 6
 month = 9
 
 [node name="heaven_music" type="AudioStreamPlayer3D" parent="." unique_id=688379087]

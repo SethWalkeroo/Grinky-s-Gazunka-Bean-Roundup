@@ -136,7 +136,19 @@ var motds = [
 	'"[i][color=gray]Silence[/color] is part of the [color=cyan]music[/color] and our [color=pink]love[/color] is an [color=gold]orchestra[/color].[/i]" [color=brown]-some dude\'s Grandpa[/color]',
 	'"In the depths of [color=blue]winter[/color], I finally learned that [color=pink]within me[/color] there lay an [color=gold]invincible summer[/color]" [color=black]-Albert Camus[/color]',
 	'“[i]If you [color=cyan]remember[/color] [color=red]me[/color], then I don\'t care if everyone else [color=gray]forgets[/color].[/i]” [color=cyan]-Haruki Murakami[/color]',
-	'"Son, you don\'t have [color=red]bad[/color] [color=gold]luck[/color]. The reason [color=red]bad things[/color] happen to [color=gold]you[/color] is because [color=green]you\'re a dumbass[/color]." [color=red]-Red[/color]'
+	'"[i]Son, you don\'t have [color=red]bad[/color] [color=gold]luck[/color]. The reason [color=red]bad things[/color] happen to [color=gold]you[/color] is because [color=green]you\'re a dumbass[/color].[/i]" [color=red]-Red[/color]',
+	'"[i]You cannot [color=orange]save[/color] people, you can just [color=pink]love[/color] them.[/i]" [color=pink]-Anaïs Nin[/color]',
+	'"[i]Take your [color=cyan]dreams[/color] [color=red]seriously[/color].[/i]" [color=red]-Author Unkown[/color]',
+	'"[i]There is no way to [color=yellow]happiness[/color]. [color=yellow]Happiness[/color] is the way.[/i]" [color=red]-Thich Nhat Hanh[/color]',
+	'"[i][color=gold]Champions[/color] keep [color=red]playing[/color] until they get it [color=gold]right[/color][/i]." [color=cyan]-Billie Jean King[/color]',
+	'"[i][rainbow]You[/rainbow] [color=gold]will[/color] [color=green]succeed[/color] because [color=red]most people[/color] are [color=gray]lazy[/color].[/i]" [rainbow]-Shahir Zag[/rainbow]',
+	'"[i][color=pink]Love[/color] takes [color=red]years[/color], [color=pink]love[/color] takes [color=red]miles[/color].[/i]" [color=cyan]-Cameron Winter[/color]',
+	'"[i]Do it with [color=red]passion[/color], or not at all.[/i]" [color=purple]-Rosa Nouchette Carey[/color]',
+	'"[i][color=brown]The grass is [/color][color=green]greener[/color] [color=brown]where you [/color][color=cyan]water[/color] [color=brown]it[/color].[/i]" [color=green]-Neil Barringham[/color]',
+	'"[i]If it [color=red]scares[/color] you, it might be a [color=green]good[/color] thing to try.[/i]" [color=gold]-Seth Godin[/color]',
+	'"[i]Sometimes you [color=green]win[/color], sometimes you [color=red]learn[/color].[/i]" [color=orange]-John Maxwell[/color]',
+	'"[i]I never [color=cyan]dream[/color] of [color=green]success[/color]. I [color=gray]worked[/color] for it.[/i]" [color=pink]-Estee Lauder[/color]',
+	'"Avoiding [color=red]failure[/color] is to avoid [color=gold]progress[/color]." [color=brown]-some dude[/color]'
 ]
 
 var last_motd_index: int = -1

@@ -33,6 +33,7 @@ var player: CharacterBody3D
 @onready var controls_button: Button = $VBoxContainer/controls_button
 @onready var controls_grid: GridContainer = $controls_settings/ScrollContainer/GridContainer
 @onready var minimap_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer/minimap_checkbox
+@onready var resume: Button = $VBoxContainer/resume
 
 # --- INVENTORY UI ---
 @onready var hotbar: Control = $Hotbar
@@ -70,6 +71,7 @@ func _ready():
 			minimap_rect.texture = minimap_viewport.get_texture()
 
 func setup(p_player: CharacterBody3D):
+	resume.visible = true
 	player = p_player
 	
 	if quit_confirm_panel: quit_confirm_panel.visible = false
@@ -137,6 +139,7 @@ func show_death_screen():
 	if hotbar: hotbar.visible = false
 	menu_vbox.modulate.a = 0.0
 	menu_vbox.visible = true
+	resume.visible = false
 	menu_vbox.move_to_front()
 	var btn_tween = create_tween().set_parallel(true)
 	btn_tween.tween_property(menu_vbox, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
@@ -369,6 +372,7 @@ func _on_default_bindings_pressed() -> void:
 	GlobalStats.save_to_disk()
 
 func _on_resume_pressed() -> void:
+	if player.dead: return
 	if is_in_sub_menus():
 		_on_save_settings_pressed()
 		return 

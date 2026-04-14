@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://07n5j4fsc074" path="res://audio/shotgun_audio/no_ammo_click.wav" id="7_48lih"]
 [ext_resource type="AudioStream" uid="uid://tw8c11donuk7" path="res://audio/shotgun_audio/pull_up_shotgun.wav" id="8_8wutx"]
 [ext_resource type="AudioStream" uid="uid://dil627i2k6rvx" path="res://audio/shotgun_audio/put_away_shotgun.wav" id="9_hxw52"]
+[ext_resource type="AudioStream" uid="uid://dd0n6176sn1xq" path="res://audio/shove_sound.wav" id="10_hxw52"]
 
 [sub_resource type="Environment" id="Environment_48lih"]
 ambient_light_source = 2
@@ -2709,7 +2710,7 @@ mesh = SubResource("ArrayMesh_uitm0")
 transform = Transform3D(0.011479671, -0.046169415, -0.013625793, 0.04802569, 0.011941217, 3.956969e-09, 0.0032878364, -0.013223175, 0.047575187, 0.038326554, -0.1894558, -0.7575833)
 
 [node name="hand" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand" unique_id=492938704]
-transform = Transform3D(0.5161151, -0.84312403, -0.15087062, 0.8534382, 0.5211399, 0.00720134, 0.07255355, -0.13247624, 0.9885211, 0.54206514, -0.69232106, 0.4850521)
+transform = Transform3D(0.5161151, -0.843124, -0.15087062, 0.8534382, 0.52113986, 0.0072013396, 0.07255355, -0.13247624, 0.98852104, 0.54206514, -0.69232106, 0.4850521)
 layers = 2
 material_override = ExtResource("2_prr7q")
 mesh = SubResource("ArrayMesh_s20c1")
@@ -2722,7 +2723,7 @@ mesh = SubResource("ArrayMesh_m4lkb")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="index_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=105184758]
-transform = Transform3D(0.8319568, -0.55075926, -0.06717329, 0.53819126, 0.8304912, -0.14364663, 0.13490167, 0.08335573, 0.98734593, 0.6355164, -2.861023e-06, -1.8432941)
+transform = Transform3D(0.8319568, -0.55075926, -0.06717329, 0.53819126, 0.8304912, -0.14364661, 0.13490167, 0.08335573, 0.9873459, 0.6355164, -2.861023e-06, -1.8432941)
 layers = 2
 mesh = SubResource("ArrayMesh_06fy6")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2740,19 +2741,19 @@ mesh = SubResource("ArrayMesh_q3unt")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=1400321696]
-transform = Transform3D(0.9955623, 0.041010786, -0.08468614, -0.051888168, 0.99008536, -0.13052616, 0.07849353, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
+transform = Transform3D(0.99556226, 0.041010786, -0.08468614, -0.051888164, 0.99008536, -0.13052616, 0.07849353, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
 layers = 2
 mesh = SubResource("ArrayMesh_urq86")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_1" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0" unique_id=1942702148]
-transform = Transform3D(0.98175806, -0.06894443, 0.17719045, 0.08969943, 0.9896597, -0.1119226, -0.16764197, 0.12577495, 0.9777906, 0, -9.536743e-07, -0.5954528)
+transform = Transform3D(0.981758, -0.06894443, 0.17719042, 0.089699425, 0.98965967, -0.111922584, -0.16764197, 0.12577495, 0.9777905, 0, -9.536743e-07, -0.5954528)
 layers = 2
 mesh = SubResource("ArrayMesh_5pyow")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_2" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0/middle_1" unique_id=1221415525]
-transform = Transform3D(0.9881549, 0.069582805, -0.13677295, -0.03152276, 0.9643221, 0.26285014, 0.15018278, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
+transform = Transform3D(0.9881548, 0.069582805, -0.13677295, -0.03152276, 0.9643221, 0.26285014, 0.15018278, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
 layers = 2
 mesh = SubResource("ArrayMesh_db5fc")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2958,6 +2959,11 @@ bus = &"effects"
 stream = ExtResource("9_hxw52")
 volume_db = -34.445
 bus = &"effects"
+
+[node name="shove" type="AudioStreamPlayer" parent="shotgun_rig/shotgun/shotgun_audio" unique_id=1488899674]
+stream = ExtResource("10_hxw52")
+volume_db = -5.334
+bus = &"game_voicelines"
 
 [node name="muzzle_flash" type="OmniLight3D" parent="shotgun_rig/shotgun" unique_id=914181684]
 transform = Transform3D(1, 0, 7.1054274e-15, 0, 1, 0, 0, 0, 1, 0.09727935, -0.10464, -1.1122308)
