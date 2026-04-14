@@ -4,6 +4,7 @@ class_name Enemy
 
 signal enemy_dead
 
+@export var shotgun_ammo_scene: PackedScene
 @onready var enemy_hurt_noise: AudioStreamPlayer3D = $enemy_hurt_noise
 
 # --- NEW: UNIQUE CLONE VOICES ---
@@ -278,7 +279,6 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 			break
 			
 	# --- THE GORE HACK: POP THE HEAD! ---
-	# MOVED TO THE TOP! This triggers if the shot is lethal, OR if the enemy is already dead!
 	if is_headshot and (current_health - amount <= 0 or is_ragdolled) and skeleton is Skeleton3D:
 		var head_bone = null
 		for bone in all_bones:
@@ -286,21 +286,16 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 				head_bone = bone
 				break
 		
-		# Ensure we only pop it once so we don't spawn 8 blood fountains for 1 shotgun blast
 		if head_bone and head_bone.scale.x > 0.1:
 			var bone_idx = head_bone.get_bone_id()
-			# 1. Shrink visual bone
 			skeleton.set_bone_pose_scale(bone_idx, Vector3(0.01, 0.01, 0.01))
-			# 2. Shrink physics bone
 			head_bone.scale = Vector3(0.01, 0.01, 0.01)
 			
-			# 3. Safely spawn blood fountain
 			if ResourceLoader.exists("res://scenes/blood_fountain.tscn"):
 				var blood = load("res://scenes/blood_fountain.tscn").instantiate()
 				get_tree().current_scene.add_child(blood)
 				blood.global_position = head_bone.global_position
 	
-	# If they are already dead, apply the physical push and stop running the rest of the code
 	if is_ragdolled:
 		if target_bone:
 			target_bone.apply_central_impulse(push_direction * 250.0)
@@ -309,7 +304,6 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 	current_health -= amount
 	print("Enemy took ", amount, " damage! Health: ", current_health)
 	
-	# --- DOPAMINE UPGRADE: HEADSHOT FEEDBACK ---
 	if is_headshot and player and player.has_method("spawn_floating_text"):
 		var scatter = Vector3(randf_range(-0.3, 0.3), randf_range(-0.1, 0.3), randf_range(-0.3, 0.3))
 		var text_pos = hit_position + scatter
@@ -368,6 +362,33 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 	if anim_player: anim_player.stop()
 	
 	physical_bone_simulator_3d.physical_bones_start_simulation()
+	
+	# --- 1. RANDOMIZED RAGDOLL CRUMPLE ---
+	for child in skeleton.get_children():
+		if child is PhysicalBone3D:
+			var random_dir = Vector3(randf_range(-2.0, 2.0), randf_range(1.0, 3.0), randf_range(-2.0, 2.0))
+			child.apply_central_impulse(random_dir)
+
+	# --- 2. LOOT PIÑATA: SHOTGUN AMMO BURST ---
+	if shotgun_ammo_scene:
+		var drop_count = randi_range(2, 4) 
+		
+		for i in range(drop_count):
+			var ammo_drop = shotgun_ammo_scene.instantiate()
+			# Spawn in main level so it persists
+			get_parent().add_child(ammo_drop)
+			ammo_drop.global_position = global_position + Vector3(0, 1.0, 0)
+			
+			if ammo_drop is RigidBody3D:
+				var pop_direction = Vector3(
+					randf_range(-3.0, 3.0),
+					randf_range(4.0, 7.0),
+					randf_range(-3.0, 3.0)
+				)
+				var random_spin = Vector3(randf_range(-5, 5), randf_range(-5, 5), randf_range(-5, 5))
+				ammo_drop.apply_central_impulse(pop_direction)
+				ammo_drop.apply_torque_impulse(random_spin)
+	
 	play_random_death_sound()
 	emit_signal('enemy_dead')
 	

@@ -204,7 +204,6 @@ var button_to_rebind: Button = null
 @onready var voiceline_test: AudioStreamPlayer = $test_audio/voiceline_test
 @onready var test_ambient_noise: AudioStreamPlayer = $menu_noises/test_ambient_noise
 @onready var button_hover_noise: AudioStreamPlayer = $menu_noises/button_hover_noise
-@onready var button_click_noise: AudioStreamPlayer = $menu_noises/button_click_noise
 @onready var name_taken: AudioStreamPlayer = $menu_noises/name_taken
 @onready var bad_word_noise: AudioStreamPlayer = $menu_noises/bad_word_noise
 @onready var everyone_has_name_noise: AudioStreamPlayer = $menu_noises/everyone_has_name_noise

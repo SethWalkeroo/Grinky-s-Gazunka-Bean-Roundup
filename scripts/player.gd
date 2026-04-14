@@ -3,6 +3,7 @@ class_name Player
 
 @onready var gui: PlayerGUI = $neck/head/eyes/CanvasLayer
 @onready var compass_arrow: Node3D = $neck/head/eyes/Camera3D/compass_arrow
+const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 
 @export var bean_wisp_scene: PackedScene
 @export var wisp_max_cooldown: float = 15.0
@@ -201,6 +202,7 @@ func _ready() -> void:
 	refresh_all_slots()
 
 func setup_heaven() -> void:
+	gui.hide_hud_for_heaven()
 	in_heaven = true
 	
 	if GlobalStats.needs_upload:
@@ -228,7 +230,6 @@ func setup_heaven() -> void:
 			tween.tween_callback(gui.win_label.hide)
 			
 			#turn off all the hud elements
-			gui.hide_hud_for_heaven()
 	else:
 		if gui.win_label: gui.win_label.visible = false
 
@@ -1144,6 +1145,15 @@ func hit():
 				heartbeat_sound.play()
 		else:
 			dead = true
+			
+			# --- THE FIX: INSTANTLY HIDE THE WEAPON ---
+			# We force the slot to -1 and hide the model so it doesn't get stuck if you die mid-reload!
+			active_slot_index = -1
+			if shotgun_model:
+				shotgun_model.visible = false
+			if shotgun_animator:
+				shotgun_animator.stop()
+				
 			if heartbeat_sound and heartbeat_sound.playing:
 				heartbeat_sound.stop()
 			if compass_arrow:
@@ -1323,10 +1333,21 @@ func equip_slot(slot_index: int) -> void:
 		if new_item == "shotgun":
 			shotgun_ammo = gui.hotbar_slots[active_slot_index].quantity
 			is_chambered = (shotgun_ammo > 0)
-			shotgun_model.visible = true
+			
+			# --- THE GHOST FRAME FIX ---
+			shotgun_animator.stop()
+			
 			if shotgun_animator.has_animation("pull_out"):
-				shotgun_animator.play("pull_out")
+				shotgun_animator.play("pull_out", 0.0)
+				
+				# 'advance(0)' forces Godot to instantly calculate the bone positions 
+				# for the exact millisecond the animation starts, skipping the 1-frame delay!
+				shotgun_animator.advance(0) 
+				
 				shotgun_audio.get_node('pull_out').play()
+				
+			# Make it visible ONLY AFTER the bones have been fully calculated
+			shotgun_model.visible = true
 				
 	is_switching_weapons = false
 
@@ -1471,6 +1492,94 @@ func trigger_bean_sense() -> void:
 				
 			# Give the wisp the path and let it fly!
 			wisp.path = elevated_path
+
+
+
+
+# Returns true if we successfully picked it up, false if the inventory is full
+func collect_item(item_name: String, amount: int) -> bool:
+	var save_data = {"hotbar": [], "grid": [], "stash_grid": []}
+	
+	# 1. Open the existing inventory file
+	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
+		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			save_data = json.get_data()
+			
+	# Ensure the player backpack grid array exists and is padded out
+	if not save_data.has("grid"): 
+		save_data["grid"] = []
+	var max_backpack_slots = 16 # Adjust this if Grinky's backpack size is different!
+	while save_data["grid"].size() < max_backpack_slots:
+		save_data["grid"].append({"item": "empty", "qty": 0})
+		
+	var amount_left = amount
+	var placed = false
+	
+	# 2. Try to stack the ammo onto an existing pile (Max 16 per slot)
+	for slot in save_data["grid"]:
+		if slot["item"] == item_name and slot["qty"] < 16:
+			var space_left = 16 - slot["qty"]
+			var add_amount = min(space_left, amount_left)
+			
+			slot["qty"] += add_amount
+			amount_left -= add_amount
+			
+			if amount_left <= 0:
+				placed = true
+				break
+				
+	# 3. If it didn't fit in an existing pile, find an empty slot
+	if not placed and amount_left > 0:
+		for slot in save_data["grid"]:
+			if slot["item"] == "empty":
+				slot["item"] = item_name
+				slot["qty"] = amount_left
+				placed = true
+				break
+				
+	# 4. If we successfully placed it in the JSON data, save the file!
+	if placed:
+		
+		# --- THE GHOST AMMO FIX: SYNC LIVE DATA BEFORE SAVING ---
+		# Prevent the hard drive from overwriting the live shotgun ammo!
+		var live_hotbar = []
+		for slot in gui.hotbar_slots:
+			live_hotbar.append({"item": slot.item_name, "qty": slot.quantity})
+		save_data["hotbar"] = live_hotbar
+		save_data["shotgun_ammo"] = shotgun_ammo
+		# --------------------------------------------------------
+
+		var save_file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.WRITE)
+		if save_file:
+			save_file.store_string(JSON.stringify(save_data))
+			
+			# --- THE FIX: CLOSE THE FILE SO THE HUD CAN READ IT ---
+			save_file.close() 
+			
+		get_tree().call_group("hud", "refresh_inventory_ui")
+			
+		if has_method("spawn_floating_text"):
+			# 1. Raise it up 1.5 meters (roughly camera height)
+			var eye_level = Vector3(0, 1.5, 0)
+			
+			# 2. Push it 1.2 meters straight forward in whatever direction the player is looking
+			var forward_push = -global_transform.basis.z * 1.2 
+			
+			# 3. Add a tiny bit of scatter so multiple pickups don't perfectly overlap
+			var random_scatter = Vector3(randf_range(-0.2, 0.2), 0.0, randf_range(-0.2, 0.2))
+			
+			# Combine them all for the perfect spawn location!
+			var perfect_spawn_pos = global_position + eye_level + forward_push + random_scatter
+			
+			spawn_floating_text(perfect_spawn_pos, "+ " + str(amount) + " Ammo", Color.ORANGE)
+			
+		return true
+	else:
+		# The backpack is entirely full!
+		# if inventory_full_sound: inventory_full_sound.play()
+		return false
 
 
 

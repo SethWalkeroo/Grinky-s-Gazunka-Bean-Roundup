@@ -59,6 +59,16 @@ func play_heaven_sound():
 	sfx.play()
 	sfx.finished.connect(sfx.queue_free)
 
+const SHOTGUN_SHELL_PICKUP_SOUND = preload("uid://dvcdiv3r3r4m1")
+
+func pickup_sound():
+	var sfx = AudioStreamPlayer.new()
+	add_child(sfx)
+	sfx.stream = SHOTGUN_SHELL_PICKUP_SOUND
+	sfx.bus = "pickup_sound" 
+	sfx.play()
+	sfx.finished.connect(sfx.queue_free)
+
 func _ready():
 	SilentWolf.configure({
 		"api_key": "j1quByvqJjUFUeZd5ngC73Vgryhiwj67uf3OIgAc",

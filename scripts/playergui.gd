@@ -4,6 +4,7 @@ class_name PlayerGUI
 var player: CharacterBody3D
 
 @export var minimap_rect: TextureRect
+const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 
 # --- HUD & EFFECTS ---
 @onready var proximity_distortion: ColorRect = $ProximityDistortion
@@ -66,6 +67,8 @@ var voicelines_bus = AudioServer.get_bus_index("game_voicelines")
 var ambient_noise_bus = AudioServer.get_bus_index('ambient_noise')
 
 func _ready():
+	add_to_group("hud")
+	
 	if !("heaven.tscn" in get_tree().current_scene.scene_file_path):
 		var minimap_viewport:SubViewport = get_tree().current_scene.get_node_or_null('MinimapViewport')
 		if minimap_rect and minimap_viewport:
@@ -409,6 +412,44 @@ func update_wisp_cooldown(current_time: float, max_time: float) -> void:
 			# Keep it solid at 100% opacity the rest of the time
 			else:
 				wisp_cooldown.modulate.a = 1.0
+
+
+
+# --- THE BULLETPROOF REFRESH ---
+func refresh_inventory_ui() -> void:
+	if not FileAccess.file_exists(INVENTORY_SAVE_PATH): 
+		return
+		
+	var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
+	
+	# THE FIX: If the file is null (meaning it's locked), abort so we don't crash!
+	if file == null:
+		print("HUD ERROR: Couldn't open the JSON file. It might be locked!")
+		return
+		
+	var json = JSON.new()
+	
+	if json.parse(file.get_as_text()) == OK:
+		var save_data = json.get_data()
+		file.close() # Always good practice for the HUD to close it too!
+		
+		# 1. Update the Backpack Grid
+		if save_data.has("grid") and inventory_grid:
+			var slots = inventory_grid.get_children()
+			for i in range(min(save_data["grid"].size(), slots.size())):
+				if slots[i].has_method("set_item"):
+					# THE FIX: Force the quantity into an integer!
+					var qty_as_int = int(save_data["grid"][i]["qty"])
+					slots[i].set_item(save_data["grid"][i]["item"], qty_as_int)
+					
+		# 2. Update the Hotbar
+		if save_data.has("hotbar"):
+			for i in range(min(save_data["hotbar"].size(), hotbar_slots.size())):
+				if hotbar_slots[i].has_method("set_item"):
+					# THE FIX: Force the quantity into an integer!
+					var qty_as_int = int(save_data["hotbar"][i]["qty"])
+					hotbar_slots[i].set_item(save_data["hotbar"][i]["item"], qty_as_int)
+
 
 
 func hide_hud_for_heaven() -> void:

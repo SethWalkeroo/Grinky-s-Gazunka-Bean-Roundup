@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dwrs38siedacn"]
+
+[ext_resource type="Script" uid="uid://cj54m5vvue0b8" path="res://scripts/shotgun_ammo.gd" id="1_nckx4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ngniv"]
+size = Vector3(0.34616852, 0.338089, 0.33580017)
+
+[sub_resource type="BoxMesh" id="BoxMesh_nckx4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6wxxi"]
+albedo_color = Color(1, 0, 0.18094063, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_ngniv"]
+radius = 0.65572417
+
+[node name="shotgun_ammo" type="RigidBody3D" unique_id=1677333602]
+collision_layer = 4
+script = ExtResource("1_nckx4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1198879034]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00033950806, -0.00061798096, 0.0027694702)
+shape = SubResource("BoxShape3D_ngniv")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1567809419]
+transform = Transform3D(0.3394642, 0, 0, 0, 0.3394642, 0, 0, 0, 0.3394642, 0, 0, 0)
+mesh = SubResource("BoxMesh_nckx4")
+surface_material_override/0 = SubResource("StandardMaterial3D_6wxxi")
+
+[node name="PickupArea" type="Area3D" parent="." unique_id=1688497663]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupArea" unique_id=1733432268]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_ngniv")
