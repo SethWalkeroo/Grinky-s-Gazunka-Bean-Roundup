@@ -21,6 +21,9 @@ var is_staggered: bool = false
 var stagger_timer: float = 0.0
 @export var stagger_duration: float = 0.6 # How long they freeze when shot
 
+var hunt_started: bool = false
+var is_intro_playing: bool = false
+
 #impact sound
 @onready var ragdoll_impact_sound: AudioStreamPlayer3D = $ragdoll_impact_sound
 var last_impact_time: float = 0.0
@@ -33,6 +36,8 @@ var previous_spine_velocity: Vector3 = Vector3.ZERO
 @onready var collision_shape_3d: CollisionShape3D = $CollisionShape3D
 @onready var death_sounds: Node3D = $death_sounds
 @onready var enemy_death_noise: AudioStreamPlayer3D = $death_sounds/enemy_death_noise
+# for when the hunt starts
+@onready var ready_or_not: AudioStreamPlayer3D = $ready_or_not
 
 @export var player_path: NodePath
 @export var attack_range = 2.2
@@ -209,7 +214,8 @@ func _physics_process(delta):
 		move_and_slide()
 		return 
 		
-	if (beans_collected == 0 and current_wave_size == 1) or player_is_dead:
+	#The enemy sleeps until the hunt officially starts
+	if (not hunt_started and current_wave_size == 1) or player_is_dead:
 		velocity = Vector3.ZERO
 		if player_is_dead and enemy_footsteps.playing: enemy_footsteps.stop()
 		if anim_player and anim_player.current_animation != ANIM_ATTACK:
@@ -439,6 +445,13 @@ func investigate_sound(sound_pos: Vector3, loudness: float) -> void:
 	if was_seeing_player: return
 	
 	if global_position.distance_to(sound_pos) <= loudness:
+		
+		# THE FIX: If he hears you, the game instantly begins!
+		if not hunt_started:
+			var main = get_tree().current_scene
+			if main.has_method("start_the_hunt"):
+				main.start_the_hunt()
+				
 		if not has_last_known_pos and not is_chasing:
 			play_voiceline_from_node(hear_player_voicelines)
 			stop_random_voicelines()
@@ -688,6 +701,7 @@ func start_random_voicelines():
 			timer.start()
 
 func play_voiceline_from_node(target_node: Node3D):
+	if is_intro_playing: return
 	if target_node:
 		var lines = target_node.get_children()
 		if lines.size() > 0:
@@ -772,7 +786,7 @@ func hit_player():
 func _on_timer_timeout() -> void:
 	timer.stop()
 	
-	if player_is_dead or is_chasing or has_last_known_pos:
+	if player_is_dead or is_chasing or has_last_known_pos or is_intro_playing:
 		return
 		
 	if random_voicelines:
@@ -865,6 +879,7 @@ func wake_up_from_pool(new_wave_size: int, current_beans: int, target_pos: Vecto
 	is_ragdolled = false
 	is_staggered = false
 	stagger_timer = 0.0
+	hunt_started = true
 
 	current_wave_size = new_wave_size
 	beans_collected = current_beans
@@ -948,3 +963,25 @@ func spawn_revenge_enemies() -> void:
 		if main_scene and main_scene.has_method("request_enemy"):
 			var new_enemy = main_scene.request_enemy()
 			new_enemy.wake_up_from_pool(new_wave_size, self.beans_collected, final_pos)
+
+
+# --- THE AUDIO LOCK SYSTEM ---
+func start_the_hunt_intro() -> void:
+	hunt_started = true
+	
+	# 1. Kill any currently playing random noises
+	stop_random_voicelines()
+	if active_voiceline and active_voiceline.playing:
+		active_voiceline.stop()
+		
+	# 2. Play the intro and lock the audio system
+	if ready_or_not:
+		is_intro_playing = true
+		ready_or_not.play()
+		
+		# 3. Unlock the audio system when the audio finishes!
+		if not ready_or_not.finished.is_connected(_on_intro_finished):
+			ready_or_not.finished.connect(_on_intro_finished)
+
+func _on_intro_finished() -> void:
+	is_intro_playing = false

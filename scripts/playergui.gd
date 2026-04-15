@@ -130,7 +130,10 @@ func setup(p_player: CharacterBody3D):
 			default_binds_btn.pressed.connect(_on_default_bindings_pressed)
 
 	trigger_fade_in()
-	play_mission_intro()
+	if not("heaven.tscn" in get_tree().current_scene.scene_file_path):
+		play_mission_intro()
+	elif mission_label:
+		mission_label.visible = false
 	
 	stamina_bar.value = 100
 	if crosshair: crosshair.pivot_offset = crosshair.size / 2
@@ -191,6 +194,34 @@ func play_mission_intro() -> void:
 	
 	# 4. Hide the node entirely when finished
 	tween.tween_callback(mission_label.hide)
+
+# --- THE VICTORY SCREEN INTRO ---
+func play_win_intro(report_text: String) -> void:
+	if not win_label: return
+	
+	win_label.text = report_text
+	win_label.visible_characters = 0
+	win_label.modulate.a = 1.0
+	win_label.visible = true
+	
+	var total_chars = report_text.length()
+	var type_speed = 0.03 # Slightly faster than the mission intro!
+	
+	var tween = create_tween()
+	
+	if typing_sound: typing_sound.play()
+	
+	# 1. Type it out
+	tween.tween_property(win_label, "visible_characters", total_chars, total_chars * type_speed)
+	
+	if typing_sound: tween.tween_callback(typing_sound.stop)
+	
+	# 2. Wait 5 seconds to read the stats
+	tween.tween_interval(5.0)
+	
+	# 3. Fade it out smoothly
+	tween.tween_property(win_label, "modulate:a", 0.0, 2.0)
+	tween.tween_callback(win_label.hide)
 
 
 func show_death_screen():

@@ -189,8 +189,7 @@ var is_left_foot: bool = true
 
 var exit_door: Area3D = null
 var gazunka_beans: Node3D = null
-var enemy_doors: Node3D = null
-var open_noise: AudioStreamPlayer3D = null
+
 
 func _ready() -> void:
 	if compass_arrow:
@@ -229,30 +228,19 @@ func setup_heaven() -> void:
 			report += "\nPersonal Best: " + GlobalStats.best_time_string
 			if GlobalStats.final_time_string == GlobalStats.best_time_string:
 				report += "\nNEW PERSONAL RECORD!"
-				
 			report += "\n\nTotal Profit: +" + str(GlobalStats.last_run_profit) + " Beans!"
+			
 			if float(GlobalStats.final_time) < 120.0:
 				report += " (2x Speed Bonus!)"
 				
-			gui.win_label.text = report
-			gui.win_label.visible = true
-			gui.win_label.modulate.a = 1.0
-			check_global_record()
-			
-			var tween = get_tree().create_tween()
-			tween.tween_interval(5.0)
-			tween.tween_property(gui.win_label, "modulate:a", 0.0, 2.0)
-			tween.tween_callback(gui.win_label.hide)
-			
-			#turn off all the hud elements
+			# THE FIX: Send the base report to the checker first!
+			check_global_record(report)
 	else:
 		if gui.win_label: gui.win_label.visible = false
 
 func setup_level() -> void:
 	exit_door = get_node_or_null("../exit_door")
 	gazunka_beans = get_node_or_null("../Gazunka_Beans")
-	enemy_doors = get_node_or_null("../enemy_doors")
-	open_noise = get_node_or_null("../open_noise")
 	if gui.win_label: gui.win_label.visible = false
 	start_voiceline.play()
 	
@@ -307,9 +295,11 @@ func upload_new_best_score():
 	SilentWolf.Scores.save_score(GlobalStats.player_name, final_score, "main")
 	GlobalStats.needs_upload = false
 
-func check_global_record():
+func check_global_record(base_report: String):
+	var final_report = base_report
 	var sw_result = await SilentWolf.Scores.get_scores(10, "main").sw_get_scores_complete
 	var scores = sw_result.scores
+	
 	if scores.size() > 0:
 		var fastest_time = float(scores[0].score)
 		for score_data in scores:
@@ -319,11 +309,15 @@ func check_global_record():
 		
 		var my_time = GlobalStats.final_time
 		if float(my_time) < fastest_time - 0.001:
-			gui.win_label.text += "\nNEW GLOBAL RECORD!"
+			final_report += "\nNEW GLOBAL RECORD!"
 			gui.win_label.add_theme_color_override("font_color", Color.CHARTREUSE)
 	else:
-		gui.win_label.text += "\nNEW GLOBAL RECORD!"
+		final_report += "\nNEW GLOBAL RECORD!"
 		gui.win_label.add_theme_color_override("font_color", Color.CHARTREUSE)
+		
+	# Now that we know exactly what the text should be, type it all out!
+	if gui.has_method("play_win_intro"):
+		gui.play_win_intro(final_report)
 
 func _input(event: InputEvent) -> void:
 	
@@ -1359,11 +1353,9 @@ func show_death_ui():
 func bean_found():
 	bean_count += 1
 	if gui.stamina_bar: gui.stamina_bar.value += bean_stamina_boost
-	if enemy_doors and open_noise:
-		if bean_count == 1:
-			for door in enemy_doors.get_children():
-				open_noise.play()
-				door.queue_free()
+	var main = get_tree().current_scene
+	if main.has_method("start_the_hunt"):
+		main.start_the_hunt()
 				
 	gui.beans_found_label.text = str(bean_count) + '/7'
 	trigger_screen_shake()

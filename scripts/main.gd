@@ -24,10 +24,13 @@ var enemy_pool: Array[CharacterBody3D] = []
 
 var current_name = GlobalStats.player_name
 var pulse_time: float = 0.0
-var torch_throw = preload("res://scenes/torch.tscn")
 
-@export var torch_count: int = 7
 @export var min_music_pitch: float = 1.5 
+
+# hunt state
+@onready var enemy_doors: Node3D = $enemy_doors
+@onready var open_noise: AudioStreamPlayer3D = $open_noise
+var hunt_started: bool = false
 
 func _ready() -> void:
 	randomize()
@@ -45,6 +48,8 @@ func _ready() -> void:
 		
 	if world_environment and world_environment.environment:
 		world_environment.environment.fog_light_color = Color('ffefc5')
+	
+	get_tree().create_timer(15.0).timeout.connect(start_the_hunt)
 
 # --- NEW: PRE-SPAWN HORDES ---
 func setup_enemy_pool() -> void:
@@ -167,8 +172,24 @@ func _process(delta: float) -> void:
 		return
 	handle_exit_pulse(delta)
 	handle_dynamic_music(delta)
-	if Input.is_action_just_pressed("throw"):
-		throw_torch()
+
+# --- THE NEW START LOGIC ---
+func start_the_hunt() -> void:
+	if hunt_started: return
+	hunt_started = true
+	
+	
+	if open_noise and not open_noise.playing:
+		open_noise.play()
+		
+	if enemy_doors:
+		for door in enemy_doors.get_children():
+			door.queue_free()
+			
+	# Tell all active enemies to wake up!
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if enemy.has_method("start_the_hunt_intro"):
+			enemy.start_the_hunt_intro()
 
 func handle_exit_pulse(delta: float) -> void:
 	if player.bean_count >= 7 and exit_door.has_node("light"):
@@ -205,18 +226,6 @@ func handle_dynamic_music(delta: float) -> void:
 		if game_music_1.playing:
 			game_music_1.stop()
 
-func throw_torch() -> void:
-	if torch_count > 0:
-		if player.has_node("throw_sound"):
-			player.throw_sound.play()
-		var instance = torch_throw.instantiate()
-		add_child(instance)
-		instance.global_position = player.grabbed_anchor.global_position
-		var throw_dir = -eyes.global_basis.z
-		instance.apply_central_impulse((throw_dir) + Vector3(0, 1.0, 0))
-		torch_count -= 1
-	else:
-		print("Out of torches!")
 
 func _on_player_bean_collected():
 	if player.bean_count >= 7:
