@@ -14,8 +14,11 @@ extends CanvasLayer
 @onready var stash_grid: GridContainer = $stash_panel/player_grid # This is your Stash UI
 @onready var player_grid: GridContainer = $stash_panel/GridContainer # This is your Backpack UI
 @onready var player_hotbar: HBoxContainer = $stash_panel/player_hotbar
-# ----------------------------------------
+@onready var nvg_slot: ColorRect = $stash_panel/nvg_slot
 
+# ----------------------------------------
+@onready var buy_flashlight_btn: Button = $shop_panel/buy_flashlight_btn
+@onready var buy_nvg_btn: Button = $shop_panel/buy_nvg_btn
 @onready var buy_shotgun_btn: Button = $shop_panel/buy_shotgun_btn 
 @onready var buy_shotgun_ammo_btn: Button = $shop_panel/buy_shotgun_ammo_btn
 @onready var stash_bean_display: RichTextLabel = $stash_panel/stash_bean_display
@@ -28,10 +31,14 @@ extends CanvasLayer
 const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 
 # Example prices
+var flashlight_price = 14
+var nvg_price = 77
 var shotgun_price = 35
 var shotgun_ammo_price = 7
 @onready var shotgun_ammo_price_label: RichTextLabel = $shop_panel/buy_shotgun_ammo_btn/ammo_price
 @onready var shotgun_price_label: RichTextLabel = $shop_panel/buy_shotgun_btn/shotgun_price
+@onready var nvg_price_label: RichTextLabel = $shop_panel/buy_nvg_btn/nvg_price
+@onready var flashlight_price_label: RichTextLabel = $shop_panel/buy_flashlight_btn/flashlight_price
 
 @onready var number_1_player: RichTextLabel = $number_1_player
 @onready var motd_button: Button = $motd_button
@@ -247,30 +254,31 @@ func _ready() -> void:
 	
 	shotgun_ammo_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(shotgun_ammo_price) + ' beans[/wave][/color]'
 	shotgun_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(shotgun_price) + ' beans[/wave][/color]'
+	flashlight_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(flashlight_price) + ' beans[/wave][/color]'
+	nvg_price_label.text = '[color=gold][wave amp=20 freq=5 connect=1]' + str(nvg_price) + ' beans[/wave][/color]'	
+	if buy_flashlight_btn:
+		buy_flashlight_btn.pressed.connect(_on_buy_flashlight_pressed)
+		
+	if buy_nvg_btn:
+		buy_nvg_btn.pressed.connect(_on_buy_nvg_pressed)
 	
 	if heaven_button:
-		heaven_button.mouse_entered.connect(_play_hover_sound)
 		heaven_button.pressed.connect(_on_heaven_button_pressed)
 	
 	if stash_button:
-		stash_button.mouse_entered.connect(_play_hover_sound)
 		stash_button.pressed.connect(_on_stash_button_pressed)
 		
 	if buy_shotgun_btn:
-		buy_shotgun_btn.mouse_entered.connect(_play_hover_sound)
 		buy_shotgun_btn.pressed.connect(_on_buy_shotgun_pressed)
 		
 	if buy_shotgun_ammo_btn:
-		buy_shotgun_ammo_btn.mouse_entered.connect(_play_hover_sound)
 		buy_shotgun_ammo_btn.pressed.connect(_on_buy_shotgun_ammo_pressed)
 		
 	# --- CONNECT CLOSE BUTTONS ---
 	if close_shop_btn:
-		close_shop_btn.mouse_entered.connect(_play_hover_sound)
 		close_shop_btn.pressed.connect(_on_close_shop_pressed)
 		
 	if close_stash_btn:
-		close_stash_btn.mouse_entered.connect(_play_hover_sound)
 		close_stash_btn.pressed.connect(_on_close_stash_pressed)
 	
 	#shop and stash display
@@ -817,6 +825,22 @@ func buy_item(item_name: String, price: int, quantity: int) -> void:
 	update_shop_display()
 	add_item_to_json(item_name, quantity)
 
+func _on_buy_flashlight_pressed() -> void:
+	if GlobalStats.total_beans_collected >= flashlight_price:
+		purchase_made.play()
+	else:
+		GlobalStats.play_click()
+	buy_item("flashlight", flashlight_price, 1)
+	
+@onready var nightvision: AudioStreamPlayer = $nightvision
+func _on_buy_nvg_pressed() -> void:
+	if GlobalStats.total_beans_collected >= nvg_price:
+		purchase_made.play()
+		nightvision.play()
+	else:
+		GlobalStats.play_click()
+	buy_item("nightvision", nvg_price, 1)
+
 # Button signal connections
 func _on_buy_shotgun_pressed() -> void:
 	if GlobalStats.total_beans_collected >= shotgun_price:
@@ -833,7 +857,7 @@ func _on_buy_shotgun_ammo_pressed() -> void:
 	buy_item("shotgun_ammo", shotgun_ammo_price, 4)
 
 func add_item_to_json(item_name: String, amount: int) -> void:
-	var save_data = {"hotbar": [], "grid": [], "stash_grid": [], "shotgun_ammo": 0}
+	var save_data = {"hotbar": [], "grid": [], "stash_grid": [], "shotgun_ammo": 0, "nvg_slot": {"item": "empty", "qty": 0}}
 	
 	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
 		var file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.READ)
@@ -846,7 +870,6 @@ func add_item_to_json(item_name: String, amount: int) -> void:
 
 	var max_slots = stash_grid.get_child_count() if stash_grid else 24
 
-	# CRITICAL FIX: Force the stash to have physical empty slots before trying to fill them!
 	while save_data["stash_grid"].size() < max_slots:
 		save_data["stash_grid"].append({"item": "empty", "qty": 0})
 			
@@ -855,7 +878,8 @@ func add_item_to_json(item_name: String, amount: int) -> void:
 	
 	# --- SHOP PURCHASES NOW GO TO STASH_GRID ---
 	if save_data.has("stash_grid"):
-		if item_name != "shotgun":
+		# Only let shotgun ammo stack!
+		if item_name == "shotgun_ammo":
 			for slot in save_data["stash_grid"]:
 				if slot["item"] == item_name and slot["qty"] < 16:
 					var space_left = 16 - slot["qty"]
@@ -882,8 +906,9 @@ func load_stash_ui() -> void:
 	var save_data = {
 		"hotbar": [{"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}],
 		"grid": [],
-		"stash_grid": [], # <-- NEW STASH ARRAY
-		"shotgun_ammo": 0
+		"stash_grid": [], 
+		"shotgun_ammo": 0,
+		"nvg_slot": {"item": "empty", "qty": 0} # <-- ADD THIS!
 	}
 
 	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
@@ -922,6 +947,12 @@ func load_stash_ui() -> void:
 				if slots[i].has_method("set_item"):
 					slots[i].set_item(save_data["hotbar"][i]["item"], save_data["hotbar"][i]["qty"])
 
+	# 4. Load the NVG Slot
+	if nvg_slot and nvg_slot.has_method("set_item"):
+		nvg_slot.set_item("empty", 0) # Clear it first
+		if save_data.has("nvg_slot"):
+			nvg_slot.set_item(save_data["nvg_slot"]["item"], save_data["nvg_slot"]["qty"])
+
 # --- SAVE DRAG AND DROP CHANGES IN STASH ---
 func save_stash_to_json() -> void:
 	var save_data = {}
@@ -952,11 +983,15 @@ func save_stash_to_json() -> void:
 			if slot.has_method("set_item"): new_hotbar.append({"item": slot.item_name, "qty": slot.quantity})
 	save_data["hotbar"] = new_hotbar
 	
+	# Save NVG Slot
+	if nvg_slot and nvg_slot.has_method("set_item"):
+		save_data["nvg_slot"] = {"item": nvg_slot.item_name, "qty": nvg_slot.quantity}
+	else:
+		save_data["nvg_slot"] = {"item": "empty", "qty": 0}
+	
 	var save_file = FileAccess.open(INVENTORY_SAVE_PATH, FileAccess.WRITE)
 	if save_file:
 		save_file.store_string(JSON.stringify(save_data))
-
-
 func can_fit_item(item_name: String, amount: int) -> bool:
 	var save_data = {}
 	if FileAccess.file_exists(INVENTORY_SAVE_PATH):
@@ -975,7 +1010,7 @@ func can_fit_item(item_name: String, amount: int) -> bool:
 	var amount_left = amount
 
 	# 1. Check if we can stack it (Ammo only)
-	if item_name != "shotgun":
+	if item_name == "shotgun_ammo":
 		for slot in grid:
 			if slot["item"] == item_name and slot["qty"] < 16:
 				var space_available = 16 - slot["qty"]
@@ -990,7 +1025,7 @@ func can_fit_item(item_name: String, amount: int) -> bool:
 			empty_count += 1
 
 	# Shotguns take 1 full slot. Ammo can fit up to 16 per slot.
-	if item_name == "shotgun":
+	if item_name != "shotgun_ammo":
 		return amount_left <= empty_count
 	else:
 		return amount_left <= (empty_count * 16)
@@ -1010,26 +1045,38 @@ func _on_heaven_button_pressed() -> void:
 
 # --- SHIFT-CLICK FAST TRANSFER ---
 func shift_transfer_item(source_slot: Control) -> void:
-	# Removed the "quantity <= 0" check so we can transfer empty shotguns!
 	if source_slot.item_name == "empty": return
+
+	var item_to_move = source_slot.item_name
+	var amount_to_move = source_slot.quantity
+	
+	# --- 1. THE NVG FAST-EQUIP INTERCEPT ---
+	if item_to_move == "nightvision" and source_slot != nvg_slot:
+		if nvg_slot and nvg_slot.item_name == "empty":
+			# Snap it directly to the face!
+			nvg_slot.set_item(item_to_move, amount_to_move)
+			source_slot.set_item("empty", 0)
+			GlobalStats.play_click()
+			save_stash_to_json()
+			return
 
 	var source_parent = source_slot.get_parent()
 	var target_grid = null
 
-	# Determine where to send the item
+	# --- 2. Determine where to send the item ---
 	if source_parent == stash_grid:
 		target_grid = player_grid # Send to backpack
 	elif source_parent == player_grid or source_parent == player_hotbar:
 		target_grid = stash_grid # Send to stash
+	elif source_slot == nvg_slot:
+		target_grid = stash_grid # Un-equip from face and send to stash!
 
 	if target_grid == null: return
 
-	var item_to_move = source_slot.item_name
-	var amount_to_move = source_slot.quantity
 	var placed = false
 
-	# 1. Try to stack it onto an existing pile (Ammo only)
-	if item_to_move != "shotgun":
+	# 3. Try to stack it onto an existing pile (ONLY AMMO)
+	if item_to_move == "shotgun_ammo":
 		for target_slot in target_grid.get_children():
 			if target_slot.has_method("set_item") and target_slot.item_name == item_to_move and target_slot.quantity < 16:
 				var space_left = 16 - target_slot.quantity
@@ -1042,7 +1089,7 @@ func shift_transfer_item(source_slot: Control) -> void:
 					placed = true
 					break
 
-	# 2. If there's still amount left (or it's a shotgun), find an empty slot
+	# 4. If there's still amount left, find an empty slot
 	if not placed:
 		for target_slot in target_grid.get_children():
 			if target_slot.has_method("set_item") and target_slot.item_name == "empty":
@@ -1051,19 +1098,17 @@ func shift_transfer_item(source_slot: Control) -> void:
 				placed = true
 				break
 
-	# 3. Resolve the transaction and save
+	# 5. Resolve the transaction and save
 	if placed:
 		GlobalStats.play_click()
 		
 		# CRITICAL FIX: If the item fully transferred, explicitly force the source slot to be "empty"
-		# This overrides the "don't delete empty shotguns" safety rule.
 		if amount_to_move == 0:
 			source_slot.set_item("empty", 0) 
 		else:
 			source_slot.set_item(source_slot.item_name, amount_to_move)
 			
 		save_stash_to_json() # Save immediately so the JSON stays in sync
-
 # --- THE NEW FLOATING MINUS TEXT FUNCTION ---
 func spawn_floating_text(amount: int, start_pos: Vector2) -> void:
 	if amount <= 0: return

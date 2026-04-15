@@ -5,7 +5,9 @@ extends ColorRect
 # How many beans the player gets back per item
 var sell_prices = {
 	"shotgun": 25,
-	"shotgun_ammo": 1 # 1 bean per individual shell
+	"shotgun_ammo": 1, # 1 bean per individual shell
+	"flashlight": 7,
+	"nightvision": 63
 }
 
 # 1. Tell Godot this box accepts inventory drops
@@ -18,6 +20,11 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var item = data["dragged_item"]
 	var qty = data["dragged_qty"]
 	var is_split = data.get("is_split", false)
+
+	# --- SAFETY CHECK: CAN WE SELL THIS? ---
+	if not sell_prices.has(item):
+		GlobalStats.play_click()
+		return
 
 	# --- DEDUCT FROM INVENTORY ---
 	if is_split:

@@ -5,8 +5,22 @@ var player: CharacterBody3D
 
 @export var minimap_rect: TextureRect
 const INVENTORY_SAVE_PATH = "user://player_inventory.json"
+@onready var typing_sound: AudioStreamPlayer = $typing_sound
+@onready var nvg_slot: ColorRect = $inventory_menu/nvg_slot
+
+
+# --- CRANK MINIGAME ---
+@onready var crank_ui: Control = $crank_minigame_ui
+@onready var crank_arm: ColorRect = $crank_minigame_ui/crank_arm
+@onready var crank_sound: AudioStreamPlayer = $crank_minigame_ui/crank_sound
+
+var is_cranking_ui_active: bool = false
+var previous_mouse_angle: float = 0.0
+var crank_speed: float = 0.0
+
 
 # --- HUD & EFFECTS ---
+@onready var mission_label: Label = $mission_label
 @onready var proximity_distortion: ColorRect = $ProximityDistortion
 @onready var damage_vignette: TextureRect = $damage_vignette
 @onready var beans_found_label: Label = $beans_found_label
@@ -20,6 +34,7 @@ const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 @onready var exhaustion_effect: ColorRect = $ExhaustionEffect
 @onready var minimap: TextureRect = $circle_clip
 @onready var wisp_cooldown: TextureProgressBar = $wisp_cooldown
+@onready var flashlight_battery_bar: ProgressBar = $flashlight_battery_bar
 
 # --- MENUS ---
 @onready var quit_confirm_panel: ColorRect = $quit_confirm_panel
@@ -115,6 +130,7 @@ func setup(p_player: CharacterBody3D):
 			default_binds_btn.pressed.connect(_on_default_bindings_pressed)
 
 	trigger_fade_in()
+	play_mission_intro()
 	
 	stamina_bar.value = 100
 	if crosshair: crosshair.pivot_offset = crosshair.size / 2
@@ -138,6 +154,44 @@ func trigger_fade_in():
 	var fade_tween = create_tween()
 	fade_tween.tween_property(fade_rect, "modulate:a", 0.0, 2.0)
 	fade_tween.tween_callback(fade_rect.hide)
+
+# --- THE COD 4 MISSION INTRO ---
+func play_mission_intro() -> void:
+	if not mission_label: return
+	
+	var target_text = "Location: Gordon's Dungeon\nMission: Collect all 7 beans and escape"
+	
+	# Setup the starting state (Invisible text, fully opaque node)
+	mission_label.text = target_text
+	mission_label.visible_characters = 0
+	mission_label.modulate.a = 1.0
+	mission_label.visible = true
+	
+	var total_chars = target_text.length()
+	var type_speed = 0.05 # How fast each letter appears. Lower is faster!
+	
+	var tween = create_tween()
+	
+	# Start playing the typing sound right before the animation begins
+	if typing_sound: 
+		typing_sound.play()
+	
+	# 1. Type out the text letter by letter
+	tween.tween_property(mission_label, "visible_characters", total_chars, total_chars * type_speed)
+	
+	# Stop the typing sound the exact millisecond the letters finish!
+	if typing_sound: 
+		tween.tween_callback(typing_sound.stop)
+	
+	# 2. Wait for 4 seconds so the player can read it
+	tween.tween_interval(2.0)
+	
+	# 3. Smoothly fade the text into transparency over 2 seconds
+	tween.tween_property(mission_label, "modulate:a", 0.0, 2.0)
+	
+	# 4. Hide the node entirely when finished
+	tween.tween_callback(mission_label.hide)
+
 
 func show_death_screen():
 	if hotbar: hotbar.visible = false
@@ -192,6 +246,28 @@ func update_vignette(current_health: int, max_health: int, delta: float):
 		damage_vignette.modulate.a = 0.5 + (sin(Time.get_ticks_msec() / 150.0) * 0.2)
 	else:
 		damage_vignette.modulate.a = lerp(damage_vignette.modulate.a, 0.0, delta * 3.0)
+
+
+# --- CRAPPY FLASHLIGHT METER ---
+func update_flashlight_battery(current_battery: float, is_active: bool) -> void:
+	if not flashlight_battery_bar: return
+	flashlight_battery_bar.value = current_battery
+	
+	# Only show the battery bar if the flashlight is on, or if it's currently recharging
+	if is_active or current_battery < 100.0:
+		# Fade it in
+		flashlight_battery_bar.modulate.a = move_toward(flashlight_battery_bar.modulate.a, 1.0, 0.1)
+	else:
+		# Fade it out when full and turned off
+		flashlight_battery_bar.modulate.a = move_toward(flashlight_battery_bar.modulate.a, 0.0, 0.1)
+		
+	# Turn the bar red when it's about to die!
+	if current_battery < 20.0:
+		flashlight_battery_bar.self_modulate = Color.RED
+	else:
+		flashlight_battery_bar.self_modulate = Color.WHITE
+
+
 
 func update_proximity_distortion(distance: float, is_valid_enemy: bool, delta: float):
 	if not proximity_distortion or not proximity_distortion.material: return
@@ -449,6 +525,58 @@ func refresh_inventory_ui() -> void:
 					# THE FIX: Force the quantity into an integer!
 					var qty_as_int = int(save_data["hotbar"][i]["qty"])
 					hotbar_slots[i].set_item(save_data["hotbar"][i]["item"], qty_as_int)
+
+# --- CRANK MINIGAME LOGIC ---
+func toggle_crank_ui(show_ui: bool):
+	is_cranking_ui_active = show_ui
+	if crank_ui:
+		crank_ui.visible = show_ui
+		
+	if show_ui and crank_arm:
+		# Lock the starting angle so it doesn't jump wildly on the first frame
+		var center_pos = crank_arm.global_position + (crank_arm.size / 2.0)
+		previous_mouse_angle = center_pos.angle_to_point(get_viewport().get_mouse_position())
+	elif not show_ui:
+		crank_speed = 0.0
+		if crank_sound and crank_sound.playing:
+			crank_sound.stop()
+
+# Godot will automatically run this every frame now!
+func _process(delta: float) -> void:
+# --- THE CRANK MINIGAME TRACKER ---
+	var raw_speed = 0.0 # Define this outside the check so it defaults to 0 when closed!
+	
+	if is_cranking_ui_active and crank_arm and player:
+		var center_pos = crank_arm.global_position + (crank_arm.size / 2.0)
+		var current_mouse_pos = get_viewport().get_mouse_position()
+		
+		var current_angle = center_pos.angle_to_point(current_mouse_pos)
+		var angle_diff = wrapf(current_angle - previous_mouse_angle, -PI, PI)
+		
+		if angle_diff > 0.0: 
+			crank_arm.rotation = current_angle
+			player.add_flashlight_battery(angle_diff * 2.5) 
+			raw_speed = angle_diff / delta 
+			
+		previous_mouse_angle = current_angle
+		
+	# --- THE DYNAMIC AUDIO EFFECT (Now safely outside the UI check!) ---
+	crank_speed = lerp(crank_speed, raw_speed, delta * 15.0)
+	
+	if crank_sound:
+		if crank_speed > 1.0:
+			if not crank_sound.playing:
+				crank_sound.play()
+				
+			crank_sound.pitch_scale = clamp(0.7 + (crank_speed * 0.03), 0.6, 1.8)
+			# THE FIX: Lowered the base volume from -20 to -35, and the max from 0 to -10!
+			crank_sound.volume_db = clamp(-35.0 + (crank_speed * 1.0), -60.0, -10.0)
+			
+		else:
+			# Rapidly fade the sound out to true silence when the mouse stops or UI closes
+			crank_sound.volume_db = lerp(crank_sound.volume_db, -80.0, delta * 25.0)
+			if crank_sound.volume_db <= -60.0 and crank_sound.playing:
+				crank_sound.stop()
 
 
 

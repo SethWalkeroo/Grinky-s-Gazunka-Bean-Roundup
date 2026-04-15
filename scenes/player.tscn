@@ -14,10 +14,13 @@
 [ext_resource type="Script" uid="uid://yibtjofxpuic" path="res://scripts/inventory_slot.gd" id="10_ujl30"]
 [ext_resource type="AudioStream" uid="uid://gem27cg43ie8" path="res://audio/slide.wav" id="11_d2wvv"]
 [ext_resource type="AudioStream" uid="uid://dgo27wuioswyo" path="res://audio/throw_sound.wav" id="12_3v2ag"]
+[ext_resource type="AudioStream" uid="uid://dek0ar3fbail3" path="res://audio/typing_sound.wav" id="12_dt7fs"]
 [ext_resource type="Texture2D" uid="uid://clda8ccxynkc0" path="res://assets/circle_for_game.png" id="12_wqfne"]
 [ext_resource type="AudioStream" uid="uid://w6gb3k71o1xc" path="res://audio/gazunk_wow.wav" id="13_4ni07"]
 [ext_resource type="AudioStream" uid="uid://b71kyi0om74cq" path="res://audio/jump.wav" id="13_jej6c"]
+[ext_resource type="Shader" uid="uid://drtxmx7yahnwh" path="res://shaders/nightvision.gdshader" id="13_wqfne"]
 [ext_resource type="AudioStream" uid="uid://byq7c0tos8qcj" path="res://audio/ymmy_gazunka_bean.wav" id="14_l71n6"]
+[ext_resource type="AudioStream" uid="uid://cqq2fuk0uym7p" path="res://audio/flashlight_crank_sound.wav" id="14_md1ol"]
 [ext_resource type="AudioStream" uid="uid://0bm3t6gs3thi" path="res://audio/ripe_gazunka_bean.wav" id="15_ke2ow"]
 [ext_resource type="AudioStream" uid="uid://cks72bjuhemok" path="res://audio/SNAP.wav" id="15_oprun"]
 [ext_resource type="PackedScene" uid="uid://b0tr43lxl3yaa" path="res://scenes/icon_component.tscn" id="17_qfm1y"]
@@ -28,6 +31,9 @@
 [ext_resource type="AudioStream" uid="uid://da1ellfxvfr0" path="res://audio/out_of_breath.wav" id="23_4ni07"]
 [ext_resource type="AudioStream" uid="uid://dllqftmrvthhi" path="res://audio/slide_sound_final.wav" id="26_ujl30"]
 [ext_resource type="AudioStream" uid="uid://cumbh0dda0wf7" path="res://audio/heartbeat.wav" id="27_31cv2"]
+[ext_resource type="AudioStream" uid="uid://l61dxwl6tgex" path="res://audio/nightvision.wav" id="31_wnwbv"]
+[ext_resource type="AudioStream" uid="uid://bnnanvwvmvrf6" path="res://audio/button_off_sound.wav" id="32_gl8cc"]
+[ext_resource type="AudioStream" uid="uid://cc1mfebq6n0n2" path="res://audio/button_on_sound.wav" id="33_487ah"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3v2ag"]
 
@@ -181,7 +187,7 @@ shader_parameter/line_color = Color(1, 1, 1, 1)
 shader_parameter/line_count = 60.0
 shader_parameter/speed = 15.0
 shader_parameter/center_radius = 0.2
-shader_parameter/edge_blur = 4.7
+shader_parameter/edge_blur = 5.555
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pf23h"]
 shader = ExtResource("7_31cv2")
@@ -215,6 +221,12 @@ shader_parameter/max_wave_amplitude = 0.02
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_smehm"]
 shader = ExtResource("3_fjrip")
 shader_parameter/spread = 0.02
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wnwbv"]
+shader = ExtResource("13_wqfne")
+shader_parameter/noise_amount = 0.08
+shader_parameter/brightness_multiplier = 2.5
+shader_parameter/nv_color = Color(0.1, 0.95, 0.2, 1)
 
 [sub_resource type="Gradient" id="Gradient_ujl30"]
 colors = PackedColorArray(0, 0, 0, 0, 0.12109375, 0.010014447, 0.0045918603, 1)
@@ -290,6 +302,18 @@ transform = Transform3D(0.07670754, 1.1353439e-08, 8.241545e-10, -6.8581887e-09,
 gi_mode = 0
 mesh = SubResource("PrismMesh_31cv2")
 surface_material_override/0 = SubResource("StandardMaterial3D_31cv2")
+
+[node name="nv_light" type="SpotLight3D" parent="neck/head/eyes/Camera3D" unique_id=236216061]
+visible = false
+light_energy = 0.8
+spot_range = 25.0
+spot_angle = 55.5
+
+[node name="flashlight" type="SpotLight3D" parent="neck/head/eyes/Camera3D" unique_id=296171365]
+visible = false
+light_color = Color(1, 0.9341333, 0.7787531, 1)
+spot_range = 15.0
+spot_angle = 33.33
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="neck/head/eyes" unique_id=178176517]
 libraries/ = SubResource("AnimationLibrary_f1ej7")
@@ -907,7 +931,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-color = Color(0, 0, 0, 0.60784316)
+color = Color(0, 0, 0, 0.59607846)
 
 [node name="GridContainer" type="GridContainer" parent="neck/head/eyes/CanvasLayer/inventory_menu" unique_id=1573211938]
 layout_mode = 1
@@ -1227,6 +1251,35 @@ grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
+[node name="nvg_slot" type="ColorRect" parent="neck/head/eyes/CanvasLayer/inventory_menu" unique_id=85775214]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 250.0
+offset_top = 47.5
+offset_right = 314.0
+offset_bottom = 111.5
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/inventory_menu/nvg_slot" unique_id=624834630]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/inventory_menu/nvg_slot" unique_id=2097314309]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
 [node name="quit_confirm_panel" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=376631897]
 anchors_preset = 15
 anchor_right = 1.0
@@ -1269,6 +1322,20 @@ grow_vertical = 2
 mouse_default_cursor_shape = 2
 text = "Cancel"
 
+[node name="flashlight_battery_bar" type="ProgressBar" parent="neck/head/eyes/CanvasLayer" unique_id=197778305]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -47.5
+offset_top = -6.0
+offset_right = 47.5
+grow_horizontal = 2
+grow_vertical = 0
+value = 100.0
+show_percentage = false
+
 [node name="wisp_cooldown" type="TextureProgressBar" parent="neck/head/eyes/CanvasLayer" unique_id=564567651]
 modulate = Color(1, 1, 1, 0.87058824)
 anchors_preset = 3
@@ -1309,6 +1376,34 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="mission_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=817623020]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -11.5
+offset_right = 32.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 8
+text = "Mission:"
+
+[node name="BackBufferCopy3" type="BackBufferCopy" parent="neck/head/eyes/CanvasLayer" unique_id=1530920880]
+copy_mode = 2
+
+[node name="night_vision_overlay" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=1871098333]
+visible = false
+material = SubResource("ShaderMaterial_wnwbv")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="damage_vignette" type="TextureRect" parent="neck/head/eyes/CanvasLayer" unique_id=1703725526]
 modulate = Color(1, 0.96875, 0.96875, 0)
 anchors_preset = 15
@@ -1318,6 +1413,53 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_31cv2")
+
+[node name="typing_sound" type="AudioStreamPlayer" parent="neck/head/eyes/CanvasLayer" unique_id=1451470464]
+stream = ExtResource("12_dt7fs")
+
+[node name="crank_minigame_ui" type="Control" parent="neck/head/eyes/CanvasLayer" unique_id=464220073]
+visible = false
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="flashlight_base" type="ColorRect" parent="neck/head/eyes/CanvasLayer/crank_minigame_ui" unique_id=122912094]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -64.0
+offset_right = 20.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.5, 0.45744652, 0.043636978, 1)
+
+[node name="crank_arm" type="ColorRect" parent="neck/head/eyes/CanvasLayer/crank_minigame_ui" unique_id=969889417]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = 117.0
+offset_bottom = 28.0
+pivot_offset = Vector2(2.74, 8.455)
+color = Color(0.29296875, 0, 0.095697306, 1)
+
+[node name="crank_sound" type="AudioStreamPlayer" parent="neck/head/eyes/CanvasLayer/crank_minigame_ui" unique_id=1154375310]
+stream = ExtResource("14_md1ol")
+volume_db = -53.238
+bus = &"crank i guess"
 
 [node name="object_grabber_shapecast" type="ShapeCast3D" parent="neck/head/eyes" unique_id=1856526472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118158e-08, -0.09398723, -0.25857222)
@@ -1423,6 +1565,18 @@ bus = &"effects"
 stream = ExtResource("27_31cv2")
 volume_db = -13.777
 
+[node name="nightvision_sound" type="AudioStreamPlayer" parent="." unique_id=1515433658]
+stream = ExtResource("31_wnwbv")
+volume_db = -39.352
+
+[node name="nightvision_off_sound" type="AudioStreamPlayer" parent="." unique_id=119623122]
+stream = ExtResource("32_gl8cc")
+volume_db = -12.18
+
+[node name="nightvision_on_sound" type="AudioStreamPlayer" parent="." unique_id=1687982818]
+stream = ExtResource("33_487ah")
+volume_db = -12.18
+
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/VBoxContainer/resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/VBoxContainer/restart_button" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/VBoxContainer/settings_button" to="." method="_on_settings_button_pressed"]
@@ -1435,7 +1589,7 @@ volume_db = -13.777
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
-[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_check_box_toggled"]
+[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

@@ -5,6 +5,21 @@ class_name Player
 @onready var compass_arrow: Node3D = $neck/head/eyes/Camera3D/compass_arrow
 const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 
+#nightvision
+@onready var nv_sound: AudioStreamPlayer = $nightvision_sound
+@onready var nv_off_sound: AudioStreamPlayer = $nightvision_off_sound
+@onready var nv_on_sound: AudioStreamPlayer = $nightvision_on_sound
+@onready var nv_light: SpotLight3D = $neck/head/eyes/Camera3D/nv_light
+var night_vision_active: bool = false
+
+#flashlight
+@onready var flashlight: SpotLight3D = $neck/head/eyes/Camera3D/flashlight
+var flashlight_active: bool = false
+var is_blackout_run: bool = false
+var flashlight_battery: float = 100.0
+var is_cranking: bool = false
+var ignore_camera_pan: bool = false
+
 @export var bean_wisp_scene: PackedScene
 @export var wisp_max_cooldown: float = 15.0
 var bean_sense_cooldown: float = 0.0
@@ -250,6 +265,34 @@ func setup_level() -> void:
 	for i in range(AudioServer.get_bus_effect_count(voice_bus)):
 		if AudioServer.get_bus_effect(voice_bus, i) is AudioEffectReverb:
 			AudioServer.set_bus_effect_enabled(voice_bus, i, true)
+	
+# --- THE BLACKOUT EVENT ---
+	# A 5% chance (0.05) that the map loads in pitch black!
+	if randf() <= 0.05:
+		print("Bravo Six, going dark...")
+		is_blackout_run = true
+		
+		# 1. Kill the physical torches
+		if wall_torches:
+			wall_torches.visible = false 
+			for torch in wall_torches.get_children():
+				for child in torch.get_children():
+					if child is OmniLight3D or child is SpotLight3D:
+						child.visible = false
+						
+		# 2. Kill the Ambient Light / Skybox
+		# This searches your entire current scene to find the WorldEnvironment node!
+		var environments = get_tree().current_scene.find_children("*", "WorldEnvironment", true, false)
+		if environments.size() > 0:
+			var world_env = environments[0]
+			if world_env.environment:
+				# Crush the shadow brightness to pitch black
+				world_env.environment.ambient_light_energy = 0.0
+				
+				# If you have a skybox lighting the room, crush that too
+				world_env.environment.background_energy_multiplier = 0.0
+				world_env.environment.fog_light_energy = 0
+		
 
 func upload_new_best_score():
 	var sw_result = await SilentWolf.Scores.get_scores(100, "main").sw_get_scores_complete
@@ -283,6 +326,79 @@ func check_global_record():
 		gui.win_label.add_theme_color_override("font_color", Color.CHARTREUSE)
 
 func _input(event: InputEvent) -> void:
+	
+# --- FREEZE INPUTS WHILE CRANKING & ALLOW EXIT ---
+	if is_cranking:
+		if event.is_action_pressed("flashlight") or event.is_action_pressed("reload") or (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT):
+			stop_crank_minigame()
+		elif event is InputEventKey and event.keycode == KEY_ESCAPE and event.is_pressed():
+			stop_crank_minigame()
+			get_viewport().set_input_as_handled()
+		return 
+
+	# --- SAFELY GET THE EQUIPPED ITEM ---
+	var held_item = ""
+	if active_slot_index != -1 and inventory.size() > active_slot_index:
+		held_item = inventory[active_slot_index]
+
+	# --- THE RELOAD / CRANK TRIGGER ---
+	if event.is_action_pressed("reload") and not dead and not paused:
+		if held_item == "flashlight":
+			start_crank_minigame()
+		elif held_item == "shotgun":
+			reload_shotgun() 
+
+	# --- FLASHLIGHT (REQUIRES EQUIPPED ITEM) ---
+	if event.is_action_pressed("flashlight") and not dead and not paused:
+		if held_item == "flashlight":
+			if flashlight_battery > 0.0:
+				flashlight_active = !flashlight_active
+				if flashlight: flashlight.visible = flashlight_active
+				if flashlight.visible:
+					nv_on_sound.play()
+				else:
+					nv_off_sound.play()
+				
+				# Shut off NVGs if they blind themselves
+				if flashlight_active and night_vision_active:
+					night_vision_active = false
+					if nv_light: nv_light.visible = false
+					var nv_overlay = gui.get_node_or_null("night_vision_overlay")
+					if nv_overlay: nv_overlay.visible = false
+					if nv_off_sound: nv_off_sound.play()
+			else:
+				start_crank_minigame()
+	
+# --- NIGHT VISION (REQUIRES EQUIPPED TO FACE) ---
+	if event.is_action_pressed("nightvision") and not dead and not paused:
+		
+		# THE FIX: Check the dedicated equipment slot instead of the whole inventory!
+		if gui.nvg_slot and gui.nvg_slot.item_name == "nightvision":
+			night_vision_active = !night_vision_active
+			
+			if nv_light: nv_light.visible = night_vision_active
+			
+			if night_vision_active:
+				if nv_sound: nv_sound.play()
+				if flashlight_active: 
+					flashlight_active = false
+					if flashlight: flashlight.visible = false
+			else:
+				if nv_off_sound: nv_off_sound.play()
+			
+			var nv_overlay = gui.get_node_or_null("night_vision_overlay")
+			if nv_overlay:
+				nv_overlay.visible = night_vision_active
+				if night_vision_active and nv_overlay.material:
+					var mat = nv_overlay.material as ShaderMaterial
+					mat.set_shader_parameter("brightness_multiplier", 25.0)
+					var tween = create_tween()
+					tween.tween_property(mat, "shader_parameter/brightness_multiplier", 2.5, 0.5).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+		else:
+			# Play click if the slot is empty!
+			shotgun_audio.get_node('click').play()
+			
+
 	if gui.handle_input(event):
 		get_viewport().set_input_as_handled()
 		return
@@ -355,6 +471,7 @@ func _input(event: InputEvent) -> void:
 							break
 
 	if event is InputEventMouseMotion:
+		if ignore_camera_pan: return
 		if rotating_object and grabbed_object:
 			object_rotation_input += event.relative
 		else:
@@ -501,7 +618,8 @@ func fire_shotgun() -> void:
 
 				elif hit_node is Enemy:
 					var local_y = result.position.y - hit_node.global_position.y
-					if local_y > 1.6: is_headshot = true
+					if local_y > 1.6: 
+						is_headshot = true
 						
 				if hit_node and hit_node.has_method("take_damage"):
 					var hit_distance = origin.distance_to(result.position)
@@ -588,6 +706,8 @@ func get_all_ui_slots() -> Array:
 	all.append_array(gui.hotbar_slots)
 	if gui.inventory_grid:
 		all.append_array(gui.inventory_grid.get_children())
+	if gui.nvg_slot:
+		all.append(gui.nvg_slot)
 	return all
 
 func get_total_item_count(target_item: String) -> int:
@@ -739,6 +859,28 @@ func _physics_process(delta: float) -> void:
 				# When sync_wave is 1 (Arrow is UP), fade_slider is 1.0 (Fades out!)
 				# When sync_wave is -1 (Arrow is DOWN), fade_slider is 0.0 (Fades in!)
 				arrow_mesh.transparency = fade_slider * 0.95
+	
+	# --- CRAPPY FLASHLIGHT LOGIC ---
+	if flashlight_active:
+		# Drains completely in ~6.5 seconds!
+		flashlight_battery -= delta * 15.0 
+		
+		# The Low Battery Flicker Effect
+		if flashlight_battery < 20.0 and flashlight:
+			flashlight.light_energy = randf_range(0.1, 0.8) 
+		elif flashlight:
+			flashlight.light_energy = 0.8 
+			
+		# Auto-shutoff when dead
+		if flashlight_battery <= 0.0:
+			flashlight_battery = 0.0
+			flashlight_active = false
+			if flashlight: flashlight.visible = false
+			shotgun_audio.get_node('click').play() 
+			
+	# Passive recharge has been DELETED. 
+	gui.update_flashlight_battery(flashlight_battery, flashlight_active)
+	
 	
 	gui.update_exhaustion(speed_boost_timer, is_exhausted, delta)
 	
@@ -1296,6 +1438,9 @@ func spawn_landing_footprints() -> void:
 		right_print.rotate_y(global_rotation.y)
 
 func save_final_time() -> void:
+	if is_blackout_run:
+		total_time = max(0.0, total_time - 30.0)
+		
 	GlobalStats.final_time = total_time
 	GlobalStats.final_time_string = gui.time.text
 	var base_payout = bean_count + bonus_beans
@@ -1303,6 +1448,8 @@ func save_final_time() -> void:
 	if total_time < 120.0:
 		final_payout *= 2
 		print("Speedrun bonus achieved! Payout doubled from ", base_payout, " to ", final_payout)
+	if is_blackout_run:
+		final_payout *= 3
 	GlobalStats.last_run_profit = final_payout
 	GlobalStats.add_to_jar(final_payout)
 	if total_time < float(GlobalStats.best_time_float):
@@ -1324,7 +1471,15 @@ func equip_slot(slot_index: int) -> void:
 				shotgun_audio.get_node('put_away').play()
 				await shotgun_animator.animation_finished
 			shotgun_model.visible = false
-			
+	
+		# --- ADD THIS: FORCE FLASHLIGHT OFF WHEN SWAPPED ---
+		elif current_item == "flashlight":
+			if flashlight_active:
+				flashlight_active = false
+				if flashlight: flashlight.visible = false
+				shotgun_audio.get_node('click').play()
+				gui.update_flashlight_battery(flashlight_battery, flashlight_active)
+	
 	active_slot_index = target_slot
 	gui.update_hotbar(active_slot_index)
 	
@@ -1370,6 +1525,11 @@ func save_inventory() -> void:
 	save_data["hotbar"] = hotbar_data
 	save_data["grid"] = grid_data
 	save_data["shotgun_ammo"] = shotgun_ammo
+	
+	# --- ADD THIS ---
+	save_data["nvg_slot"] = {"item": "empty", "qty": 0}
+	if gui.nvg_slot:
+		save_data["nvg_slot"] = {"item": gui.nvg_slot.item_name, "qty": gui.nvg_slot.quantity}
 
 	var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
 	if file:
@@ -1402,6 +1562,8 @@ func load_inventory() -> void:
 				for i in range(min(saved_data["grid"].size(), grid_slots.size())):
 					var slot_data = saved_data["grid"][i]
 					if grid_slots[i].has_method("set_item"): grid_slots[i].set_item(slot_data["item"], slot_data["qty"])
+			if saved_data.has("nvg_slot") and gui.nvg_slot:
+				gui.nvg_slot.set_item(saved_data["nvg_slot"]["item"], saved_data["nvg_slot"]["qty"])
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -1418,6 +1580,7 @@ func wipe_inventory_on_death() -> void:
 	save_data["grid"] = []
 	save_data["hotbar"] = [{"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}, {"item": "empty", "qty": 0}]
 	save_data["shotgun_ammo"] = 0
+	save_data["nvg_slot"] = {"item": "empty", "qty": 0}
 	
 	var save_file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
 	if save_file: save_file.store_string(JSON.stringify(save_data))
@@ -1518,17 +1681,18 @@ func collect_item(item_name: String, amount: int) -> bool:
 	var placed = false
 	
 	# 2. Try to stack the ammo onto an existing pile (Max 16 per slot)
-	for slot in save_data["grid"]:
-		if slot["item"] == item_name and slot["qty"] < 16:
-			var space_left = 16 - slot["qty"]
-			var add_amount = min(space_left, amount_left)
-			
-			slot["qty"] += add_amount
-			amount_left -= add_amount
-			
-			if amount_left <= 0:
-				placed = true
-				break
+	if item_name == "shotgun_ammo":
+		for slot in save_data["grid"]:
+			if slot["item"] == item_name and slot["qty"] < 16:
+				var space_left = 16 - slot["qty"]
+				var add_amount = min(space_left, amount_left)
+				
+				slot["qty"] += add_amount
+				amount_left -= add_amount
+				
+				if amount_left <= 0:
+					placed = true
+					break
 				
 	# 3. If it didn't fit in an existing pile, find an empty slot
 	if not placed and amount_left > 0:
@@ -1581,6 +1745,157 @@ func collect_item(item_name: String, amount: int) -> bool:
 		# if inventory_full_sound: inventory_full_sound.play()
 		return false
 
+
+
+
+# --- MINIGAME CONTROLS ---
+func start_crank_minigame():
+	if flashlight_battery >= 100.0: return # Don't crank if full!
+	
+	is_cranking = true
+	
+	# Release the mouse so the player can spin the UI crank!
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	# Tell the GUI to show the crank screen
+	if gui.has_method("toggle_crank_ui"):
+		gui.toggle_crank_ui(true)
+
+func stop_crank_minigame():
+	is_cranking = false
+	
+	# Lock the mouse back to the center for FPS controls
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	if gui.has_method("toggle_crank_ui"):
+		gui.toggle_crank_ui(false)
+	
+	ignore_camera_pan = true
+	get_tree().create_timer(0.15).timeout.connect(func(): ignore_camera_pan = false)
+
+func add_flashlight_battery(amount: float) -> void:
+	flashlight_battery += amount
+	
+	if not flashlight_active and flashlight_battery > 2.0:
+		flashlight_active = true
+		if flashlight: flashlight.visible = true
+		shotgun_audio.get_node('click').play()
+	
+	# Did we hit 100%?
+	if flashlight_battery >= 100.0:
+		flashlight_battery = 100.0
+		
+		# Auto-close the minigame!
+		stop_crank_minigame()
+		
+		# Play a satisfying click/ding so the player knows they are full
+		shotgun_audio.get_node('click').play() 
+		
+	# Update the UI bar
+	gui.update_flashlight_battery(flashlight_battery, flashlight_active)
+
+
+# --- HOTBAR & INVENTORY SYNCING ---
+func sync_inventory_arrays() -> void:
+	# 1. Update the player's internal memory to perfectly match the visual hotbar UI
+	for i in range(gui.hotbar_slots.size()):
+		inventory[i] = gui.hotbar_slots[i].item_name
+
+	# 2. Safety Check 1: The Player's Hands
+	if active_slot_index != -1:
+		var currently_held = inventory[active_slot_index]
+
+		# If the shotgun was dragged out of our active slot, instantly hide the model!
+		if currently_held != "shotgun" and shotgun_model and shotgun_model.visible:
+			shotgun_model.visible = false
+			if shotgun_animator.is_playing(): 
+				shotgun_animator.stop()
+
+		# If the flashlight was dragged out of our active slot, instantly click it off!
+		if currently_held != "flashlight" and flashlight_active:
+			flashlight_active = false
+			if flashlight: flashlight.visible = false
+			shotgun_audio.get_node('click').play()
+			gui.update_flashlight_battery(flashlight_battery, flashlight_active)
+			
+	# 3. Safety Check 2: The Player's Face (NVGs)
+	# THE FIX: This is now safely outside of the "hands" check!
+	if gui.nvg_slot and gui.nvg_slot.item_name != "nightvision" and night_vision_active:
+		night_vision_active = false
+		if nv_light: nv_light.visible = false
+		var nv_overlay = gui.get_node_or_null("night_vision_overlay")
+		if nv_overlay: nv_overlay.visible = false
+		if nv_off_sound: nv_off_sound.play()
+
+
+# --- SHIFT-CLICK FAST TRANSFER (IN-GAME) ---
+func shift_transfer_item(source_slot: Control) -> void:
+	if source_slot.item_name == "empty" or not gui: return
+
+	var item_to_move = source_slot.item_name
+	var amount_to_move = source_slot.quantity
+	var placed = false
+
+	# --- 1. THE NVG FAST-EQUIP INTERCEPT ---
+	if item_to_move == "nightvision":
+		if source_slot != gui.nvg_slot:
+			if gui.nvg_slot and gui.nvg_slot.item_name == "empty":
+				# Snap it directly to the face!
+				gui.nvg_slot.set_item(item_to_move, amount_to_move)
+				source_slot.set_item("empty", 0)
+				GlobalStats.play_click()
+				sync_inventory_arrays() # Instantly syncs the physical player!
+				return
+
+	# --- 2. Determine where to send the item ---
+	var target_slots = []
+	var source_parent = source_slot.get_parent()
+
+	if source_parent == gui.inventory_grid:
+		# Moving from Backpack -> Send to Hotbar
+		target_slots = gui.hotbar_slots
+	elif source_slot in gui.hotbar_slots or source_slot == gui.nvg_slot:
+		# Moving from Hotbar or Face -> Send to Backpack
+		if gui.inventory_grid:
+			target_slots = gui.inventory_grid.get_children()
+
+	if target_slots.size() == 0: return
+
+	# --- 3. Try to stack it onto an existing pile (AMMO ONLY) ---
+	if item_to_move == "shotgun_ammo":
+		for target_slot in target_slots:
+			if target_slot.has_method("set_item") and target_slot.item_name == item_to_move and target_slot.quantity < 16:
+				var space_left = 16 - target_slot.quantity
+				var add_amount = min(space_left, amount_to_move)
+
+				target_slot.set_item(item_to_move, target_slot.quantity + add_amount)
+				amount_to_move -= add_amount
+
+				if amount_to_move <= 0:
+					placed = true
+					break
+
+	# --- 4. If there's still amount left, find an empty slot ---
+	if not placed:
+		for target_slot in target_slots:
+			if target_slot.has_method("set_item") and target_slot.item_name == "empty":
+				target_slot.set_item(item_to_move, amount_to_move)
+				amount_to_move = 0 
+				placed = true
+				break
+
+	# --- 5. Resolve the transaction ---
+	if placed:
+		GlobalStats.play_click()
+		
+		# If the item fully transferred, force the original slot to be empty
+		if amount_to_move == 0:
+			source_slot.set_item("empty", 0)
+		else:
+			source_slot.set_item(source_slot.item_name, amount_to_move)
+
+		# Tell the player to check their hands and face to see if anything changed!
+		sync_inventory_arrays()
 
 
 # --- GUI PROXY CALLBACKS (Preserves Editor Links!) ---

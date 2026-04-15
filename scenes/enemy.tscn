@@ -5347,6 +5347,7 @@ bus = &"game_voicelines"
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=392642995]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07255722, 1.2959987, -0.56928366)
+visible = false
 layers = 3
 light_color = Color(0.87109375, 0.6614753, 0, 1)
 
@@ -5740,12 +5741,12 @@ transform = Transform3D(0.010000101, -1.2360033e-09, -3.8417056e-09, 5.9371814e-
 shape = SubResource("CapsuleShape3D_2pwtc")
 
 [node name="Physical Bone mixamorig_Spine1" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=62790994 groups=["flesh"]]
-transform = Transform3D(52.88969, -6.840371, 0.5776392, 6.86258, 52.797695, -3.1229348, -0.17129974, 3.1712844, 53.238686, 0.15082087, 0.6201534, -128.17616)
+transform = Transform3D(52.88969, -6.840371, 0.5776392, 6.86258, 52.797695, -3.1229346, -0.17129974, 3.1712844, 53.238686, 0.15082087, 0.6201534, -128.17616)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9379408e-05, -0.00020036034, 0.11226183)
-body_offset = Transform3D(53.33333, 0.002389431, -0.0066837072, -0.0066832304, -0.0017163754, -53.333336, -0.002389431, 53.333344, -0.0017158985, -0.00028276443, 5.987297, 0.010878563)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9379346e-05, -0.00020035983, 0.11226183)
+body_offset = Transform3D(53.33333, 0.002389431, -0.0066836774, -0.0066832304, -0.0017163754, -53.333336, -0.002389431, 53.333344, -0.0017161369, -0.00028276443, 5.987297, 0.010878563)
 mass = 15.0
 linear_damp = 2.0
 bone_name = "mixamorig_Spine1"
@@ -5818,12 +5819,12 @@ transform = Transform3D(0.010000045, -2.6648195e-10, -8.731149e-10, 2.6193447e-0
 shape = SubResource("CapsuleShape3D_rogs8")
 
 [node name="Physical Bone mixamorig_Spine2" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1168705635 groups=["flesh"]]
-transform = Transform3D(52.823566, -7.2598734, 1.1868937, 7.328668, 52.680504, -3.9369023, -0.63646406, 4.062368, 53.17458, -0.0718105, 1.4892614, -141.1768)
+transform = Transform3D(52.82357, -7.2598734, 1.1868937, 7.328669, 52.680504, -3.9369023, -0.6364641, 4.062368, 53.17458, -0.0718105, 1.4892614, -141.1768)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.251418e-05, -0.00027476993, 0.1265568)
-body_offset = Transform3D(53.333332, 0.0015645027, -0.00057530403, -0.00057423115, -0.009643316, -53.333347, -0.0015645027, 53.33334, -0.009642839, -0.003260851, 6.749695, 0.015874863)
+body_offset = Transform3D(53.33333, 0.0015645027, -0.00057530403, -0.00057429075, -0.009643316, -53.333347, -0.0015649796, 53.33334, -0.009642839, -0.003260851, 6.749695, 0.015874863)
 mass = 15.0
 linear_damp = 2.0
 bone_name = "mixamorig_Spine2"
@@ -6130,12 +6131,12 @@ transform = Transform3D(0.010000002, 4.773028e-09, 1.1059456e-09, 2.3283064e-10,
 shape = SubResource("CapsuleShape3D_i4rgx")
 
 [node name="Physical Bone mixamorig_LeftArm" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1595030575 groups=["flesh"]]
-transform = Transform3D(15.440158, 48.185173, -16.859272, 48.178547, -19.577711, -11.831526, -16.878191, -11.804524, -49.19577, 19.788258, 3.9546573, -129.0561)
+transform = Transform3D(15.440158, 48.185173, -16.859272, 48.17855, -19.57771, -11.831526, -16.878191, -11.804524, -49.19577, 19.788258, 3.9546573, -129.0561)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0013422021, 0.0005576574, 0.27599433)
-body_offset = Transform3D(0.0055389404, 53.33335, -0.0024266243, 0.0011396408, -0.0024318695, -53.33335, -53.33337, 0.0055503845, -0.0011396408, -0.029079437, 14.719704, 0.0718956)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0013422022, 0.0005576574, 0.27599433)
+body_offset = Transform3D(0.0055389404, 53.33335, -0.0024266243, 0.0011386871, -0.0024318695, -53.33335, -53.333366, 0.005552292, -0.0011396408, -0.029079437, 14.719704, 0.0718956)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftArm"
@@ -6208,12 +6209,12 @@ transform = Transform3D(0.010000122, -9.731593e-10, -1.1350494e-09, 6.9849193e-1
 shape = SubResource("CapsuleShape3D_2mchx")
 
 [node name="Physical Bone mixamorig_LeftForeArm" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=890897672 groups=["flesh"]]
-transform = Transform3D(50.655117, -15.47006, 6.259467, -12.632682, -48.61677, -17.923971, 10.905002, 15.541257, -49.839687, 22.959465, 11.156783, -104.773445)
+transform = Transform3D(50.655113, -15.47006, 6.2594666, -12.63268, -48.61677, -17.923971, 10.905001, 15.541257, -49.839687, 22.959465, 11.156783, -104.773445)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014453975, -0.00050458114, 0.21974209)
-body_offset = Transform3D(53.331726, 0.0911684, -0.40677595, -0.40661526, -0.09386635, -53.33172, -0.0918684, 53.33321, -0.093164444, 0.012346268, 11.719765, 0.04751587)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014453973, -0.00050458097, 0.21974207)
+body_offset = Transform3D(53.33173, 0.0911684, -0.40677595, -0.4066162, -0.09386635, -53.33172, -0.09187031, 53.33321, -0.093164444, 0.012346268, 11.719765, 0.04751587)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftForeArm"
@@ -6364,12 +6365,12 @@ transform = Transform3D(0.010000004, 9.313226e-10, -5.820766e-10, 9.313226e-10, 
 shape = SubResource("CapsuleShape3D_qaulx")
 
 [node name="Physical Bone mixamorig_RightArm" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1516569049 groups=["flesh"]]
-transform = Transform3D(-41.1941, 28.821384, 17.79939, 28.425983, 44.65355, -6.516759, -18.424276, 4.453372, -49.851357, -20.322296, 1.525655, -128.42136)
+transform = Transform3D(-41.194096, 28.821384, 17.799389, 28.425983, 44.65355, -6.5167584, -18.424274, 4.453372, -49.851357, -20.322296, 1.525655, -128.42136)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0011373608, -0.00028339305, 0.27581963)
-body_offset = Transform3D(-0.0006828308, 53.333344, -0.0014476776, 0.0023694038, -0.0014367104, -53.333347, -53.333336, -0.00069999695, -0.0023870468, 0.015514374, 14.710381, 0.061317444)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0011373669, -0.00028339555, 0.27581963)
+body_offset = Transform3D(-0.0006828308, 53.333344, -0.0014472008, 0.0023703575, -0.0014367104, -53.333347, -53.33334, -0.00069999695, -0.0023858547, 0.015514374, 14.710381, 0.061317444)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightArm"
@@ -6442,12 +6443,12 @@ transform = Transform3D(0.010000006, 1.1496013e-09, 2.0372681e-09, -1.7462298e-1
 shape = SubResource("CapsuleShape3D_1f82d")
 
 [node name="Physical Bone mixamorig_RightForeArm" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1349010804 groups=["flesh"]]
-transform = Transform3D(33.532722, 41.456493, -1.1660408, 34.850735, -28.980131, -28.107338, -22.481693, 16.910221, -45.31073, -25.323963, 8.803372, -104.655266)
+transform = Transform3D(33.532722, 41.456493, -1.1660417, 34.850735, -28.980131, -28.107338, -22.481693, 16.910221, -45.31073, -25.323963, 8.803372, -104.655266)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.014891087, -0.0034112793, 0.21715382)
-body_offset = Transform3D(53.333332, -0.0047740936, -0.005256653, -0.00525856, 6.0081482e-05, -53.33335, 0.0047512054, 53.333344, 4.5776367e-05, -0.793066, 11.581619, 0.18185425)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.014891079, -0.0034112833, 0.21715382)
+body_offset = Transform3D(53.333332, -0.0047740936, -0.0052547455, -0.00525856, 6.0081482e-05, -53.33335, 0.0047512054, 53.333344, 4.673004e-05, -0.793066, 11.581619, 0.18185425)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightForeArm"
@@ -6676,12 +6677,12 @@ transform = Transform3D(0.010000009, 2.561137e-09, 2.910383e-09, -1.1641532e-09,
 shape = SubResource("CapsuleShape3D_lsnsy")
 
 [node name="Physical Bone mixamorig_LeftFoot" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=361854891 groups=["flesh"]]
-transform = Transform3D(-51.78253, 4.4292865, -11.974763, 12.14616, 32.506195, -40.50015, 3.9350111, -42.04964, -32.56973, 21.373653, 5.6796365, -5.558482)
+transform = Transform3D(-51.78253, 4.4292874, -11.974763, 12.14616, 32.506195, -40.500145, 3.9350111, -42.04964, -32.56973, 21.373653, 5.6796365, -5.558482)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0002596394, 0.00011457101, 0.12612656)
-body_offset = Transform3D(53.33353, -0.0013756752, 0.0023765564, 0.0023860931, 0.031621933, -53.33333, 0.0013604164, 53.33333, 0.031614304, 0.013547897, 6.7267456, -0.010097504)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0002596394, 0.00011457552, 0.12612656)
+body_offset = Transform3D(53.33353, -0.0013747215, 0.0023765564, 0.0023860931, 0.031621933, -53.33333, 0.0013604164, 53.33333, 0.031612396, 0.013547897, 6.7267456, -0.010097504)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftFoot"
@@ -6832,12 +6833,12 @@ transform = Transform3D(0.010000105, -3.783498e-10, -7.923518e-09, -3.0049705e-0
 shape = SubResource("CapsuleShape3D_ekh6n")
 
 [node name="Physical Bone mixamorig_RightUpLeg" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1568625105 groups=["flesh"]]
-transform = Transform3D(-47.352066, -22.914541, 8.783486, -23.799076, 47.53577, -4.2893205, -5.985788, -7.7277575, -52.429916, -12.997092, 0.1331625, -75.08329)
+transform = Transform3D(-47.352066, -22.91454, 8.783486, -23.799076, 47.53577, -4.2893195, -5.985788, -7.727757, -52.429916, -12.997092, 0.1331625, -75.08329)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0002941293, 0.00036936233, 0.424834)
-body_offset = Transform3D(53.33421, -0.00063323975, 0.00015056133, 0.00015032291, 0.004720211, -53.333336, 0.00062942505, 53.333332, 0.0047221184, -0.015750885, 22.657814, -0.021705627)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00029412456, 0.0003693699, 0.42483398)
+body_offset = Transform3D(53.33421, -0.0006313324, 0.00015115738, 0.00015032291, 0.0047199726, -53.333336, 0.00062942505, 53.333336, 0.0047211647, -0.015750885, 22.657814, -0.021705627)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightUpLeg"
@@ -6910,12 +6911,12 @@ transform = Transform3D(0.01, -3.3469405e-10, -1.1175871e-08, 2.910383e-10, 3.49
 shape = SubResource("CapsuleShape3D_2sbpf")
 
 [node name="Physical Bone mixamorig_RightLeg" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1214519006 groups=["flesh"]]
-transform = Transform3D(-50.285572, -17.697779, 1.6105533, -17.280647, 49.824585, 7.958255, -4.1454105, 6.9816375, -52.711636, -17.36852, -1.3243732, -31.309074)
+transform = Transform3D(-50.285572, -17.697779, 1.6105527, -17.280647, 49.824585, 7.958255, -4.1454105, 6.9816375, -52.71163, -17.36852, -1.3243732, -31.309074)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00025404026, 0.00014104422, 0.41159874)
-body_offset = Transform3D(53.334198, -0.0044231415, -0.00071024895, -0.00074124336, 0.0012755394, -53.33334, 0.0041828156, 53.333355, 0.0012717247, -0.013256073, 21.951937, -0.008046865)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0002540458, 0.0001410516, 0.41159874)
+body_offset = Transform3D(53.334198, -0.0044231415, -0.0007109642, -0.00074124336, 0.0012755394, -53.333344, 0.0041828156, 53.333355, 0.001270771, -0.013256073, 21.951937, -0.008046865)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightLeg"
@@ -6988,12 +6989,12 @@ transform = Transform3D(0.010000102, 2.6921043e-10, -4.48199e-09, 5.820766e-10, 
 shape = SubResource("CapsuleShape3D_78kod")
 
 [node name="Physical Bone mixamorig_RightFoot" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1535263052 groups=["flesh"]]
-transform = Transform3D(-52.70979, -1.3682544, 8.015605, -7.103596, 33.333748, -41.022484, -3.957393, -41.610493, -33.126274, -19.001879, 0.5263467, -5.569628)
+transform = Transform3D(-52.70979, -1.3682547, 8.015605, -7.103596, 33.333748, -41.02248, -3.957393, -41.610493, -33.126278, -19.001879, 0.5263467, -5.569628)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00074994186, -2.5036272e-05, 0.12442513)
-body_offset = Transform3D(53.334118, -0.0010619164, -3.33786e-06, -0.0004696846, 0.039453506, -53.333397, 0.00078105927, 53.333344, 0.039373398, -0.0399971, 6.636016, -0.0035643578)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00074994186, -2.5027366e-05, 0.12442513)
+body_offset = Transform3D(53.334118, -0.0010623932, -3.33786e-06, -0.0004696846, 0.039453506, -53.333397, 0.00078105927, 53.333344, 0.039369583, -0.0399971, 6.636016, -0.0035643578)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightFoot"
@@ -7066,12 +7067,12 @@ transform = Transform3D(0.009999989, 2.3283064e-10, 0, -3.0267984e-09, -1.862645
 shape = SubResource("CapsuleShape3D_605iw")
 
 [node name="Physical Bone mixamorig_RightToeBase" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=256760285 groups=["flesh"]]
-transform = Transform3D(-52.492867, 1.1612477, 9.359199, -9.367942, -0.3116957, -52.503223, -1.0884755, -53.319775, 0.5107557, -20.485765, 8.205823, -1.481416)
+transform = Transform3D(-52.492867, 1.1612477, 9.359199, -9.367942, -0.31169572, -52.503223, -1.0884755, -53.31978, 0.5107557, -20.485765, 8.205823, -1.481416)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00022689786, -3.525304e-05, 0.048946686)
-body_offset = Transform3D(53.334145, -0.000518322, 0.02160263, 0.02112484, 0.0020549893, -53.333416, 0.0006775819, 53.33336, 0.0021107495, -0.013158798, 2.6104894, 0.0017766953)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00022689783, -3.525304e-05, 0.048946682)
+body_offset = Transform3D(53.334145, -0.0005184449, 0.02160263, 0.02112484, 0.0020549595, -53.333416, 0.0006775819, 53.333355, 0.0021107495, -0.013158798, 2.6104894, 0.0017766953)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightToeBase"

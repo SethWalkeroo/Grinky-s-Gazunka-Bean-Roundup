@@ -106,13 +106,19 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 # --- CLICK DETECTION (Shift-Click & Right-Click Split) ---
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		# --- SHIFT-CLICK TRANSFER ---
+# --- SHIFT-CLICK TRANSFER ---
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.shift_pressed:
 			if item_name != "empty":
+				# 1. Check if we are in the main menu
 				var main_scene = get_tree().current_scene
 				if main_scene.has_method("shift_transfer_item"):
 					main_scene.shift_transfer_item(self)
-				return # Stop execution so we don't accidentally start a drag
+					return 
+					
+				# 2. Check if we are in-game and the player has the script!
+				if player and player.has_method("shift_transfer_item"):
+					player.shift_transfer_item(self)
+					return
 
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			right_click_down = event.pressed
@@ -175,7 +181,13 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var incoming_item = data["dragged_item"]
 	var incoming_qty = data["dragged_qty"]
 	var is_split = data.get("is_split", false)
-
+	
+	# --- THE EQUIPMENT LOCK ---
+	# Reject anything that isn't the goggles from going in the face slot!
+	if name == "nvg_slot" and incoming_item != "nightvision":
+		GlobalStats.play_click() 
+		return
+	
 	# --- DYNAMIC NODE FETCHING ---
 	var current_player = get_tree().get_first_node_in_group("player")
 	var main_scene = get_tree().current_scene
@@ -218,8 +230,8 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 				main_scene.save_stash_to_json()
 			return
 			
-	# --- MERGE STACKS ---
-	if item_name == incoming_item and item_name != "empty" and item_name != "shotgun":
+
+	if item_name == incoming_item and item_name == "shotgun_ammo":
 		var space_left = MAX_STACK - quantity
 		if space_left > 0:
 			var amount_to_move = min(space_left, incoming_qty)
