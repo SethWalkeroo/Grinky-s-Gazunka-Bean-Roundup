@@ -310,6 +310,10 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 	current_health -= amount
 	print("Enemy took ", amount, " damage! Health: ", current_health)
 	
+	if is_intro_playing and ready_or_not and ready_or_not.playing:
+		ready_or_not.stop()
+		is_intro_playing = false
+	
 	if is_headshot and player and player.has_method("spawn_floating_text"):
 		var scatter = Vector3(randf_range(-0.3, 0.3), randf_range(-0.1, 0.3), randf_range(-0.3, 0.3))
 		var text_pos = hit_position + scatter
@@ -375,7 +379,7 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 			var random_dir = Vector3(randf_range(-2.0, 2.0), randf_range(1.0, 3.0), randf_range(-2.0, 2.0))
 			child.apply_central_impulse(random_dir)
 
-	# --- 2. LOOT PIÑATA: SHOTGUN AMMO BURST ---
+# --- 2. LOOT PIÑATA: SHOTGUN AMMO BURST ---
 	if shotgun_ammo_scene:
 		var drop_count = randi_range(2, 4) 
 		
@@ -394,6 +398,13 @@ func take_damage(amount: int, hit_position: Vector3 = Vector3.ZERO, is_headshot:
 				var random_spin = Vector3(randf_range(-5, 5), randf_range(-5, 5), randf_range(-5, 5))
 				ammo_drop.apply_central_impulse(pop_direction)
 				ammo_drop.apply_torque_impulse(random_spin)
+				
+			# --- NEW: THE ANTI-LAG DESPAWN TIMER ---
+			# Wait 25 seconds, then check if the ammo still exists. If it does, delete it!
+			get_tree().create_timer(25.0).timeout.connect(func():
+				if is_instance_valid(ammo_drop) and ammo_drop.is_inside_tree():
+					ammo_drop.queue_free()
+			)
 	
 	play_random_death_sound()
 	emit_signal('enemy_dead')

@@ -13,6 +13,8 @@ const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 @onready var crank_ui: Control = $crank_minigame_ui
 @onready var crank_arm: ColorRect = $crank_minigame_ui/crank_arm
 @onready var crank_sound: AudioStreamPlayer = $crank_minigame_ui/crank_sound
+@onready var light_indicator: ColorRect = $crank_minigame_ui/flashlight_base/light_indicator
+
 
 var is_cranking_ui_active: bool = false
 var previous_mouse_angle: float = 0.0
@@ -74,6 +76,7 @@ var is_rebinding: bool = false
 var action_to_rebind: String = ""
 var button_to_rebind: Button = null
 var leaderboard_scene = preload("res://scenes/leaderboard.tscn")
+var pending_confirm_action: String
 
 var master_bus = AudioServer.get_bus_index("Master")
 var chase_music_bus = AudioServer.get_bus_index("chase_music")
@@ -138,6 +141,12 @@ func setup(p_player: CharacterBody3D):
 	stamina_bar.value = 100
 	if crosshair: crosshair.pivot_offset = crosshair.size / 2
 	if inventory_menu: inventory_menu.visible = false
+
+	# --- NEW: GREEN BATTERY BAR ---
+	if flashlight_battery_bar:
+		var green_style = StyleBoxFlat.new()
+		green_style.bg_color = Color.GREEN
+		flashlight_battery_bar.add_theme_stylebox_override("fill", green_style)
 
 	for slot in player.get_all_ui_slots():
 		if slot is Control:
@@ -206,7 +215,6 @@ func play_win_intro(report_text: String) -> void:
 	
 	var total_chars = report_text.length()
 	var type_speed = 0.03 # Slightly faster than the mission intro!
-	
 	var tween = create_tween()
 	
 	if typing_sound: typing_sound.play()
@@ -279,25 +287,37 @@ func update_vignette(current_health: int, max_health: int, delta: float):
 		damage_vignette.modulate.a = lerp(damage_vignette.modulate.a, 0.0, delta * 3.0)
 
 
-# --- CRAPPY FLASHLIGHT METER ---
+# --- FLASHLIGHT METER ---
 func update_flashlight_battery(current_battery: float, is_active: bool) -> void:
 	if not flashlight_battery_bar: return
 	flashlight_battery_bar.value = current_battery
 	
-	# Only show the battery bar if the flashlight is on, or if it's currently recharging
-	if is_active or current_battery < 100.0:
-		# Fade it in
+	# --- NEW: LIGHT INDICATOR BRIGHTNESS ---
+	if light_indicator:
+		var battery_percent = clamp(current_battery / 100.0, 0.0, 1.0)
+		light_indicator.color = Color(0.1, 0.1, 0.1).lerp(Color.WHITE, battery_percent)
+	
+	# --- THE VISIBILITY FIX ---
+	# 1. Check if the flashlight is actively in the player's hand
+	var is_equipped = false
+	if player and player.active_slot_index != -1 and player.inventory.size() > player.active_slot_index:
+		if player.inventory[player.active_slot_index] == "flashlight":
+			is_equipped = true
+			
+	# 2. Only show the bar if it's equipped, turned on, or being cranked!
+	if is_active or is_equipped or is_cranking_ui_active:
 		flashlight_battery_bar.modulate.a = move_toward(flashlight_battery_bar.modulate.a, 1.0, 0.1)
 	else:
-		# Fade it out when full and turned off
 		flashlight_battery_bar.modulate.a = move_toward(flashlight_battery_bar.modulate.a, 0.0, 0.1)
 		
-	# Turn the bar red when it's about to die!
-	if current_battery < 20.0:
-		flashlight_battery_bar.self_modulate = Color.RED
-	else:
-		flashlight_battery_bar.self_modulate = Color.WHITE
-
+	# --- THE COLOR FIX ---
+	# Retrieve the exact stylebox we made in setup() and physically change its color
+	var fill_style = flashlight_battery_bar.get_theme_stylebox("fill") as StyleBoxFlat
+	if fill_style:
+		if current_battery < 20.0:
+			fill_style.bg_color = Color.RED
+		else:
+			fill_style.bg_color = Color.GREEN
 
 
 func update_proximity_distortion(distance: float, is_valid_enemy: bool, delta: float):
@@ -331,7 +351,7 @@ func show_screenshot_notification(path: String):
 	tween.tween_property(label, "modulate:a", 0.0, 0.8) 
 	tween.tween_callback(label.queue_free)
 
-# --- REBIND LOGIC ---
+# --- REBIND & ESCAPE LOGIC ---
 func handle_input(event: InputEvent) -> bool:
 	if is_rebinding:
 		if event is InputEventKey or event is InputEventMouseButton:
@@ -346,6 +366,21 @@ func handle_input(event: InputEvent) -> bool:
 				_update_button_text(button_to_rebind, action_to_rebind)
 				return true
 		return true # Swallow inputs while rebinding
+
+	# --- THE ESCAPE KEY INTERCEPT FIX ---
+	# Look for the Escape key being pressed
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.is_pressed() and not event.is_echo():
+		
+		# 1. If the warning panel is open, automatically click "Cancel"
+		if quit_confirm_panel and quit_confirm_panel.visible:
+			_on_cancel_quit_pressed()
+			return true # Tell player.gd we handled it, do NOT unpause the game!
+			
+		# 2. BONUS: If they are in the settings menus, automatically click "Save & Back"
+		if is_in_sub_menus():
+			_on_save_settings_pressed()
+			return true # Tell player.gd we handled it, do NOT unpause the game!
+
 	return false
 
 func _update_button_text(btn: Button, action: String) -> void:
@@ -392,8 +427,20 @@ func _play_hover_sound():
 
 func _on_button_pressed():
 	GlobalStats.play_click()
-	if "heaven.tscn" in get_tree().current_scene.scene_file_path: get_tree().change_scene_to_file("res://scenes/main.tscn")
-	else: get_tree().reload_current_scene()
+	if "heaven.tscn" in get_tree().current_scene.scene_file_path: 
+		get_tree().change_scene_to_file("res://scenes/main.tscn")
+	else: 
+		# --- THE EXPLOIT FIX WITH WARNING ---
+		# Check if they are alive and actually have things to lose!
+		if player and not player.dead and not player.win and player.has_method("has_loot_to_lose") and player.has_loot_to_lose():
+			pending_confirm_action = "restart" # Tell the panel we want to restart
+			menu_vbox.visible = false
+			quit_confirm_panel.visible = true
+		else:
+			# If they have an empty backpack or are already dead, restart instantly
+			if player and not player.dead and not player.win and player.has_method("wipe_inventory_on_death"):
+				player.wipe_inventory_on_death()
+			get_tree().reload_current_scene()
 
 func _on_leaderboard_button_pressed() -> void:
 	GlobalStats.play_click() 
@@ -421,16 +468,26 @@ func _on_cancel_quit_pressed() -> void:
 	GlobalStats.play_click()
 	quit_confirm_panel.visible = false
 	menu_vbox.visible = true
+	pending_confirm_action = ""
 
 func _on_confirm_quit_pressed() -> void:
 	GlobalStats.play_click()
-	player.execute_quit()
+	
+	if pending_confirm_action == "restart":
+		# They clicked Yes to restarting! Wipe the gear and reload.
+		if player.has_method("wipe_inventory_on_death"):
+			player.wipe_inventory_on_death()
+		get_tree().reload_current_scene()
+	else:
+		# They clicked Yes to the Main Menu! Run the normal quit logic.
+		player.execute_quit()
 
 func _on_main_menu_pressed() -> void:
 	GlobalStats.play_click()
 	if player.dead or (player.in_heaven or player.win):
 		player.execute_quit()
 	elif player.has_loot_to_lose():
+		pending_confirm_action = "quit" # <-- ADD THIS!
 		menu_vbox.visible = false
 		quit_confirm_panel.visible = true
 	else:
@@ -520,8 +577,6 @@ func update_wisp_cooldown(current_time: float, max_time: float) -> void:
 			else:
 				wisp_cooldown.modulate.a = 1.0
 
-
-
 # --- THE BULLETPROOF REFRESH ---
 func refresh_inventory_ui() -> void:
 	if not FileAccess.file_exists(INVENTORY_SAVE_PATH): 
@@ -609,8 +664,6 @@ func _process(delta: float) -> void:
 			if crank_sound.volume_db <= -60.0 and crank_sound.playing:
 				crank_sound.stop()
 
-
-
 func hide_hud_for_heaven() -> void:
 	# Hide the timer
 	if time: 
@@ -621,10 +674,9 @@ func hide_hud_for_heaven() -> void:
 		wisp_cooldown.visible = false
 		
 	# --- IMPORTANT: UPDATE THESE NAMES! ---
-	# I am guessing the variable names for your stamina and bean labels. 
+	# I am guessing the variable names for your stamina and bean labels.
 	# Make sure you change 'stamina_bar' and 'bean_label' to whatever 
 	# they are actually called at the top of your playergui.gd script!
-	
 	if stamina_bar: 
 		stamina_bar.visible = false
 		

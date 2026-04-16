@@ -1,9 +1,12 @@
 extends CharacterBody3D
 class_name Player
 
+@export var blackout_run_chance = 0.2
+
 @onready var gui: PlayerGUI = $neck/head/eyes/CanvasLayer
 @onready var compass_arrow: Node3D = $neck/head/eyes/Camera3D/compass_arrow
 const INVENTORY_SAVE_PATH = "user://player_inventory.json"
+@onready var blackout_voiceline: AudioStreamPlayer3D = $blackout_voiceline
 
 #nightvision
 @onready var nv_sound: AudioStreamPlayer = $nightvision_sound
@@ -160,6 +163,7 @@ var head_bobbing_current_intensity: float = 0.0
 var previous_eye_position: float = 0.0
 
 var total_time: float = 0.0
+var timer_started: bool = false
 var grabbed_object = null
 var final_time: String = "" 
 
@@ -238,27 +242,14 @@ func setup_heaven() -> void:
 	else:
 		if gui.win_label: gui.win_label.visible = false
 
+
 func setup_level() -> void:
-	exit_door = get_node_or_null("../exit_door")
-	gazunka_beans = get_node_or_null("../Gazunka_Beans")
-	if gui.win_label: gui.win_label.visible = false
-	start_voiceline.play()
-	
-	var effects_bus = AudioServer.get_bus_index("effects")
-	for i in range(AudioServer.get_bus_effect_count(effects_bus)):
-		if AudioServer.get_bus_effect(effects_bus, i) is AudioEffectReverb:
-			AudioServer.set_bus_effect_enabled(effects_bus, i, true)
-			
-	var voice_bus = AudioServer.get_bus_index("game_voicelines")
-	for i in range(AudioServer.get_bus_effect_count(voice_bus)):
-		if AudioServer.get_bus_effect(voice_bus, i) is AudioEffectReverb:
-			AudioServer.set_bus_effect_enabled(voice_bus, i, true)
-	
-# --- THE BLACKOUT EVENT ---
+	# --- THE BLACKOUT EVENT ---
 	# A 5% chance (0.05) that the map loads in pitch black!
-	if randf() <= 0.05:
+	if randf() <= blackout_run_chance:
 		print("Bravo Six, going dark...")
 		is_blackout_run = true
+		print(is_blackout_run)
 		
 		# 1. Kill the physical torches
 		if wall_torches:
@@ -280,6 +271,26 @@ func setup_level() -> void:
 				# If you have a skybox lighting the room, crush that too
 				world_env.environment.background_energy_multiplier = 0.0
 				world_env.environment.fog_light_energy = 0
+				
+	exit_door = get_node_or_null("../exit_door")
+	gazunka_beans = get_node_or_null("../Gazunka_Beans")
+	if gui.win_label: gui.win_label.visible = false
+	if is_blackout_run:
+		blackout_voiceline.play()
+	else:
+		start_voiceline.play()
+	
+	var effects_bus = AudioServer.get_bus_index("effects")
+	for i in range(AudioServer.get_bus_effect_count(effects_bus)):
+		if AudioServer.get_bus_effect(effects_bus, i) is AudioEffectReverb:
+			AudioServer.set_bus_effect_enabled(effects_bus, i, true)
+			
+	var voice_bus = AudioServer.get_bus_index("game_voicelines")
+	for i in range(AudioServer.get_bus_effect_count(voice_bus)):
+		if AudioServer.get_bus_effect(voice_bus, i) is AudioEffectReverb:
+			AudioServer.set_bus_effect_enabled(voice_bus, i, true)
+	
+
 		
 
 func upload_new_best_score():
@@ -320,7 +331,16 @@ func check_global_record(base_report: String):
 		gui.play_win_intro(final_report)
 
 func _input(event: InputEvent) -> void:
-	
+	if event.is_action_pressed("screenshot"):
+		GlobalStats.play_click()
+		await get_tree().process_frame
+		var capture = get_viewport().get_texture().get_image()
+		var sys_time = Time.get_datetime_string_from_system().replace(":", "_")
+		var filename = "user://screenshot_" + sys_time + ".png"
+		capture.save_png(filename)
+		gui.show_screenshot_notification(filename)
+		print("Screenshot saved to: ", ProjectSettings.globalize_path(filename))
+		
 # --- FREEZE INPUTS WHILE CRANKING & ALLOW EXIT ---
 	if is_cranking:
 		if event.is_action_pressed("flashlight") or event.is_action_pressed("reload") or (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT):
@@ -373,6 +393,7 @@ func _input(event: InputEvent) -> void:
 			if nv_light: nv_light.visible = night_vision_active
 			
 			if night_vision_active:
+				nv_on_sound.play()
 				if nv_sound: nv_sound.play()
 				if flashlight_active: 
 					flashlight_active = false
@@ -401,15 +422,7 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed('beansense') and bean_sense_cooldown <= 0.0 and not dead:
 		trigger_bean_sense()
 	
-	if event.is_action_pressed("screenshot"):
-			GlobalStats.play_click()
-			await get_tree().process_frame
-			var capture = get_viewport().get_texture().get_image()
-			var sys_time = Time.get_datetime_string_from_system().replace(":", "_")
-			var filename = "user://screenshot_" + sys_time + ".png"
-			capture.save_png(filename)
-			gui.show_screenshot_notification(filename)
-			print("Screenshot saved to: ", ProjectSettings.globalize_path(filename))
+
 
 	if event.is_action_pressed('pause') and !paused and !dead:
 		if inventory_open: toggle_inventory()
@@ -630,17 +643,36 @@ func fire_shotgun() -> void:
 					var push_dir = -camera_3d.global_transform.basis.z.normalized()
 					result.collider.apply_impulse(push_dir * 50.0, result.position - result.collider.global_position)
 
+	# --- THE ASYNC FIX ---
+		# 1. Instantly unchamber the gun the moment the shell is fired
+		is_chambered = false
+
 		if shotgun_animator.has_animation("fire"):
 			shotgun_animator.play("fire")
 			shotgun_audio.get_node('fire').play()
 			await shotgun_animator.animation_finished
 			
+		# 2. Check if the player interrupted the fire animation to reload!
+		if is_reloading or is_switching_weapons:
+			refresh_all_slots()
+			return
+			
+		# 3. Only play the pump if we haven't been interrupted
 		if shotgun_animator.has_animation("pump"):
 			shotgun_animator.play("pump")
 			shotgun_audio.get_node('pump').play()
+			await shotgun_animator.animation_finished
 			
-		if shotgun_ammo > 0: is_chambered = true
-		else: is_chambered = false
+		# 4. Check one last time in case they interrupted the pump animation itself!
+		if is_reloading or is_switching_weapons:
+			refresh_all_slots()
+			return
+			
+		# 5. If we survived the whole sequence without being interrupted, chamber the next round!
+		if shotgun_ammo > 0: 
+			is_chambered = true
+		else: 
+			is_chambered = false
 			
 		refresh_all_slots() 
 	else:
@@ -807,7 +839,8 @@ func _physics_process(delta: float) -> void:
 
 	update_crosshair(delta)
 	
-	total_time += delta
+	if timer_started:
+		total_time += delta
 	gui.update_timers(total_time, speed_boost_timer, bean_count, delta, rainbow_speed)
 	if speed_boost_timer > 0: speed_boost_timer -= delta
 		
@@ -1789,36 +1822,45 @@ func add_flashlight_battery(amount: float) -> void:
 
 # --- HOTBAR & INVENTORY SYNCING ---
 func sync_inventory_arrays() -> void:
-	# 1. Update the player's internal memory to perfectly match the visual hotbar UI
+	# 1. Remember what we were holding BEFORE the inventory changed
+	var old_held_item = ""
+	if active_slot_index != -1:
+		old_held_item = inventory[active_slot_index]
+
+	# 2. Update the player's internal memory to perfectly match the visual hotbar UI
 	for i in range(gui.hotbar_slots.size()):
 		inventory[i] = gui.hotbar_slots[i].item_name
 
-	# 2. Safety Check 1: The Player's Hands
+	# 3. Safety Check 1: The Player's Hands
 	if active_slot_index != -1:
 		var currently_held = inventory[active_slot_index]
 
-		# If the shotgun was dragged out of our active slot, instantly hide the model!
-		if currently_held != "shotgun" and shotgun_model and shotgun_model.visible:
-			shotgun_model.visible = false
-			if shotgun_animator.is_playing(): 
-				shotgun_animator.stop()
-
-		# If the flashlight was dragged out of our active slot, instantly click it off!
-		if currently_held != "flashlight" and flashlight_active:
-			flashlight_active = false
-			if flashlight: flashlight.visible = false
-			shotgun_audio.get_node('click').play()
-			gui.update_flashlight_battery(flashlight_battery, flashlight_active)
+		# THE FIX: If the item in our active hand changed AT ALL, completely deselect the slot!
+		if currently_held != old_held_item:
 			
-	# 3. Safety Check 2: The Player's Face (NVGs)
-	# THE FIX: This is now safely outside of the "hands" check!
+			# Cut power to whatever we used to be holding
+			if old_held_item == "shotgun" and shotgun_model and shotgun_model.visible:
+				shotgun_model.visible = false
+				if shotgun_animator.is_playing(): shotgun_animator.stop()
+
+			if old_held_item == "flashlight" and flashlight_active:
+				flashlight_active = false
+				if flashlight: flashlight.visible = false
+				shotgun_audio.get_node('click').play()
+				gui.update_flashlight_battery(flashlight_battery, flashlight_active)
+				
+			# Formally clear the player's hands and remove the UI highlight!
+			active_slot_index = -1
+			if gui.has_method("update_hotbar"):
+				gui.update_hotbar(-1)
+			
+	# 4. Safety Check 2: The Player's Face (NVGs)
 	if gui.nvg_slot and gui.nvg_slot.item_name != "nightvision" and night_vision_active:
 		night_vision_active = false
 		if nv_light: nv_light.visible = false
 		var nv_overlay = gui.get_node_or_null("night_vision_overlay")
 		if nv_overlay: nv_overlay.visible = false
 		if nv_off_sound: nv_off_sound.play()
-
 
 # --- SHIFT-CLICK FAST TRANSFER (IN-GAME) ---
 func shift_transfer_item(source_slot: Control) -> void:
@@ -1889,6 +1931,28 @@ func shift_transfer_item(source_slot: Control) -> void:
 		# Tell the player to check their hands and face to see if anything changed!
 		sync_inventory_arrays()
 
+
+# --- DRAG & DROP RELOAD ---
+func force_drag_reload(target_slot_index: int) -> void:
+	if is_reloading or is_cranking or dead: return
+	
+	# 1. Instantly close the inventory UI so the player can watch the reload!
+	if gui and gui.inventory_menu.visible:
+		gui.toggle_inventory(false)
+		
+	# 2. Check if we need to pull the shotgun out first
+	if active_slot_index != target_slot_index:
+		equip_slot(target_slot_index)
+		
+		# Safely wait for the "pull out weapon" animation to finish
+		while is_switching_weapons:
+			await get_tree().process_frame
+			
+	# 3. Trigger your normal reload logic!
+	# Because we cancelled the UI drag in step 2, your stack of 5 shells is still 
+	# safely in the backpack for this reload function to naturally consume.
+	if shotgun_ammo < 4:
+		reload_shotgun()
 
 # --- GUI PROXY CALLBACKS (Preserves Editor Links!) ---
 func _on_button_pressed(): gui._on_button_pressed()

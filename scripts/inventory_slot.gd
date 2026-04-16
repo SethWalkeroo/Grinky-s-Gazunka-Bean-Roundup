@@ -188,6 +188,16 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		GlobalStats.play_click() 
 		return
 	
+	# --- NEW: DRAG AMMO ONTO SHOTGUN TO RELOAD ---
+	if incoming_item == "shotgun_ammo" and item_name == "shotgun":
+		if player and player.has_method("force_drag_reload"):
+			# Check if this shotgun is currently sitting in the hotbar
+			var slot_index = player.gui.hotbar_slots.find(self)
+			if slot_index != -1:
+				GlobalStats.play_click()
+				# Cancel the inventory swap and tell the player to reload!
+				player.force_drag_reload(slot_index)
+				return
 	# --- DYNAMIC NODE FETCHING ---
 	var current_player = get_tree().get_first_node_in_group("player")
 	var main_scene = get_tree().current_scene

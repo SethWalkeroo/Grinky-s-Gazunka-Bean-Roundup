@@ -116,11 +116,20 @@ func distribute_beans() -> void:
 		var position_found = false
 		var attempts = 0
 		var active_min_dist = min_bean_distance
+		var active_player_dist = min_player_distance # <-- NEW: Track player distance dynamically
+
+		var last_valid_snap = Vector3.ZERO # <-- NEW: Emergency backup spot
 
 		while not position_found and attempts < max_spawn_attempts:
 			attempts += 1
+			
+			# --- THE FIX: Lower our standards as the loop struggles! ---
+			if attempts > 150:
+				active_min_dist = 10.0
+				active_player_dist = 8.0
 			if attempts > 250:
-				active_min_dist = 5.0
+				active_min_dist = 3.0
+				active_player_dist = 3.0
 			
 			var random_pos = Vector3(
 				randf_range(min_x, max_x),
@@ -131,9 +140,12 @@ func distribute_beans() -> void:
 			var snapped_pos = NavigationServer3D.map_get_closest_point(nav_map, random_pos)
 
 			if snapped_pos.length() < 0.1: continue
+			
+			# Save this spot! Even if it breaks the distance rules, it's a valid piece of floor.
+			last_valid_snap = snapped_pos 
 
 			var dist_to_player = Vector2(snapped_pos.x, snapped_pos.z).distance_to(Vector2(player_start_pos.x, player_start_pos.z))
-			if dist_to_player < min_player_distance: continue
+			if dist_to_player < active_player_dist: continue
 
 			var too_close = false
 			for p_pos in placed_positions:
@@ -147,8 +159,15 @@ func distribute_beans() -> void:
 				placed_positions.append(snapped_pos)
 				position_found = true
 
+		# --- THE EMERGENCY FALLBACK FIX ---
+		# If it failed 300 times, do NOT throw it into the void. Put it on the last valid floor tile!
 		if not position_found:
-			bean.global_position = Vector3(0, -1000, 0)
+			if last_valid_snap != Vector3.ZERO:
+				bean.global_position = last_valid_snap + Vector3(0, 0.6, 0)
+				placed_positions.append(last_valid_snap)
+			else:
+				# Absolute worst-case scenario: scatter them slightly around the player
+				bean.global_position = player_start_pos + Vector3(randf_range(-4.0, 4.0), 1.0, randf_range(-4.0, 4.0))
 
 func get_nav_mesh_bounds() -> AABB:
 	if navigation_region_3d and navigation_region_3d.navigation_mesh:
@@ -178,6 +197,8 @@ func start_the_hunt() -> void:
 	if hunt_started: return
 	hunt_started = true
 	
+	if player:
+		player.timer_started = true
 	
 	if open_noise and not open_noise.playing:
 		open_noise.play()
