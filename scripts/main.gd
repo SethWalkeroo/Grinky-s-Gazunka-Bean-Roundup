@@ -252,8 +252,11 @@ func _on_player_bean_collected():
 	if player.bean_count >= 7:
 		show_exit_warning("HURRY, RETURN TO THE ENTRANCE!")
 		game_music_1.stop()
-		for torches in wall_torches.get_children():
-			torches.light.visible = false
+		for torch in wall_torches.get_children():
+			torch.get_node('burning_sound').stop()
+			torch.get_node('torchlight').visible = false
+			torch.get_node('fire').visible = false
+			torch.get_node('sparks').visible = false
 		if world_environment and world_environment.environment:
 			world_environment.environment.fog_light_color = Color.RED
 		if exit_door and exit_door.has_node("light"):

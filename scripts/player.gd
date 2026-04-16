@@ -255,10 +255,10 @@ func setup_level() -> void:
 		if wall_torches:
 			wall_torches.visible = false 
 			for torch in wall_torches.get_children():
-				for child in torch.get_children():
-					if child is OmniLight3D or child is SpotLight3D:
-						child.visible = false
-						
+				torch.get_node('burning_sound').stop()
+				torch.get_node('torchlight').visible = false
+				torch.get_node('fire').visible = false
+				torch.get_node('sparks').visible = false
 		# 2. Kill the Ambient Light / Skybox
 		# This searches your entire current scene to find the WorldEnvironment node!
 		var environments = get_tree().current_scene.find_children("*", "WorldEnvironment", true, false)

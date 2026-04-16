@@ -21,14 +21,14 @@
 background_mode = 2
 ambient_light_source = 2
 ambient_light_color = Color(0.078125, 0.061383933, 0, 1)
-ambient_light_energy = 1.6
+ambient_light_energy = 0.0
 tonemap_mode = 2
 glow_enabled = true
 glow_intensity = 0.4
 glow_blend_mode = 0
 fog_enabled = true
 fog_light_color = Color(1, 0.9372549, 0.77254903, 1)
-fog_light_energy = 0.03
+fog_light_energy = 0.0
 fog_sky_affect = 0.0
 volumetric_fog_density = 0.0129
 volumetric_fog_albedo = Color(1, 0.9285642, 0.8418089, 1)
@@ -268,6 +268,12 @@ wall_torch = true
 
 [node name="wall_torch19" parent="wall_torches" unique_id=161321695 instance=ExtResource("11_ya4ey")]
 transform = Transform3D(-0.89037126, -0.4547152, -0.021730231, -0.45477414, 0.8906037, -0.0024541174, 0.020468917, 0.0076972605, -0.9997609, 38.705936, 2.46702, 8.690101)
+gravity_scale = 0.0
+freeze = true
+wall_torch = true
+
+[node name="wall_torch23" parent="wall_torches" unique_id=758597729 instance=ExtResource("11_ya4ey")]
+transform = Transform3D(0.77482855, 0.5869944, -0.2346857, -0.59603417, 0.8020484, 0.038236305, 0.21067366, 0.11025401, 0.9713191, -2.5870368, 2.46702, 3.1292417)
 gravity_scale = 0.0
 freeze = true
 wall_torch = true

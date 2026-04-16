@@ -5,6 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://2yhnnf0g0u78" path="res://assets/assets/textures/T_VFX_Glow_1.PNG" id="2_r3k50"]
 [ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="3_ndh0a"]
 [ext_resource type="AudioStream" uid="uid://bewtxiowj8jds" path="res://audio/barefoot.wav" id="5_ndh0a"]
+[ext_resource type="AudioStream" uid="uid://bwmxcywf8cxl3" path="res://audio/extinguish.wav" id="6_ktql7"]
+[ext_resource type="AudioStream" uid="uid://dgdc82blv2p4g" path="res://audio/campfire.wav" id="7_gybtl"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ktql7"]
 rough = true
@@ -105,270 +107,6 @@ collision_mode = 2
 
 [sub_resource type="QuadMesh" id="QuadMesh_xugk2"]
 
-[sub_resource type="Animation" id="Animation_85g3d"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.694]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("fire:process_material:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0.5, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("sparks:process_material:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0.04, 0.089999996)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("torchlight:omni_range")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [5.0]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("CSGCylinder3D:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.0014818311, -0.4084103, -0.00053441525)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("CSGCylinder3D:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(8.202509e-06, 3.1405008, -3.1268787)]
-}
-
-[sub_resource type="Animation" id="Animation_choun"]
-resource_name = "init"
-length = 2.0
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.26666668, 0.6, 0.93333334, 1.3, 1.6666666, 2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [1.0, 0.85, 0.9, 1.0, 0.9, 0.85, 1.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("torchlight:omni_range")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.26666668, 0.6, 0.93333334, 1.3, 1.6666666, 2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [5.0, 4.7, 4.85, 5.0, 4.85, 4.7, 5.0]
-}
-
-[sub_resource type="Animation" id="Animation_ya4ey"]
-resource_name = "pull_out"
-length = 0.4
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 1.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("fire:process_material:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0.5, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("sparks:process_material:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0.04, 0.089999996)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("torchlight:omni_range")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 5.0]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("CSGCylinder3D:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0.001, -1.228, -1.436), Vector3(0.0014818311, -0.4084103, -0.00053441525)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("CSGCylinder3D:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(-1.4590952, 3.1398473, -3.12763), Vector3(8.202509e-06, 3.1405008, -3.1268787)]
-}
-
-[sub_resource type="Animation" id="Animation_eb6dy"]
-resource_name = "put_away"
-length = 0.4
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("torchlight:light_energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [1.0, 0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("fire:process_material:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0.5, 1), Vector2(0, 0)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("sparks:process_material:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0.04, 0.089999996), Vector2(0, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("torchlight:omni_range")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [5.0, 0.0]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("CSGCylinder3D:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0, -0.375, 0), Vector3(0.001, -1.228, -1.436)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("CSGCylinder3D:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0, 3.1398473, -3.12763), Vector3(-1.4590952, 3.1398473, -3.12763)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_1cq4k"]
-_data = {
-&"RESET": SubResource("Animation_85g3d"),
-&"init": SubResource("Animation_choun"),
-&"pull_out": SubResource("Animation_ya4ey"),
-&"put_away": SubResource("Animation_eb6dy")
-}
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8ldo8"]
 albedo_color = Color(0.3203125, 0.111237444, 0, 1)
 albedo_texture = ExtResource("3_ndh0a")
@@ -416,10 +154,6 @@ shadow_enabled = true
 shadow_caster_mask = 4294967291
 distance_fade_enabled = true
 
-[node name="light_animation" type="AnimationPlayer" parent="." unique_id=1330501846]
-libraries/ = SubResource("AnimationLibrary_1cq4k")
-autoplay = &"init"
-
 [node name="CSGCylinder3D" type="CSGCylinder3D" parent="." unique_id=1773947644]
 transform = Transform3D(0.998364, -0.011688584, 0.0010923943, -0.014690911, -0.79433244, -8.206453e-06, 0.0010902043, -6.2468916e-06, -1.0004802, 0.0014818311, -0.4084103, -0.00053441525)
 layers = 4
@@ -447,6 +181,16 @@ bus = &"effects"
 [node name="RayCast3D" type="RayCast3D" parent="." unique_id=73024456]
 transform = Transform3D(0.99999964, -9.858923e-10, 5.820766e-11, -8.2536644e-11, 0.99999964, -4.656613e-10, 5.820766e-11, -2.0954758e-09, 0.9999993, 0.009431395, -0.118490316, 0.0002995577)
 target_position = Vector3(0, 0.25, 0)
+
+[node name="extinguish" type="AudioStreamPlayer3D" parent="." unique_id=1685331739]
+stream = ExtResource("6_ktql7")
+volume_db = -26.667
+
+[node name="burning_sound" type="AudioStreamPlayer3D" parent="." unique_id=490160378]
+stream = ExtResource("7_gybtl")
+volume_db = -36.19
+unit_size = 7.77
+autoplay = true
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
