@@ -30,7 +30,8 @@ func _ready() -> void:
 	raycast.add_exception(self)
 
 
-func _physics_process(delta: float) -> void:
+func _physics_process(delta: float) -> void:	
+	
 	if is_extinguished: return
 	
 	time_alive += delta
@@ -104,8 +105,11 @@ func _on_body_entered(_body: Node) -> void:
 func extinguish_torch() -> void:
 	print('extinguishing torch')
 	is_extinguished = true
-	burning_sound.stop()
-	extinguish_sound.play()
+	if burning_sound:
+		burning_sound.stop()
+	if extinguish_sound:
+		extinguish_sound.pitch_scale = randf_range(0.8, 1.2)
+		extinguish_sound.play()
 	
 	if light: light.visible = false
 	if fire: fire.emitting = false

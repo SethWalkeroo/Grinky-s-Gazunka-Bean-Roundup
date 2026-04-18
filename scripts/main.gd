@@ -10,6 +10,10 @@ extends Node3D
 @onready var gazunka_beans: Node3D = $Gazunka_Beans
 @onready var navigation_region_3d: NavigationRegion3D = $NavigationRegion3D
 
+
+@onready var floor_creak_sounds: Node3D = $floor_creak_sounds
+var creak_timer: float = 5.0
+
 # --- Spawning Settings ---
 @export_group("Bean Spawning")
 @export var min_bean_distance: float = 25.0      
@@ -49,7 +53,6 @@ func _ready() -> void:
 	if world_environment and world_environment.environment:
 		world_environment.environment.fog_light_color = Color('ffefc5')
 	
-	get_tree().create_timer(15.0).timeout.connect(start_the_hunt)
 
 # --- NEW: PRE-SPAWN HORDES ---
 func setup_enemy_pool() -> void:
@@ -191,6 +194,7 @@ func _process(delta: float) -> void:
 		return
 	handle_exit_pulse(delta)
 	handle_dynamic_music(delta)
+	handle_ambient_creaks(delta)
 
 # --- THE NEW START LOGIC ---
 func start_the_hunt() -> void:
@@ -250,17 +254,27 @@ func handle_dynamic_music(delta: float) -> void:
 
 func _on_player_bean_collected():
 	if player.bean_count >= 7:
-		show_exit_warning("HURRY, RETURN TO THE ENTRANCE!")
+		show_exit_warning("THE MAZE IS CORRUPTED! RUN!")
 		game_music_1.stop()
+		
+		# 1. Kill the Torches
 		for torch in wall_torches.get_children():
-			torch.get_node('burning_sound').stop()
-			torch.get_node('torchlight').visible = false
-			torch.get_node('fire').visible = false
-			torch.get_node('sparks').visible = false
+			torch.extinguish_torch()
+			
+		# 2. The Silhouette Fog
 		if world_environment and world_environment.environment:
-			world_environment.environment.fog_light_color = Color.RED
+			world_environment.environment.ambient_light_energy = 0.0
+			world_environment.environment.background_energy_multiplier = 0.0
+			world_environment.environment.fog_light_color = Color(0.391, 0.0, 0.0, 1.0) 
+			world_environment.environment.fog_light_energy = 1.0
+			
 		if exit_door and exit_door.has_node("light"):
 			exit_door.get_node("light").light_color = Color.GREEN
+			exit_door.get_node("light").light_energy = 5.0 
+			
+		# 3. Trigger the Player's Adrenaline!
+		if player.has_method("trigger_panic_attack"):
+			player.trigger_panic_attack()
 
 func _on_exit_door_body_entered(body: Node3D) -> void:
 	if body == player:
@@ -280,3 +294,25 @@ func show_exit_warning(message: String):
 		label.visible = true
 		await get_tree().create_timer(3.0).timeout
 		label.visible = false
+
+# --- AMBIENT CREAKS ---
+func handle_ambient_creaks(delta: float) -> void:
+	if not floor_creak_sounds: return
+	
+	creak_timer -= delta
+	
+	if creak_timer <= 0.0:
+		# 1. Reset the timer to a random spooky interval (e.g., every 4 to 12 seconds)
+		creak_timer = randf_range(4.0, 12.0)
+		
+		# 2. Grab all the physical nodes on the map
+		var creaks = floor_creak_sounds.get_children()
+		
+		if creaks.size() > 0:
+			# 3. Pick one at random
+			var random_creak = creaks.pick_random()
+			
+			# 4. Make sure it isn't already playing, alter its pitch, and fire!
+			if random_creak and not random_creak.playing:
+				random_creak.pitch_scale = randf_range(0.8, 1.2)
+				random_creak.play()

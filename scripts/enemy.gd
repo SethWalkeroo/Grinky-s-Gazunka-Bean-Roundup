@@ -4,6 +4,8 @@ class_name Enemy
 
 signal enemy_dead
 
+@export var disabled = false
+
 @export var shotgun_ammo_scene: PackedScene
 @onready var enemy_hurt_noise: AudioStreamPlayer3D = $enemy_hurt_noise
 
@@ -99,6 +101,7 @@ var player_last_frame_pos: Vector3 = Vector3.ZERO
 var player_travel_dir: Vector3 = Vector3.ZERO 
 
 var start_grace_period: bool = true 
+var grace_period_timer: float = 15.0
 var override_patrol_pos: Vector3 = Vector3.ZERO
 var has_override_patrol: bool = false
 var path_timer: float = 0.0
@@ -173,14 +176,14 @@ func _ready():
 	await get_tree().create_timer(0.5).timeout
 	nav_map_ready = true
 	
-	await get_tree().create_timer(1.5).timeout 
-	start_grace_period = false
 	start_random_voicelines()
 
 func _on_nav_map_changed(_map_rid):
 	nav_map_ready = true
 
 func _physics_process(delta):
+	if disabled: return
+	
 	# --- VOID SAFETY NET ---
 	if global_position.y < -15.0 and not is_ragdolled:
 		take_damage(current_health)
@@ -203,6 +206,30 @@ func _physics_process(delta):
 		return
 
 	if not nav_map_ready: return
+	
+	if not nav_map_ready: return
+	
+# --- THE NEW PAUSE-SAFE GRACE PERIOD ---
+	if start_grace_period:
+		# If the custom pause is active (player_is_dead), this timer completely freezes!
+		if not player_is_dead: 
+			grace_period_timer -= delta
+			
+			# When the clock hits zero, unleash Gordon!
+			if grace_period_timer <= 0.0:
+				start_grace_period = false
+				start_random_voicelines()
+				
+				# --- THE FIX: TELL THE MAIN SCRIPT TO OPEN THE DOORS! ---
+				var main = get_tree().current_scene
+				if main.has_method("start_the_hunt"):
+					main.start_the_hunt()
+				
+		# Force him to stand completely still while waiting
+		velocity = Vector3.ZERO
+		play_animation(ANIM_IDLE)
+		move_and_slide()
+		return
 	
 	if is_staggered:
 		stagger_timer -= delta
@@ -461,6 +488,8 @@ func investigate_sound(sound_pos: Vector3, loudness: float) -> void:
 		if not hunt_started:
 			var main = get_tree().current_scene
 			if main.has_method("start_the_hunt"):
+				if grace_period_timer > 0:
+					grace_period_timer = 0
 				main.start_the_hunt()
 				
 		if not has_last_known_pos and not is_chasing:
@@ -643,25 +672,29 @@ func apply_movement(current_move_speed: float, has_arrived: bool, delta: float) 
 				if global_position.distance_squared_to(look_target) > 0.01:
 					var target_transform = global_transform.looking_at(look_target, Vector3.UP)
 					global_transform = global_transform.interpolate_with(target_transform, rotation_speed * delta)
-				
-				if is_chasing or beans_collected >= 7:
-					play_animation(ANIM_RUN)
-				else:
-					play_animation(ANIM_CANT_SEE_PLAYER)
-					
 			else:
-				velocity.x = 0.0
-				velocity.z = 0.0
-				play_animation(ANIM_IDLE)
+				# Smoothly decelerate if we perfectly cross a node, instead of snapping to a dead stop
+				velocity.x = move_toward(velocity.x, 0.0, current_move_speed * delta * 5.0)
+				velocity.z = move_toward(velocity.z, 0.0, current_move_speed * delta * 5.0)
+				
+			# --- THE FIX: Tie animations directly to the AI State, not the nav math! ---
+			if is_chasing or beans_collected >= 7:
+				play_animation(ANIM_RUN)
+			else:
+				play_animation(ANIM_CANT_SEE_PLAYER)
+				
 		else:
-			velocity.x = 0.0
-			velocity.z = 0.0
+			# Smoothly stop when we actually reach our patrol destination
+			velocity.x = move_toward(velocity.x, 0.0, 10.0 * delta)
+			velocity.z = move_toward(velocity.z, 0.0, 10.0 * delta)
 			play_animation(ANIM_IDLE)
 	else:
 		velocity.x = 0.0
 		velocity.z = 0.0
 		if allsevenbeans_voiceline.playing:
 			allsevenbeans_voiceline.stop()
+
+	# ... (Keep the rest of your horizontal_speed and head-bobbing code exactly the same) ...
 
 	var horizontal_speed = Vector2(velocity.x, velocity.z).length()
 	
@@ -824,6 +857,8 @@ func _on_player_player_unpaused() -> void:
 	start_random_voicelines()
 
 func _on_player_bean_collected() -> void:
+	if grace_period_timer > 0:
+		grace_period_timer = 0
 	beans_collected += 1
 	speed = (beans_collected * 0.7) + base_speed
 	update_animation_speed_dynamic(speed)

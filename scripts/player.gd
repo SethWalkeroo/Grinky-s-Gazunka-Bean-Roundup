@@ -1,7 +1,19 @@
 extends CharacterBody3D
 class_name Player
 
+
+# --- WATER PHYSICS ---
+@export var ocean_base_height: float = 0.0 # Set this to the exact Y position of your Ocean node!
+var is_underwater: bool = false
+var water_surface_height: float = 0.0 # Where the top of the water is
+var bobbing_timer: float = 0.0
+
+#blackout run
 @export var blackout_run_chance = 0.2
+
+# --- PANIC ATTACK VARIABLES ---
+var panic_fov_modifier: float = 0.0
+var is_panicking: bool = false
 
 @onready var gui: PlayerGUI = $neck/head/eyes/CanvasLayer
 @onready var compass_arrow: Node3D = $neck/head/eyes/Camera3D/compass_arrow
@@ -233,7 +245,6 @@ func setup_heaven() -> void:
 			if GlobalStats.final_time_string == GlobalStats.best_time_string:
 				report += "\nNEW PERSONAL RECORD!"
 			report += "\n\nTotal Profit: +" + str(GlobalStats.last_run_profit) + " Beans!"
-			
 			if float(GlobalStats.final_time) < 120.0:
 				report += " (2x Speed Bonus!)"
 				
@@ -244,33 +255,44 @@ func setup_heaven() -> void:
 
 
 func setup_level() -> void:
+	# Wait exactly one frame so the torches have time to set up their @onready variables!
+	await get_tree().process_frame
+	
+	# --- THE FIX: RESET LIGHTING BEFORE THE DICE ROLL ---
+	# Find the environment and force it back to default settings, 
+	# curing the map of any previous blackouts!
+	var environments = get_tree().current_scene.find_children("*", "WorldEnvironment", true, false)
+# --- THE NEW WEB / COMPATIBILITY CHECK ---
+	if environments.size() > 0:
+		var world_env = environments[0]
+		# DESKTOP MODE: Ensure normal AAA lighting is reset
+		if world_env.environment:
+			world_env.environment.ambient_light_energy = 0
+			world_env.environment.background_energy_multiplier = 0
+			world_env.environment.fog_light_energy = 0.015
+			world_env.environment.fog_light_color = Color('ffefc5')
+
 	# --- THE BLACKOUT EVENT ---
 	# A 5% chance (0.05) that the map loads in pitch black!
 	if randf() <= blackout_run_chance:
 		print("Bravo Six, going dark...")
 		is_blackout_run = true
-		print(is_blackout_run)
 		
-		# 1. Kill the physical torches
+		# 1. Kill the physical torches (but leave the wooden sticks!)
 		if wall_torches:
-			wall_torches.visible = false 
 			for torch in wall_torches.get_children():
-				torch.get_node('burning_sound').stop()
-				torch.get_node('torchlight').visible = false
-				torch.get_node('fire').visible = false
-				torch.get_node('sparks').visible = false
+				torch.extinguish_torch()
+				
 		# 2. Kill the Ambient Light / Skybox
-		# This searches your entire current scene to find the WorldEnvironment node!
-		var environments = get_tree().current_scene.find_children("*", "WorldEnvironment", true, false)
 		if environments.size() > 0:
 			var world_env = environments[0]
 			if world_env.environment:
 				# Crush the shadow brightness to pitch black
 				world_env.environment.ambient_light_energy = 0.0
-				
-				# If you have a skybox lighting the room, crush that too
 				world_env.environment.background_energy_multiplier = 0.0
 				world_env.environment.fog_light_energy = 0
+				
+	# ... (Keep the rest of your setup_level code exactly the same below this) ...
 				
 	exit_door = get_node_or_null("../exit_door")
 	gazunka_beans = get_node_or_null("../Gazunka_Beans")
@@ -837,6 +859,28 @@ func _physics_process(delta: float) -> void:
 			timer.stop()
 		return
 
+	# --- THE NEW WATER CHECK (NO COLLISION BOX NEEDED!) ---
+	if not in_heaven: 
+		is_underwater = false # Safety check so we don't swim in the maze
+	else:
+		# 1. Physics Check: Is Gordon's body in the water?
+		water_surface_height = get_dynamic_water_height(global_position)
+		if global_position.y < water_surface_height:
+			is_underwater = true
+		else:
+			is_underwater = false
+			
+		# 2. Visual Check: Is the Camera Lens underwater?
+		var overlay = gui.get_node_or_null("UnderwaterOverlay")
+		if overlay:
+			# Calculate the wave height specifically at the camera's location!
+			var camera_wave_height = get_dynamic_water_height(camera_3d.global_position)
+			
+			if camera_3d.global_position.y < camera_wave_height:
+				overlay.visible = true
+			else:
+				overlay.visible = false
+
 	update_crosshair(delta)
 	
 	if timer_started:
@@ -905,7 +949,7 @@ func _physics_process(delta: float) -> void:
 			if flashlight: flashlight.visible = false
 			shotgun_audio.get_node('click').play() 
 			
-	# Passive recharge has been DELETED. 
+	# Passive recharge has been DELETED.
 	gui.update_flashlight_battery(flashlight_battery, flashlight_active)
 	
 	
@@ -944,7 +988,7 @@ func update_crosshair(delta: float) -> void:
 			
 	var target_color = Color.WHITE
 	var target_size = Vector2(1.0, 1.0)
-	
+
 	if is_enemy:
 		target_color = Color.RED
 		target_size = Vector2(1.5, 1.5)
@@ -1057,10 +1101,7 @@ func handle_movement(delta: float) -> void:
 			if exhaustion_timer <= 0:
 				is_exhausted = false
 				gui.stamina_bar.modulate = Color.WHITE
-				
-				# THE FIX: This prevents the infinite 0.0 looping bug!
 				gui.stamina_bar.value = 5.0 
-				
 				if out_of_breath_sound.playing: out_of_breath_sound.stop()
 		
 		if sprinting and input_dir != Vector2.ZERO and !is_exhausted:
@@ -1074,11 +1115,13 @@ func handle_movement(delta: float) -> void:
 
 		if gui.stamina_bar.value <= 0 and !is_exhausted: trigger_exhaustion()
 
-	if Input.is_action_pressed('crouch') or is_sliding or (crouching and ceiling_detection.is_colliding()):
+	# --- WATER OVERRIDE FOR CROUCHING & SLIDING ---
+	if (Input.is_action_pressed('crouch') or is_sliding or (crouching and ceiling_detection.is_colliding())) and not is_underwater:
 		if is_on_floor(): current_speed = lerp(current_speed, crouching_speed * speed_multiplier, delta * lerp_speed)
 		head.position.y = lerp(head.position.y, crouching_depth, delta * lerp_speed)
-		standing_collision_shape.disabled = true
-		crouching_collision_shape.disabled = false
+		if not standing_collision_shape.disabled:
+			standing_collision_shape.disabled = true
+			crouching_collision_shape.disabled = false
 		
 		var minimum_slide_speed = (walking_speed + 0.5) * speed_multiplier
 		
@@ -1102,48 +1145,96 @@ func handle_movement(delta: float) -> void:
 			
 		walking = false; sprinting = false; crouching = true
 		
-	elif !ceiling_detection.is_colliding():
-		standing_collision_shape.disabled = false; crouching_collision_shape.disabled = true
+	elif !ceiling_detection.is_colliding() or is_underwater:
+		if standing_collision_shape.disabled:
+			standing_collision_shape.disabled = false
+			crouching_collision_shape.disabled = true
 		head.position.y = lerp(head.position.y, 0.0, (delta * lerp_speed) * 0.8)
 		is_sliding = false
 		mouse_sens = default_mouse_sens
 		if not Input.is_action_pressed("crouch"): slide_boost_available = true 
 			
 		if Input.is_action_pressed('sprint') and !is_exhausted and (gui.stamina_bar.value != 0 or in_heaven):
-			current_speed = move_toward(current_speed, sprinting_speed * speed_multiplier, delta * sprint_acceleration)
+			var target_sprint = sprinting_speed * speed_multiplier
+			if is_underwater: target_sprint *= 0.85 # Slightly faster swim speed to make diving feel good
+			current_speed = move_toward(current_speed, target_sprint, delta * sprint_acceleration)
 			walking = false; sprinting = true; crouching = false
 		else:
-			current_speed = lerp(current_speed, walking_speed * speed_multiplier, delta * lerp_speed)
+			var target_walk = walking_speed * speed_multiplier
+			if is_underwater: target_walk *= 0.65 
+			current_speed = lerp(current_speed, target_walk, delta * lerp_speed)
 			walking = true; sprinting = false; crouching = false
 
 	var target_fov = 75.0
 	if is_sliding: target_fov = 85.0
+	target_fov += panic_fov_modifier
 	camera_3d.fov = lerp(camera_3d.fov, target_fov, delta * 6.0)
 
-	if not is_on_floor(): velocity += get_gravity() * delta
+	# --- WATER PHYSICS & GRAVITY ---
 	if jump_cooldown > 0: jump_cooldown -= delta
-	
 	if Input.is_action_just_pressed("jump"): bhop_jump_buffer = BHOP_BUFFER_MAX
 	if bhop_jump_buffer > 0: bhop_jump_buffer -= delta
 
-	if bhop_jump_buffer > 0 and is_on_floor() and !ceiling_detection.is_colliding() and jump_cooldown <= 0.0:
-		if is_exhausted and not in_heaven:
-			if !out_of_breath_sound.playing: out_of_breath_sound.play()
-		else:
-			if not in_heaven: gui.stamina_bar.value -= 5
-			velocity.y = jump_velocity
-			is_sliding = false; free_looking = false
-			bhop_jump_buffer = 0.0; jump_cooldown = 0.25
-			jump_sound.play()
-			animation_player.play('jumping')
+	var cam_swim_dir = Vector3.ZERO 
 
-	if is_on_floor() and last_velocity.y < -3.0:
+	if is_underwater:
+		var current_wave_height = get_dynamic_water_height(global_position)
+		var player_eye_height = global_position.y + 1.2
+		var depth = current_wave_height - player_eye_height # Use the wave height!
+		if depth > 0.0: # Submerged
+			if sprinting and input_dir != Vector2.ZERO:
+				cam_swim_dir = (camera_3d.global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+				velocity.y = lerp(velocity.y, cam_swim_dir.y * current_speed, delta * 6.0)
+			else:
+				velocity.y = move_toward(velocity.y, 1.5, delta * 3.0) 
+				if Input.is_action_pressed("jump"): 
+					velocity.y = move_toward(velocity.y, 6.0, delta * 15.0)
+				elif Input.is_action_pressed("crouch"): 
+					velocity.y = move_toward(velocity.y, -4.5, delta * 10.0)
+				
+		else: # At the surface!
+			bobbing_timer += delta * 2.5
+			velocity.y = sin(bobbing_timer) * 0.8
+			
+			if not Input.is_action_pressed("jump") and not Input.is_action_pressed("crouch") and not sprinting:
+				var target_y = current_wave_height - 1.2 # Lock to the moving wave!
+				global_position.y = lerp(global_position.y, target_y, delta * 4.0)
+			
+			# Allow jumping OUT of the water
+			if bhop_jump_buffer > 0:
+				velocity.y = jump_velocity * 0.85
+				bhop_jump_buffer = 0.0
+				jump_cooldown = 0.25
+				jump_sound.play()
+	else:
+		if not is_on_floor(): velocity += get_gravity() * delta
+		
+		# Normal Jump Logic
+		if bhop_jump_buffer > 0 and is_on_floor() and !ceiling_detection.is_colliding() and jump_cooldown <= 0.0:
+			if is_exhausted and not in_heaven:
+				if !out_of_breath_sound.playing: out_of_breath_sound.play()
+			else:
+				if not in_heaven: gui.stamina_bar.value -= 5
+				velocity.y = jump_velocity
+				is_sliding = false; free_looking = false
+				bhop_jump_buffer = 0.0; jump_cooldown = 0.25
+				jump_sound.play()
+				animation_player.play('jumping')
+
+	if is_on_floor() and last_velocity.y < -3.0 and not is_underwater:
 		animation_player.play('landing')
 		footsteps.play()
 		spawn_landing_footprints()
 
-	var target_dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	if is_on_floor():
+	var target_dir = Vector3.ZERO
+	
+	# --- THE FIX: FLATTEN CAMERA VECTOR FOR HORIZONTAL MATH ---
+	if is_underwater and sprinting and input_dir != Vector2.ZERO:
+		target_dir = Vector3(cam_swim_dir.x, 0, cam_swim_dir.z).normalized()
+	else:
+		target_dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+
+	if is_on_floor() and not is_underwater:
 		if is_sliding:
 			var floor_normal = get_floor_normal()
 			if floor_normal.y < 0.99: 
@@ -1154,7 +1245,7 @@ func handle_movement(delta: float) -> void:
 				var flat_vel = Vector2(velocity.x, velocity.z)
 				if in_heaven and target_dir != Vector3.ZERO:
 					var current_slide_speed = flat_vel.length()
-					var desired_direction = Vector2(target_dir.x, target_dir.z).normalized() * current_slide_speed
+					var desired_direction = Vector2(target_dir.x, target_dir.z) * current_slide_speed
 					flat_vel = flat_vel.lerp(desired_direction, delta * 4.0)
 				flat_vel = flat_vel.move_toward(Vector2.ZERO, friction_amount)
 				velocity.x = flat_vel.x; velocity.z = flat_vel.y
@@ -1163,20 +1254,26 @@ func handle_movement(delta: float) -> void:
 		else:
 			if in_heaven and bhop_jump_buffer > 0: direction = target_dir if target_dir != Vector3.ZERO else direction
 			else: direction = lerp(direction, target_dir, delta * lerp_speed)
-	else:
-		if in_heaven and target_dir != Vector3.ZERO: direction = lerp(direction, target_dir, delta * SOURCE_AIR_ACCEL)
-		elif target_dir != Vector3.ZERO: direction = lerp(direction, target_dir, delta * air_lerp_speed)
+	else: # Airborne or Underwater
+		var air_accel = SOURCE_AIR_ACCEL
+		if is_underwater: air_accel = lerp_speed * 0.6 # Water friction on turning
+		elif not in_heaven: air_accel = air_lerp_speed
+		
+		if target_dir != Vector3.ZERO: direction = lerp(direction, target_dir, delta * air_accel)
 		
 	if not is_sliding:
 		var flat_vel = Vector2(velocity.x, velocity.z)
 		if direction:
 			var target_vel = Vector2(direction.x, direction.z) * current_speed
 			if flat_vel.length() > current_speed:
-				if not is_on_floor():
+				if not is_on_floor() or is_underwater:
 					var high_speed_target = Vector2(direction.x, direction.z).normalized() * flat_vel.length()
 					flat_vel = flat_vel.lerp(high_speed_target, delta * 6.0)
-					var new_length = move_toward(flat_vel.length(), current_speed, 5.0 * delta)
-					flat_vel = flat_vel.normalized() * new_length
+					if !in_heaven or is_underwater:
+						var decel = 5.0 * delta
+						if is_underwater: decel = 12.0 * delta # Heavy water drag
+						var new_length = move_toward(flat_vel.length(), current_speed, decel)
+						flat_vel = flat_vel.normalized() * new_length
 				else:
 					var deceleration = 15.0 * delta
 					if crouching: deceleration = 40.0 * delta 
@@ -1186,17 +1283,18 @@ func handle_movement(delta: float) -> void:
 			else:
 				velocity.x = target_vel.x; velocity.z = target_vel.y
 		else:
-			if in_heaven and not is_on_floor(): pass
+			if in_heaven and not is_on_floor() and not is_underwater: pass
 			else:
 				var decel = 15.0 * delta
-				if crouching and is_on_floor(): decel = 40.0 * delta 
+				if is_underwater: decel = 25.0 * delta # Stop much faster in water
+				elif crouching and is_on_floor(): decel = 40.0 * delta 
 				elif flat_vel.length() <= current_speed: 
 					if is_on_floor(): decel = current_speed
 					else: decel = 2.0 * delta
 				velocity.x = move_toward(velocity.x, 0, decel)
 				velocity.z = move_toward(velocity.z, 0, decel)
 				
-	if is_sliding and is_on_floor():
+	if is_sliding and is_on_floor() and not is_underwater:
 		if not slide_loop_sound.playing: slide_loop_sound.play()
 		var current_slide_speed = Vector2(velocity.x, velocity.z).length()
 		var target_pitch = clamp(current_slide_speed / 10.0, 0.7, 1.3)
@@ -1251,7 +1349,9 @@ func handle_camera_and_bobbing(delta: float) -> void:
 			sliding = false; free_looking = false
 		
 	var input_dir := Input.get_vector("left", "right", "forward", "backward")
-	if input_dir != Vector2.ZERO and is_on_floor() and !sliding:
+	
+	# --- WATER FIX: Stop physical footsteps from triggering while swimming! ---
+	if input_dir != Vector2.ZERO and (is_on_floor() or is_underwater) and !sliding:
 		if sprinting:
 			head_bobbing_current_intensity = head_bobbing_sprinting_intensity
 			head_bobbing_index += head_bobbing_sprinting_speed * delta
@@ -1267,7 +1367,8 @@ func handle_camera_and_bobbing(delta: float) -> void:
 		eyes.position.y = lerp(eyes.position.y, head_bobbing_vector.y * (head_bobbing_current_intensity) / 2, delta * lerp_speed)
 		eyes.position.x = lerp(eyes.position.x, current_lean_offset + (head_bobbing_vector.x * (head_bobbing_current_intensity)), delta * lerp_speed)
 		
-		if previous_eye_position < 0 and eyes.position.y > 0:
+		# Only play the heavy boot sounds if we aren't swimming!
+		if previous_eye_position < 0 and eyes.position.y > 0 and not is_underwater:
 			footsteps.play()
 			spawn_footprint()
 		previous_eye_position = eyes.position.y
@@ -1278,6 +1379,7 @@ func handle_camera_and_bobbing(delta: float) -> void:
 	
 	var target_freelook_tilt = -deg_to_rad(neck.rotation.y * free_look_angle_amt)
 	eyes.rotation.z = current_lean_tilt + target_freelook_tilt
+
 
 func handle_grabbed_object(delta: float) -> void:
 	if grabbed_object:
@@ -1619,7 +1721,8 @@ func reward_kill() -> void:
 func spawn_floating_text(pos: Vector3, msg: String = "+1 Gazunka Bean!", color: Color = Color(0.955, 1.0, 0.043, 1.0)):
 	var popup = Label3D.new()
 	popup.text = msg
-	popup.pixel_size = 0.005; popup.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	popup.pixel_size = 0.005;
+	popup.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	popup.modulate = color; 
 	popup.scale = Vector3.ZERO
 	get_tree().current_scene.add_child(popup); 
@@ -1642,7 +1745,7 @@ func trigger_bean_sense() -> void:
 			active_beans.append(bean)
 			
 	if active_beans.size() == 0: return # No beans left!
-
+	
 	# 2. Find the absolute closest one
 	var closest_bean = null
 	var closest_dist = INF
@@ -1680,8 +1783,6 @@ func trigger_bean_sense() -> void:
 				
 			# Give the wisp the path and let it fly!
 			wisp.path = elevated_path
-
-
 
 
 # Returns true if we successfully picked it up, false if the inventory is full
@@ -1770,13 +1871,9 @@ func collect_item(item_name: String, amount: int) -> bool:
 		# if inventory_full_sound: inventory_full_sound.play()
 		return false
 
-
-
-
 # --- MINIGAME CONTROLS ---
 func start_crank_minigame():
 	if flashlight_battery >= 100.0: return # Don't crank if full!
-	
 	is_cranking = true
 	
 	# Release the mouse so the player can spin the UI crank!
@@ -1953,6 +2050,45 @@ func force_drag_reload(target_slot_index: int) -> void:
 	# safely in the backpack for this reload function to naturally consume.
 	if shotgun_ammo < 4:
 		reload_shotgun()
+
+
+# --- THE 7-BEAN CLIMAX ---
+func trigger_panic_attack() -> void:
+	if is_panicking: return # Don't accidentally trigger it twice!
+	is_panicking = true
+	
+	# 1. Lock the heartbeat sound on high volume
+	if heartbeat_sound:
+		heartbeat_sound.volume_db = -17.777
+		heartbeat_sound.pitch_scale = 1.2
+		heartbeat_sound.play()
+		
+	# 2. Start a permanent, looping breathing effect on our NEW modifier variable!
+	var panic_tween = create_tween().set_loops() 
+	
+	# Push the modifier up to 20, then back down to 0
+	panic_tween.tween_property(self, "panic_fov_modifier", 20.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	panic_tween.tween_property(self, "panic_fov_modifier", 0.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	
+	# Add a slight dizzying tilt side-to-side (This is safe to apply directly to the camera!)
+	panic_tween.parallel().tween_property(camera_3d, "rotation_degrees:z", 2.0, 0.6)
+	panic_tween.chain().tween_property(camera_3d, "rotation_degrees:z", -2.0, 0.6)
+
+
+# --- DYNAMIC WAVE SYNC ---
+func get_dynamic_water_height(target_pos: Vector3) -> float:
+	var time = Time.get_ticks_msec() / 1000.0
+	
+	# IMPORTANT: These must match your Shader's parameters perfectly!
+	var wave_speed = 1.0
+	var wave_frequency = 0.1
+	var wave_height = 2.5 
+	
+	# Calculate the exact height of the wave at these X and Z coordinates
+	var wave_offset = sin(target_pos.x * wave_frequency + time * wave_speed) * cos(target_pos.z * wave_frequency + time * wave_speed) * wave_height
+	
+	return ocean_base_height + wave_offset
+
 
 # --- GUI PROXY CALLBACKS (Preserves Editor Links!) ---
 func _on_button_pressed(): gui._on_button_pressed()

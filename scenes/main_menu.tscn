@@ -85,6 +85,7 @@ amount = 6
 process_material = SubResource("ParticleProcessMaterial_rtw2f")
 
 [node name="DitherShader" type="ColorRect" parent="." unique_id=1580449548]
+visible = false
 material = SubResource("ShaderMaterial_1ajci")
 anchors_preset = 15
 anchor_right = 1.0

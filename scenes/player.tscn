@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://c4ab0hpeahjlh" path="res://scenes/view_model.tscn" id="2_ke2ow"]
 [ext_resource type="Script" uid="uid://cw1ahyqhb41tk" path="res://scripts/playergui.gd" id="3_a8ls1"]
 [ext_resource type="Shader" uid="uid://dqbdaipvb2viv" path="res://shaders/exit_warning.gdshader" id="3_f1ej7"]
-[ext_resource type="Shader" uid="uid://b22ys3o215xmt" path="res://shaders/player.gdshader" id="3_fjrip"]
 [ext_resource type="AudioStream" uid="uid://bewtxiowj8jds" path="res://audio/barefoot.wav" id="4_3v2ag"]
 [ext_resource type="Shader" uid="uid://c5f40aky10is2" path="res://shaders/anime.gdshader" id="6_ujl30"]
 [ext_resource type="Shader" uid="uid://bvt85r5ugbalb" path="res://shaders/exhaust.gdshader" id="7_31cv2"]
@@ -21,6 +20,7 @@
 [ext_resource type="Shader" uid="uid://drtxmx7yahnwh" path="res://shaders/nightvision.gdshader" id="13_wqfne"]
 [ext_resource type="AudioStream" uid="uid://byq7c0tos8qcj" path="res://audio/ymmy_gazunka_bean.wav" id="14_l71n6"]
 [ext_resource type="AudioStream" uid="uid://cqq2fuk0uym7p" path="res://audio/flashlight_crank_sound.wav" id="14_md1ol"]
+[ext_resource type="Shader" uid="uid://bejbbr0hi2qun" path="res://shaders/underwater.gdshader" id="15_jc3p3"]
 [ext_resource type="AudioStream" uid="uid://0bm3t6gs3thi" path="res://audio/ripe_gazunka_bean.wav" id="15_ke2ow"]
 [ext_resource type="AudioStream" uid="uid://cks72bjuhemok" path="res://audio/SNAP.wav" id="15_oprun"]
 [ext_resource type="PackedScene" uid="uid://b0tr43lxl3yaa" path="res://scenes/icon_component.tscn" id="17_qfm1y"]
@@ -219,10 +219,6 @@ shader_parameter/wave_speed = 15.0
 shader_parameter/wave_frequency = 25.0
 shader_parameter/max_wave_amplitude = 0.02
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_smehm"]
-shader = ExtResource("3_fjrip")
-shader_parameter/spread = 0.02
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wnwbv"]
 shader = ExtResource("13_wqfne")
 shader_parameter/noise_amount = 0.08
@@ -237,6 +233,12 @@ gradient = SubResource("Gradient_ujl30")
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hax0n"]
+shader = ExtResource("15_jc3p3")
+shader_parameter/underwater_color = Color(0, 0.3, 0.5, 0.5)
+shader_parameter/distortion_speed = 1.5
+shader_parameter/distortion_strength = 0.015
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
 radius = 0.25
@@ -1381,15 +1383,6 @@ mouse_filter = 2
 [node name="BackBufferCopy" type="BackBufferCopy" parent="neck/head/eyes/CanvasLayer" unique_id=1468835670]
 copy_mode = 2
 
-[node name="DitherShader" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=1899935609]
-material = SubResource("ShaderMaterial_smehm")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
 [node name="mission_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=817623020]
 anchors_preset = 8
 anchor_left = 0.5
@@ -1488,6 +1481,15 @@ color = Color(0.29411766, 0, 0.09411765, 1)
 stream = ExtResource("14_md1ol")
 volume_db = -53.238
 bus = &"crank i guess"
+
+[node name="UnderwaterOverlay" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=2019298354]
+visible = false
+material = SubResource("ShaderMaterial_hax0n")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="object_grabber_shapecast" type="ShapeCast3D" parent="neck/head/eyes" unique_id=1856526472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118158e-08, -0.09398723, -0.25857222)
@@ -1610,6 +1612,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.401821, 0)
 stream = ExtResource("35_bj30b")
 volume_db = -17.143
 bus = &"game_voicelines"
+
+[node name="smart_blue_light" type="OmniLight3D" parent="." unique_id=1477532454]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6494908, 0)
+light_color = Color(0, 0.21600267, 0.2890625, 1)
+light_energy = 0.333
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 0.0
+omni_range = 98.048
 
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/VBoxContainer/resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="neck/head/eyes/CanvasLayer/VBoxContainer/restart_button" to="." method="_on_button_pressed"]

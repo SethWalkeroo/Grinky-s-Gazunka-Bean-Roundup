@@ -16,11 +16,12 @@
 [ext_resource type="AudioStream" uid="uid://bq3wlb10ukrjd" path="res://audio/ambeint_sound_smol.ogg" id="13_a8y0u"]
 [ext_resource type="Script" uid="uid://bbwbutuqesrx4" path="res://scripts/minimap_cam.gd" id="13_trceg"]
 [ext_resource type="PackedScene" uid="uid://dgx61roj54ff3" path="res://scenes/table.tscn" id="14_a8y0u"]
+[ext_resource type="AudioStream" uid="uid://qtqiopm4nu4l" path="res://audio/floor_creak.wav" id="17_muem4"]
 
 [sub_resource type="Environment" id="Environment_o6xl0"]
-background_mode = 2
+background_energy_multiplier = 0.0
 ambient_light_source = 2
-ambient_light_color = Color(0.078125, 0.061383933, 0, 1)
+ambient_light_color = Color(0, 0.045659177, 0.0703125, 1)
 ambient_light_energy = 0.0
 tonemap_mode = 2
 glow_enabled = true
@@ -28,7 +29,7 @@ glow_intensity = 0.4
 glow_blend_mode = 0
 fog_enabled = true
 fog_light_color = Color(1, 0.9372549, 0.77254903, 1)
-fog_light_energy = 0.0
+fog_light_energy = 0.02
 fog_sky_affect = 0.0
 volumetric_fog_density = 0.0129
 volumetric_fog_albedo = Color(1, 0.9285642, 0.8418089, 1)
@@ -70,7 +71,7 @@ data = {
 [node name="tables" type="Node3D" parent="NavigationRegion3D" unique_id=1205569278]
 
 [node name="table2" parent="NavigationRegion3D/tables" unique_id=372385754 instance=ExtResource("14_a8y0u")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 2.1137195, 0.043629408, 31.868973)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 3.8438709, 0.043629408, 31.868973)
 
 [node name="table3" parent="NavigationRegion3D/tables" unique_id=312556668 instance=ExtResource("14_a8y0u")]
 transform = Transform3D(-2.1855694e-08, 0, 0.5, 0, 0.5, 0, -0.5, 0, -2.1855694e-08, 48.26762, 0.043629408, 27.8215)
@@ -147,7 +148,7 @@ bus = &"chase_music"
 [node name="wall_torches" type="Node3D" parent="." unique_id=1485060295]
 
 [node name="wall_torch2" parent="wall_torches" unique_id=1432921486 instance=ExtResource("11_ya4ey")]
-transform = Transform3D(-0.2310157, -0.115302704, 0.96609384, -0.45477414, 0.8906036, -0.0024541144, -0.8601234, -0.43992117, -0.25818005, 2.68285, 2.7779953, 32.667988)
+transform = Transform3D(-0.2310157, -0.115302704, 0.96609384, -0.45477414, 0.8906036, -0.0024541144, -0.8601234, -0.43992117, -0.25818005, 3.8911872, 2.7779953, 32.667988)
 gravity_scale = 0.0
 freeze = true
 wall_torch = true
@@ -243,7 +244,7 @@ freeze = true
 wall_torch = true
 
 [node name="wall_torch16" parent="wall_torches" unique_id=136191740 instance=ExtResource("11_ya4ey")]
-transform = Transform3D(0.02046895, 0.007697284, -0.9997609, -0.45477414, 0.8906037, -0.002454117, 0.89037126, 0.4547152, 0.021730274, -1.1580257, 2.3096426, 40.750294)
+transform = Transform3D(0.020468952, 0.007697285, -0.9997609, -0.45477414, 0.8906037, -0.0024541165, 0.89037126, 0.45471522, 0.021730274, -1.1580257, 2.3096426, 40.750294)
 gravity_scale = 0.0
 freeze = true
 wall_torch = true
@@ -291,5 +292,36 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 1
 projection = 1
 size = 50.158
 script = ExtResource("13_trceg")
+
+[node name="floor_creak_sounds" type="Node3D" parent="." unique_id=571564170]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.141111, 0, 15.074257)
+
+[node name="floor_creak" type="AudioStreamPlayer3D" parent="floor_creak_sounds" unique_id=2039550538]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3929157, 0, 13.928715)
+stream = ExtResource("17_muem4")
+volume_db = -40.0
+unit_size = 4.05
+bus = &"effects"
+
+[node name="floor_creak2" type="AudioStreamPlayer3D" parent="floor_creak_sounds" unique_id=1117082535]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.161844, -2.0017319, 33.16413)
+stream = ExtResource("17_muem4")
+volume_db = -40.0
+unit_size = 4.05
+bus = &"effects"
+
+[node name="floor_creak3" type="AudioStreamPlayer3D" parent="floor_creak_sounds" unique_id=102178858]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.503998, 0, 13.1238785)
+stream = ExtResource("17_muem4")
+volume_db = -40.0
+unit_size = 4.05
+bus = &"effects"
+
+[node name="floor_creak4" type="AudioStreamPlayer3D" parent="floor_creak_sounds" unique_id=814500057]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.319864, 0, 48.82242)
+stream = ExtResource("17_muem4")
+volume_db = -40.0
+unit_size = 4.05
+bus = &"effects"
 
 [connection signal="enemy_dead" from="NavigationRegion3D/Enemy" to="." method="_on_enemy_enemy_dead"]

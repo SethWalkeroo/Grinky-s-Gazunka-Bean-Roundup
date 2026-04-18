@@ -184,13 +184,14 @@ target_position = Vector3(0, 0.25, 0)
 
 [node name="extinguish" type="AudioStreamPlayer3D" parent="." unique_id=1685331739]
 stream = ExtResource("6_ktql7")
-volume_db = -26.667
+volume_db = -34.226
+unit_size = 7.77
 
 [node name="burning_sound" type="AudioStreamPlayer3D" parent="." unique_id=490160378]
 stream = ExtResource("7_gybtl")
-volume_db = -36.19
-unit_size = 7.77
+volume_db = -32.38
 autoplay = true
+max_distance = 20.0
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

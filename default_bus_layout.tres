@@ -12,11 +12,15 @@ room_size = 0.37
 spread = 0.91
 wet = 0.37
 
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_j3pel"]
+resource_name = "LowPassFilter"
+cutoff_hz = 3500.0
+
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_g28q7"]
 resource_name = "Reverb"
 room_size = 0.27
 damping = 0.37
-wet = 0.2
+wet = 0.1
 
 [sub_resource type="AudioEffectEQ10" id="AudioEffectEQ10_j3pel"]
 resource_name = "EQ10"
@@ -118,3 +122,11 @@ bus/12/mute = false
 bus/12/bypass_fx = false
 bus/12/volume_db = -33.98901
 bus/12/send = &"Master"
+bus/13/name = &"Muffled"
+bus/13/solo = false
+bus/13/mute = false
+bus/13/bypass_fx = false
+bus/13/volume_db = 0.0
+bus/13/send = &"Master"
+bus/13/effect/0/effect = SubResource("AudioEffectLowPassFilter_j3pel")
+bus/13/effect/0/enabled = true

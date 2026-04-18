@@ -85,6 +85,7 @@ var voicelines_bus = AudioServer.get_bus_index("game_voicelines")
 var ambient_noise_bus = AudioServer.get_bus_index('ambient_noise')
 
 func _ready():
+	print(GlobalStats.came_from_main_menu)
 	add_to_group("hud")
 	
 	if !("heaven.tscn" in get_tree().current_scene.scene_file_path):
@@ -427,9 +428,13 @@ func _play_hover_sound():
 
 func _on_button_pressed():
 	GlobalStats.play_click()
-	if "heaven.tscn" in get_tree().current_scene.scene_file_path: 
-		get_tree().change_scene_to_file("res://scenes/main.tscn")
-	else: 
+	if "heaven.tscn" in get_tree().current_scene.scene_file_path:
+		print(GlobalStats.came_from_main_menu)
+		if GlobalStats.came_from_main_menu:
+			get_tree().reload_current_scene()
+		else: 
+			get_tree().change_scene_to_file("res://scenes/main.tscn")
+	else:
 		# --- THE EXPLOIT FIX WITH WARNING ---
 		# Check if they are alive and actually have things to lose!
 		if player and not player.dead and not player.win and player.has_method("has_loot_to_lose") and player.has_loot_to_lose():

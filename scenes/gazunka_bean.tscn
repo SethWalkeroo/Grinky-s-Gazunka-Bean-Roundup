@@ -35,6 +35,7 @@ size = Vector3(0.05, 0.05, 0.05)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m3ktk"]
 albedo_texture = ExtResource("1_ijm6s")
+emission = Color(0.0625, 0.0625, 0.0625, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vs7v5"]
 shading_mode = 0

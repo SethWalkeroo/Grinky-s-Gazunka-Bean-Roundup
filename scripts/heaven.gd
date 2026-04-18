@@ -68,7 +68,6 @@ func _ready() -> void:
 		setup_sound_group(mountain_ambiance)
 		hide_fireflies()
 			
-	GlobalStats.came_from_main_menu = false
 
 func _physics_process(delta: float) -> void:
 	var current_time = sky_3d.current_time
@@ -134,9 +133,6 @@ func start_campfire():
 	campfire.get_node('smoke').position.y = 0.081
 
 
-func _on_area_3d_body_entered(body: Node3D) -> void:
-	if body is Player:
-		better_call_saul.play()
 
 
 func check_global_bell() -> void:
@@ -159,3 +155,7 @@ func check_global_bell() -> void:
 				victory_bell.pitch_scale = randf_range(0.85, 1.05)
 				victory_bell.play()
 				print("A distant bell rings... ", hero_name, " just beat the game!")
+
+
+func _on_area_3d_body_entered(body: Node3D) -> void:
+	better_call_saul.play()

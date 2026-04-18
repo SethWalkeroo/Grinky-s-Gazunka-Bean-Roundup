@@ -539,6 +539,8 @@ func check_and_apply_rank_colors():
 			target_rank_color = Color.WHITE
 
 func _on_start_button_pressed() -> void:
+	GlobalStats.came_from_main_menu = false
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	GlobalStats.play_click()
 	GlobalStats.play_start_sound()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
@@ -1037,6 +1039,7 @@ func update_bean_jar_display() -> void:
 		bean_jar.text = "[color=cyan]Bean Jar:[/color] [wave amp=20 freq=5 connect=1][color=gold][b]%s[/b][/color][/wave]" % str(GlobalStats.total_beans_collected)
 
 func _on_heaven_button_pressed() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	GlobalStats.play_click()
 	GlobalStats.play_heaven_sound()
 	GlobalStats.came_from_main_menu = true # Tell the next scene how we got here!
