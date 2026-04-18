@@ -8,6 +8,7 @@ extends Node3D
 @onready var better_call_saul: AudioStreamPlayer3D = $better_call_saul
 @onready var victory_bell: AudioStreamPlayer3D = $victory_bell
 @onready var mountain_ambiance: Node3D = $mountain_ambiance
+@onready var bird_swarm: GPUParticles3D = $BirdSwarm
 
 # --- GLOBAL BELL TRACKERS ---
 var bell_check_timer: float = 15.0 # Check every 15 seconds so we don't spam SilentWolf's servers
@@ -57,11 +58,13 @@ func _ready() -> void:
 	# Determine initial state so the fireflies/crickets start correctly
 	is_daytime = (sky_3d.current_time >= 6 and sky_3d.current_time < 19)
 	if not is_daytime:
+		bird_swarm.visible = false
 		show_fireflies()
 		setup_sound_group(crickets)
 		stop_sound_group(mountain_ambiance)
 		stop_sound_group(birds)
 	else:
+		bird_swarm.visible = true
 		extinguish_campfire()
 		stop_sound_group(crickets)
 		setup_sound_group(birds)
@@ -81,6 +84,7 @@ func _physics_process(delta: float) -> void:
 	# Transition to DAY
 	if should_be_day and not is_daytime:
 		is_daytime = true
+		bird_swarm.visible = true
 		hide_fireflies()
 		stop_sound_group(crickets)
 		setup_sound_group(birds)
@@ -90,6 +94,7 @@ func _physics_process(delta: float) -> void:
 	# Transition to NIGHT
 	elif not should_be_day and is_daytime:
 		is_daytime = false
+		bird_swarm.visible = false
 		show_fireflies()
 		stop_sound_group(birds)
 		stop_sound_group(mountain_ambiance)
@@ -158,4 +163,5 @@ func check_global_bell() -> void:
 
 
 func _on_area_3d_body_entered(body: Node3D) -> void:
-	better_call_saul.play()
+	if body is Player:
+		better_call_saul.play()

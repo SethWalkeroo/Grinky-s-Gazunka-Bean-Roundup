@@ -8,6 +8,8 @@ const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 @onready var typing_sound: AudioStreamPlayer = $typing_sound
 @onready var nvg_slot: ColorRect = $inventory_menu/nvg_slot
 
+var hide_hotbar_setting: bool = false
+
 
 # --- CRANK MINIGAME ---
 @onready var crank_ui: Control = $crank_minigame_ui
