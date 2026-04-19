@@ -149,13 +149,26 @@ var motds = [
 	'"[i]There is no way to [color=yellow]happiness[/color]. [color=yellow]Happiness[/color] is the way.[/i]" [color=red]-Thich Nhat Hanh[/color]',
 	'"[i][color=gold]Champions[/color] keep [color=red]playing[/color] until they get it [color=gold]right[/color][/i]." [color=cyan]-Billie Jean King[/color]',
 	'"[i][rainbow]You[/rainbow] [color=gold]will[/color] [color=green]succeed[/color] because [color=red]most people[/color] are [color=gray]lazy[/color].[/i]" [rainbow]-Shahir Zag[/rainbow]',
-	'"[i][color=pink]Love[/color] takes [color=red]years[/color], [color=pink]love[/color] takes [color=red]miles[/color].[/i]" [color=cyan]-Cameron Winter[/color]',
+	'"[i][color=pink]Love[/color] takes [color=red]miles[/color], [color=pink]love[/color] takes [color=red]years[/color].[/i]" [color=cyan]-Cameron Winter[/color]',
 	'"[i]Do it with [color=red]passion[/color], or not at all.[/i]" [color=purple]-Rosa Nouchette Carey[/color]',
 	'"[i][color=brown]The grass is [/color][color=green]greener[/color] [color=brown]where you [/color][color=cyan]water[/color] [color=brown]it[/color].[/i]" [color=green]-Neil Barringham[/color]',
 	'"[i]If it [color=red]scares[/color] you, it might be a [color=green]good[/color] thing to try.[/i]" [color=gold]-Seth Godin[/color]',
 	'"[i]Sometimes you [color=green]win[/color], sometimes you [color=red]learn[/color].[/i]" [color=orange]-John Maxwell[/color]',
 	'"[i]I never [color=cyan]dream[/color] of [color=green]success[/color]. I [color=gray]worked[/color] for it.[/i]" [color=pink]-Estee Lauder[/color]',
-	'"Avoiding [color=red]failure[/color] is to avoid [color=gold]progress[/color]." [color=brown]-some dude[/color]',
+	'"[i]Avoiding [color=red]failure[/color] is to avoid [color=gold]progress[/color].[/i]" [color=brown]-some dude[/color]',
+	'"[i][color=orange]Amateurs[/color] sit and wait for [color=gold]inspiration[/color], the rest of us just get up and go to [color=red]work[/color].[/i]" [color=orange]-Stephen King[/color]',
+	'"[i]A [color=orange]tiger[/color] doesn\'t lose sleep over the opinion of [color=cyan]sheep[/color].[/i]" [color=green]-Shahir zag[/color]',
+	'"[i]If [color=gold]opportunity[/color] doesn\'t knock, build a [color=brown]door[/color].[/i]" [color=green]-Milton Berle[/color]',
+	'"[i][color=red]Education[/color] is not the [color=cyan]filling of a pail[/color], but the lighting of a [color=orange]fire[/color].[/i]" [color=gold]-W.B. Yeats[/color]',
+	'"[i]Being [color=black]realistic[/color] is the most common path to [color=orange]mediocrity[/color].[/i]" [color=red]-Will Smith[/color]',
+	'"[i]Courage isn\'t having the [color=red]strength[/color] to go on - it\'s [color=blue]going on when you don\'t have the strength[/color].[/i]" [color=red]-Napoleon[/color]',
+	'"[i]What would you [color=orange]attempt[/color] to do if you [color=gold]knew[/color] you could not [color=green]fail[/color]?[/i]" [color=red]-Robert Schuller[/color]',
+	'"[i]Not until we are [color=black]lost[/color], do we begin to find [color=gold]ourselves[/color].[/i]" [rainbow]-Henry David Thoreau[/rainbow]',
+	'"[i]If you want to [color=yellow]shine like the sun[/color], first [color=orange]burn[/color] [color=red]like the sun[/color].[/i]" [color=yellow]-APJ Abdul Kalam[/color]',
+	'"[i]Can you [color=cyan]imagine[/color] what I would do if I could do [color=gold]all I can[/color]?[/i]" [color=red]-Sun Tzu[/color]',
+	'"[i]One man with [color=gold]courage[/color] makes a [color=red]majority[/color].[/i]" [color=orange]-Andrew Jackson[/color]',
+	'"[i][color=yellow]Every moment is a fresh beginning[/color].[/i]" [color=cyan]-T.S. Eliot[/color]',
+	'"[i]He who fears he will suffer, already suffers because he fears.[/i]" [color=red]-Michel De Montaigne[/color]'
 ]
 
 var last_motd_index: int = -1
