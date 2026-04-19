@@ -4,6 +4,9 @@ class_name Enemy
 
 signal enemy_dead
 
+
+var tracks_followed: int = 0
+
 @export var disabled = false
 
 @export var shotgun_ammo_scene: PackedScene
@@ -566,7 +569,6 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 			chase_voiceline_timer = randf_range(chase_voiceline_min_interval, chase_voiceline_max_interval)
 			
 		elif not has_screamed_this_chase:
-			# --- HORDE AUDIO FIX: MICRO-DELAY ---
 			if group_scream_delay > 0.0:
 				group_scream_delay -= delta
 			else:
@@ -578,7 +580,25 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 		has_last_known_pos = true 
 		is_chasing = true
 		investigation_timer = investigation_time 
-		current_target_pos = player.global_position
+		
+		# --- THE SPICE: THE PREDATOR INTERCEPT ---
+		# Get the player's flat velocity
+		var player_vel = Vector3(player.velocity.x, 0, player.velocity.z)
+		
+		# If Gordon is sprinting, aim for where he will be in 0.6 seconds!
+		if player_vel.length() > 4.0: 
+			var intercept_pos = player.global_position + (player_vel * 0.6)
+			
+			# Ask the nav map to clamp the intercept point so the enemy doesn't try to run into a wall
+			var map = nav_agent.get_navigation_map()
+			if map.is_valid():
+				current_target_pos = NavigationServer3D.map_get_closest_point(map, intercept_pos)
+			else:
+				current_target_pos = player.global_position
+		else:
+			# If Gordon is sneaking, standing still, or walking slow, just run straight at him
+			current_target_pos = player.global_position
+			
 		nav_agent.set_target_position(current_target_pos)
 		stop_random_voicelines()
 		
@@ -591,14 +611,42 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 			return
 			
 		if has_arrived:
-			var forward_bias = player_travel_dir if player_travel_dir.length_squared() > 0.01 else -global_transform.basis.z
-			var random_dir = (Vector3(randf_range(-0.6, 0.6), 0, randf_range(-0.6, 0.6)) + (forward_bias * 1.5)).normalized()
-			var local_sweep_point = global_position + (random_dir * randf_range(4.0, 8.0))
-			var map = nav_agent.get_navigation_map()
-			if map.is_valid():
-				current_target_pos = NavigationServer3D.map_get_closest_point(map, local_sweep_point)
+			var found_trail = false
+			var closest_footprint = null
+			var closest_dist = 6.0 
+			
+			# --- THE SPICE: FRUSTRATION METER ---
+			# If I've followed 5 footprints and still haven't seen Gordon, it's a trick! 
+			# Ignore the trail and do a wide sweep.
+			if tracks_followed >= 5:
+				found_trail = false
+				tracks_followed = 0 # Reset the frustration meter
+			else:
+				# Scan the floor for Gordon's tracks!
+				for print in get_tree().get_nodes_in_group("player_footprints"):
+					if is_instance_valid(print):
+						var d = global_position.distance_to(print.global_position)
+						if d < closest_dist:
+							closest_dist = d
+							closest_footprint = print
+							
+			if closest_footprint:
+				found_trail = true
+				tracks_followed += 1 # Add frustration!
+				current_target_pos = closest_footprint.global_position
 				nav_agent.set_target_position(current_target_pos)
-				player_travel_dir = global_position.direction_to(current_target_pos)
+				closest_footprint.queue_free()
+				
+			if not found_trail:
+				# Sweep the area!
+				var forward_bias = player_travel_dir if player_travel_dir.length_squared() > 0.01 else -global_transform.basis.z
+				var random_dir = (Vector3(randf_range(-0.6, 0.6), 0, randf_range(-0.6, 0.6)) + (forward_bias * 1.5)).normalized()
+				var local_sweep_point = global_position + (random_dir * randf_range(4.0, 8.0))
+				var map = nav_agent.get_navigation_map()
+				if map.is_valid():
+					current_target_pos = NavigationServer3D.map_get_closest_point(map, local_sweep_point)
+					nav_agent.set_target_position(current_target_pos)
+					player_travel_dir = global_position.direction_to(current_target_pos)
 			
 	else:
 		is_chasing = false
@@ -869,12 +917,26 @@ func _on_player_bean_collected() -> void:
 
 func can_see_player() -> bool:
 	if not player: return false
-	var player_is_hidden = "is_hidden" in player and player.is_hidden
+	
+	# --- THE SPICE: LIGHT DETECTION ---
+	var is_illuminated = ("flashlight_active" in player and player.flashlight_active)
+	var effective_sight_radius = sight_radius
+	var effective_fov = field_of_view_degrees
+	
+	# If his flashlight is on, double the distance we can see him from, and widen our peripheral vision!
+	if is_illuminated:
+		effective_sight_radius *= 2.0
+		effective_fov = 180.0 
+	
+	# If he is hidden, but he has his flashlight on, he is NOT hidden!
+	var player_is_hidden = ("is_hidden" in player and player.is_hidden)
+	if is_illuminated:
+		player_is_hidden = false
 	
 	if player_is_hidden and not was_seeing_player:
 		return false
 	
-	if global_position.distance_to(player.global_position) > sight_radius:
+	if global_position.distance_to(player.global_position) > effective_sight_radius:
 		return false
 	
 	var my_pos_flat = Vector3(global_position.x, 0, global_position.z)
@@ -885,7 +947,7 @@ func can_see_player() -> bool:
 	forward_flat = forward_flat.normalized()
 	
 	var angle = forward_flat.angle_to(to_player_flat)
-	if rad_to_deg(angle) > field_of_view_degrees / 2.0: 
+	if rad_to_deg(angle) > effective_fov / 2.0: 
 		return false
 		
 	if player_is_hidden and was_seeing_player:
@@ -900,6 +962,7 @@ func can_see_player() -> bool:
 	
 	var result = space_state.intersect_ray(query)
 	return result and result.collider == player
+
 
 func play_random_death_sound():
 	if death_sounds:

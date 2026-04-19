@@ -48,6 +48,7 @@ wood=""
 metal=""
 dirt=""
 flesh=""
+player_footprints=""
 
 [input]
 

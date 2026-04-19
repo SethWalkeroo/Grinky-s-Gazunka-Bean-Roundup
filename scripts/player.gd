@@ -9,7 +9,7 @@ var water_surface_height: float = 0.0 # Where the top of the water is
 var bobbing_timer: float = 0.0
 
 #blackout run
-@export var blackout_run_chance = 0.444
+@export var blackout_run_chance = 0.333
 
 # --- PANIC ATTACK VARIABLES ---
 var panic_fov_modifier: float = 0.0
@@ -529,8 +529,10 @@ func toggle_inventory() -> void:
 	
 	# THE FIX: Tell Godot to actually show/hide the mouse!
 	if inventory_open:
+		gui.hotbar.visible = true
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	else:
+		gui.hotbar.visible = GlobalStats.hotbar_on
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		
 	# Tell the GUI script to show/hide the menus
@@ -1320,9 +1322,30 @@ func trigger_exhaustion():
 	if start_voiceline.playing: start_voiceline.stop()
 
 func handle_camera_and_bobbing(delta: float) -> void:
-	var lean_input = Input.get_axis("leanright", "leanleft")
-	var target_lean = -lean_input * lean_distance
-	if lean_input != 0:
+	var raw_lean_input = Input.get_axis("leanright", "leanleft")
+	var actual_lean_input = raw_lean_input
+
+	# 1. Determine if we are freelooking FIRST
+	if Input.is_action_pressed('freelook') or sliding: 
+		free_looking = true
+		
+		# --- THE OVER-THE-SHOULDER OVERRIDE ---
+		if raw_lean_input != 0.0:
+			# Cancel the physical body lean
+			actual_lean_input = 0.0 
+			
+			# Snap the neck rotation! (1 for Left = +135 deg, -1 for Right = -135 deg)
+			var target_neck_rot = raw_lean_input * deg_to_rad(135.0)
+			
+			# We multiply the lerp speed by 1.5 here so it snaps over the shoulder aggressively
+			neck.rotation.y = lerp(neck.rotation.y, target_neck_rot, delta * neck_lerp_speed * 1.5)
+	else:
+		free_looking = false
+		neck.rotation.y = lerp(neck.rotation.y, 0.0, delta * neck_lerp_speed)
+
+	# 2. Process the Lean (Uses actual_lean_input, which forces to 0 if we looked over our shoulder)
+	var target_lean = -actual_lean_input * lean_distance
+	if actual_lean_input != 0:
 		var space_state = get_world_3d().direct_space_state
 		var ray_start = head.global_position
 		var ray_end = ray_start + (head.global_transform.basis.x * target_lean)
@@ -1336,13 +1359,12 @@ func handle_camera_and_bobbing(delta: float) -> void:
 			target_lean = sign(target_lean) * safe_dist
 
 	current_lean_offset = lerp(current_lean_offset, target_lean, delta * lean_speed)
-	current_lean_tilt = lerp(current_lean_tilt, lean_input * deg_to_rad(lean_angle), delta * lean_speed)
+	current_lean_tilt = lerp(current_lean_tilt, actual_lean_input * deg_to_rad(lean_angle), delta * lean_speed)
 	
-	if Input.is_action_pressed('freelook') or sliding: free_looking = true
-	else:
-		free_looking = false
-		neck.rotation.y = lerp(neck.rotation.y, 0.0, delta * neck_lerp_speed)
-		
+	var target_freelook_tilt = -deg_to_rad(neck.rotation.y * free_look_angle_amt)
+	eyes.rotation.z = current_lean_tilt + target_freelook_tilt
+
+	# 3. Slide timer check
 	if sliding:
 		slide_timer -= delta
 		if slide_timer <= 0:
@@ -1377,10 +1399,6 @@ func handle_camera_and_bobbing(delta: float) -> void:
 		head_bobbing_index = 0.0 
 		eyes.position.y = lerp(eyes.position.y, 0.0, delta * lerp_speed)
 		eyes.position.x = lerp(eyes.position.x, current_lean_offset, delta * lerp_speed)
-	
-	var target_freelook_tilt = -deg_to_rad(neck.rotation.y * free_look_angle_amt)
-	eyes.rotation.z = current_lean_tilt + target_freelook_tilt
-
 
 func handle_grabbed_object(delta: float) -> void:
 	if grabbed_object:

@@ -91,10 +91,9 @@ func _ready():
 	print(GlobalStats.display_mode)
 	add_to_group("hud")
 	
-	if !("heaven.tscn" in get_tree().current_scene.scene_file_path):
-		var minimap_viewport:SubViewport = get_tree().current_scene.get_node_or_null('MinimapViewport')
-		if minimap_rect and minimap_viewport:
-			minimap_rect.texture = minimap_viewport.get_texture()
+	var minimap_viewport:SubViewport = get_tree().current_scene.get_node_or_null('MinimapViewport')
+	if minimap_rect and minimap_viewport:
+		minimap_rect.texture = minimap_viewport.get_texture()
 
 func setup(p_player: CharacterBody3D):
 	resume.visible = true
@@ -690,11 +689,7 @@ func hide_hud_for_heaven() -> void:
 	# Hide the new wisp cooldown we just made!
 	if wisp_cooldown:
 		wisp_cooldown.visible = false
-		
-	# --- IMPORTANT: UPDATE THESE NAMES! ---
-	# I am guessing the variable names for your stamina and bean labels.
-	# Make sure you change 'stamina_bar' and 'bean_label' to whatever 
-	# they are actually called at the top of your playergui.gd script!
+
 	if stamina_bar: 
 		stamina_bar.visible = false
 		

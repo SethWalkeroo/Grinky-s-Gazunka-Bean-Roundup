@@ -1,7 +1,10 @@
 [gd_scene format=3 uid="uid://dflwsyrxdx1ii"]
 
+[ext_resource type="Script" uid="uid://uo2y815q4ic3" path="res://scripts/exit_door.gd" id="1_sojrm"]
 [ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="1_syxuu"]
 [ext_resource type="AudioStream" uid="uid://bmkiw6p6xo7le" path="res://audio/open_door.wav" id="2_yk4m6"]
+[ext_resource type="PackedScene" uid="uid://b0tr43lxl3yaa" path="res://scenes/icon_component.tscn" id="3_6m21m"]
+[ext_resource type="Texture2D" uid="uid://bhjgy4kathwjg" path="res://exit_icon.png" id="4_sojrm"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_m23ym"]
 size = Vector3(3.50177, 4.005829, 0.78271484)
@@ -15,6 +18,7 @@ albedo_texture = ExtResource("1_syxuu")
 size = Vector3(3.4274902, 3.9038086, 0.63194275)
 
 [node name="exit_door" type="Area3D" unique_id=1886768539]
+script = ExtResource("1_sojrm")
 
 [node name="cube" type="CollisionShape3D" parent="." unique_id=220903057]
 shape = SubResource("BoxShape3D_m23ym")
@@ -44,3 +48,6 @@ shape = SubResource("BoxShape3D_syxuu")
 stream = ExtResource("2_yk4m6")
 volume_db = -23.385
 bus = &"effects"
+
+[node name="IconComponent" parent="." unique_id=798463184 instance=ExtResource("3_6m21m")]
+map_icon = ExtResource("4_sojrm")
