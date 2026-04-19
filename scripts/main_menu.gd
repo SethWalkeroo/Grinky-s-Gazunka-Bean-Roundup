@@ -203,6 +203,9 @@ var has_faded_in_number_1: bool = false
 const leaderboard_scene = preload("uid://byi13mqxxc8vm")
 @onready var video_settings: ColorRect = $video_settings
 @onready var minimap_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer/minimap_checkbox
+@onready var hotbar_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer2/hotbar_checkbox
+@onready var display_option_button: OptionButton = $video_settings/VBoxContainer/HBoxContainer3/DisplayOptionButton
+
 
 # --- CONTROLS REBINDING NODES & STATE ---
 @onready var controls_btn: Button = $Button 
@@ -318,7 +321,11 @@ func _ready() -> void:
 	heart_gradient_tex.gradient = grad
 	
 	_init_background_vibe()
+	# set options buttons
 	minimap_checkbox.button_pressed = GlobalStats.minimap_on
+	hotbar_checkbox.button_pressed = GlobalStats.hotbar_on
+	display_option_button.selected = GlobalStats.display_mode
+	_on_display_option_button_item_selected(GlobalStats.display_mode)
 	set_motd()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	name_input.max_length = MAX_CHAR_LIMIT
@@ -617,7 +624,9 @@ func _on_save_settings_pressed() -> void:
 	if bean_shop_button: bean_shop_button.visible = true
 	if stash_button: stash_button.visible = true
 	
+	GlobalStats.display_mode = display_option_button.selected
 	GlobalStats.minimap_on = minimap_checkbox.button_pressed
+	GlobalStats.hotbar_on = hotbar_checkbox.button_pressed
 	GlobalStats.master_vol = master_slider.value
 	GlobalStats.menu_music_vol = menu_music_slider.value
 	GlobalStats.effects_vol = effects_slider.value
@@ -1163,3 +1172,19 @@ func play_inventory_pump_sound() -> void:
 	if pump_sound:
 		pump_sound.pitch_scale = randf_range(0.95, 1.05)
 		pump_sound.play()
+
+
+func _on_hotbar_checkbox_pressed() -> void:
+	GlobalStats.play_click()
+
+
+func _on_display_option_button_item_selected(index: int) -> void:
+	match index:
+		0: # Windowed
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			# Optional: Center the window on the screen when they switch to it
+			# DisplayServer.window_set_position(DisplayServer.screen_get_position() + DisplayServer.screen_get_size()/2 - DisplayServer.window_get_size()/2)
+		1: # Fullscreen (Borderless)
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		2: # Exclusive Fullscreen
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)

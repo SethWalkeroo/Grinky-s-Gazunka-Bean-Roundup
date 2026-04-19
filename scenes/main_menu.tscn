@@ -390,6 +390,22 @@ offset_bottom = 69.5
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="HBoxContainer2" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=92304170]
+layout_mode = 2
+
+[node name="minimap_label" type="RichTextLabel" parent="video_settings/VBoxContainer/HBoxContainer2" unique_id=1548350366]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+bbcode_enabled = true
+text = "Hotbar visible: "
+fit_content = true
+scroll_active = false
+
+[node name="hotbar_checkbox" type="CheckBox" parent="video_settings/VBoxContainer/HBoxContainer2" unique_id=2079887083]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+button_pressed = true
+
 [node name="HBoxContainer" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=20513621]
 layout_mode = 2
 
@@ -405,6 +421,24 @@ scroll_active = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 button_pressed = true
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=1320879083]
+layout_mode = 2
+
+[node name="Label" type="RichTextLabel" parent="video_settings/VBoxContainer/HBoxContainer3" unique_id=300281466]
+custom_minimum_size = Vector2(200, 25)
+layout_mode = 2
+text = "Display Mode: "
+
+[node name="DisplayOptionButton" type="OptionButton" parent="video_settings/VBoxContainer/HBoxContainer3" unique_id=2078594534]
+layout_mode = 2
+item_count = 3
+popup/item_0/text = "Windowed"
+popup/item_0/id = 0
+popup/item_1/text = "Fullscreen"
+popup/item_1/id = 1
+popup/item_2/text = "Exclusive Fullscreen"
+popup/item_2/id = 2
 
 [node name="save_settings" type="Button" parent="video_settings/VBoxContainer" unique_id=2042556007]
 modulate = Color(0, 1, 0.07271314, 1)
@@ -543,6 +577,16 @@ mouse_default_cursor_shape = 2
 text = "Lean Right"
 
 [node name="ScreenshotBtn" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=931038611]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Lean Right"
+
+[node name="FlashlightBtn" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=25588390]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Lean Right"
+
+[node name="NightvisionBtn" type="Button" parent="controls_settings/ScrollContainer/GridContainer" unique_id=2023825343]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Lean Right"
@@ -2293,7 +2337,9 @@ bus = &"effects"
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="video_settings/VBoxContainer/HBoxContainer2/hotbar_checkbox" to="." method="_on_hotbar_checkbox_pressed"]
 [connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
+[connection signal="item_selected" from="video_settings/VBoxContainer/HBoxContainer3/DisplayOptionButton" to="." method="_on_display_option_button_item_selected"]
 [connection signal="pressed" from="video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="controls_settings/ScrollContainer/GridContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

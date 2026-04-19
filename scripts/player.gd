@@ -9,7 +9,7 @@ var water_surface_height: float = 0.0 # Where the top of the water is
 var bobbing_timer: float = 0.0
 
 #blackout run
-@export var blackout_run_chance = 0.2
+@export var blackout_run_chance = 0.444
 
 # --- PANIC ATTACK VARIABLES ---
 var panic_fov_modifier: float = 0.0
@@ -272,9 +272,12 @@ func setup_level() -> void:
 			world_env.environment.fog_light_energy = 0.015
 			world_env.environment.fog_light_color = Color('ffefc5')
 
+# --- LIGHT SOURCE CHECK ---
+	var has_light = get_total_item_count("flashlight") > 0 or get_total_item_count("nightvision") > 0
+
 	# --- THE BLACKOUT EVENT ---
 	# A 5% chance (0.05) that the map loads in pitch black!
-	if randf() <= blackout_run_chance:
+	if has_light and randf() <= blackout_run_chance:
 		print("Bravo Six, going dark...")
 		is_blackout_run = true
 		
@@ -454,7 +457,6 @@ func _input(event: InputEvent) -> void:
 		gui.menu_vbox.visible = true
 		gui.menu_vbox.move_to_front()
 		paused = true
-		if gui.hotbar: gui.hotbar.visible = false
 		return
 	elif event.is_action_pressed('pause') and paused and !dead:
 		if gui.is_in_sub_menus():
@@ -542,7 +544,6 @@ func unpause_game() -> void:
 	gui.menu_vbox.visible = false
 	gui.settings_panel.visible = false
 	paused = false
-	if gui.hotbar: gui.hotbar.visible = true
 
 func fire_shotgun() -> void:
 	if is_switching_weapons or is_reloading: return
@@ -970,11 +971,11 @@ func update_crosshair(delta: float) -> void:
 		for i in object_grabber_shapecast.get_collision_count():
 			var collided = object_grabber_shapecast.get_collider(i)
 			if collided is RigidBody3D:
-				var space_state = get_world_3d().direct_space_state
-				var query = PhysicsRayQueryParameters3D.create(camera_3d.global_position, collided.global_position)
-				query.exclude = [self.get_rid(), collided.get_rid()]
-				query.collision_mask = 1 
-				if not space_state.intersect_ray(query):
+				var new_space_state = get_world_3d().direct_space_state
+				var obj_query = PhysicsRayQueryParameters3D.create(camera_3d.global_position, collided.global_position)
+				obj_query.exclude = [self.get_rid(), collided.get_rid()]
+				obj_query.collision_mask = 1 
+				if not new_space_state.intersect_ray(obj_query):
 					is_interactable = true
 					break
 				
@@ -2105,5 +2106,5 @@ func _on_voicelines_slider_value_changed(value: float): gui._on_voicelines_slide
 func _on_ambient_noise_slider_value_changed(value: float): gui._on_ambient_noise_slider_value_changed(value)
 func _on_video_button_pressed(): gui._on_video_button_pressed()
 func _on_check_box_toggled(toggled_on: bool): gui._on_check_box_toggled(toggled_on)
-func _on_minimap_checkbox_toggled(toggled_on: bool): gui._on_minimap_checkbox_toggled(toggled_on)
 func _on_resume_pressed(): gui._on_resume_pressed()
+func _on_hotbar_checkbox_toggled(toggled_on: bool): gui._on_hotbar_checkbox_toggled(toggled_on)

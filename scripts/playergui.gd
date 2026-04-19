@@ -3,12 +3,11 @@ class_name PlayerGUI
 
 var player: CharacterBody3D
 
+
 @export var minimap_rect: TextureRect
 const INVENTORY_SAVE_PATH = "user://player_inventory.json"
 @onready var typing_sound: AudioStreamPlayer = $typing_sound
 @onready var nvg_slot: ColorRect = $inventory_menu/nvg_slot
-
-var hide_hotbar_setting: bool = false
 
 
 # --- CRANK MINIGAME ---
@@ -55,6 +54,8 @@ var crank_speed: float = 0.0
 @onready var controls_grid: GridContainer = $controls_settings/ScrollContainer/GridContainer
 @onready var minimap_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer/minimap_checkbox
 @onready var resume: Button = $VBoxContainer/resume
+@onready var hotbar_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer2/hotbar_checkbox
+@onready var display_option_button: OptionButton = $video_settings/VBoxContainer/HBoxContainer3/DisplayOptionButton
 
 # --- INVENTORY UI ---
 @onready var hotbar: Control = $Hotbar
@@ -87,7 +88,7 @@ var voicelines_bus = AudioServer.get_bus_index("game_voicelines")
 var ambient_noise_bus = AudioServer.get_bus_index('ambient_noise')
 
 func _ready():
-	print(GlobalStats.came_from_main_menu)
+	print(GlobalStats.display_mode)
 	add_to_group("hud")
 	
 	if !("heaven.tscn" in get_tree().current_scene.scene_file_path):
@@ -102,9 +103,15 @@ func setup(p_player: CharacterBody3D):
 	if quit_confirm_panel: quit_confirm_panel.visible = false
 	if confirm_quit_btn: confirm_quit_btn.pressed.connect(_on_confirm_quit_pressed)
 	if cancel_quit_btn: cancel_quit_btn.pressed.connect(_on_cancel_quit_pressed)
-
+	
+	# hotbar and minimap settings
 	minimap_checkbox.button_pressed = GlobalStats.minimap_on
+	hotbar_checkbox.button_pressed = GlobalStats.hotbar_on
 	minimap.visible = GlobalStats.minimap_on
+	hotbar.visible = GlobalStats.hotbar_on
+	
+	display_option_button.selected = GlobalStats.display_mode
+	_on_display_option_button_item_selected(GlobalStats.display_mode)
 
 	sync_settings_from_global()
 
@@ -511,7 +518,9 @@ func _on_save_settings_pressed() -> void:
 	video_settings.visible = false
 	controls_settings.visible = false
 	menu_vbox.visible = true
+	GlobalStats.display_mode = display_option_button.selected
 	GlobalStats.minimap_on = minimap.visible
+	GlobalStats.hotbar_on = hotbar.visible
 	GlobalStats.master_vol = master_slider.value
 	GlobalStats.menu_music_vol = chase_music_slider.value 
 	GlobalStats.effects_vol = effects_slider.value
@@ -558,8 +567,10 @@ func _on_check_box_toggled(toggled_on: bool) -> void:
 	GlobalStats.play_click()
 	minimap.visible = toggled_on
 		
-func _on_minimap_checkbox_toggled(_toggled_on: bool) -> void:
+
+func _on_hotbar_checkbox_toggled(toggled_on: bool) -> void:
 	GlobalStats.play_click()
+	hotbar.visible = toggled_on
 
 func update_wisp_cooldown(current_time: float, max_time: float) -> void:
 	if wisp_cooldown:
@@ -690,8 +701,22 @@ func hide_hud_for_heaven() -> void:
 	if beans_found_label: 
 		beans_found_label.visible = false
 
+
 func _on_master_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(master_bus, linear_to_db(value))
 func _on_chase_music_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(chase_music_bus, linear_to_db(value))
 func _on_effects_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(effects_bus, linear_to_db(value))
 func _on_voicelines_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(voicelines_bus, linear_to_db(value))
 func _on_ambient_noise_slider_value_changed(value: float) -> void: AudioServer.set_bus_volume_db(ambient_noise_bus, linear_to_db(value))
+
+
+func _on_display_option_button_item_selected(index: int) -> void:
+	print(display_option_button.selected)
+	match index:
+		0: # Windowed
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			# Optional: Center the window on the screen when they switch to it
+			# DisplayServer.window_set_position(DisplayServer.screen_get_position() + DisplayServer.screen_get_size()/2 - DisplayServer.window_get_size()/2)
+		1: # Fullscreen (Borderless)
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		2: # Exclusive Fullscreen
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)

@@ -23,14 +23,16 @@ var effects_vol: float = 1.0
 var voicelines_vol: float = 1.0
 var ambient_noise_vol: float = 1.0
 var mouse_sens: float = 0.4
-var minimap_on = false
+var minimap_on = true
+var hotbar_on = true
+var display_mode = 0
 
 # --- KEYBINDS DATA ---
 var keybinds_to_save: Array = [
 	"forward", "backward", "left", "right", "beansense",
 	"jump", "sprint", "crouch", "interact", "interact2",
 	"throw", "torch", "freelook", "leanleft", "leanright", "screenshot",
-	"reload", "inventory"
+	"reload", "inventory", "flashlight", "nightvision"
 ]
 
 const SAVE_PATH = "user://gazunka_records.cfg"
@@ -111,7 +113,9 @@ func save_to_disk():
 	# Save Bean Jar (NEW)
 	config.set_value("Meta", "total_beans_collected", total_beans_collected)
 	
+	config.set_value("Settings", "display_mode", display_mode)
 	config.set_value("Settings", "minimap_on", minimap_on)
+	config.set_value("Settings", "hotbar_on", hotbar_on)
 	config.set_value("Settings", "master_vol", master_vol)
 	config.set_value("Settings", "menu_music_vol", menu_music_vol)
 	config.set_value("Settings", "effects_vol", effects_vol)
@@ -136,7 +140,9 @@ func load_data():
 		# Load Bean Jar (NEW)
 		total_beans_collected = config.get_value("Meta", "total_beans_collected", 0)
 		
-		minimap_on = config.get_value("Settings", 'minimap_on', false)
+		display_mode = config.get_value("Settings", "display_mode", 0)
+		minimap_on = config.get_value("Settings", "minimap_on", true)
+		hotbar_on = config.get_value("Settings", "hotbar_on", true)
 		master_vol = config.get_value("Settings", "master_vol", 1.0)
 		menu_music_vol = config.get_value("Settings", "menu_music_vol", 1.0)
 		effects_vol = config.get_value("Settings", "effects_vol", 1.0)
