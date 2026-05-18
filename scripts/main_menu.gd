@@ -191,7 +191,12 @@ var motds = [
 	'"[i]What the mind of man can [color=cyan]conceive and believe[/color], it can [color=gold]achieve[/color].[/i]" [rainbow]-Napoleon Hill[/rainbow]',
 	'"[i][color=gold]Opportunities[/color] don\'t [color=orange]happen[/color], you [rainbow]create[/rainbow] them.[/i]" [color=yellow]-Chris Grosser[/color]',
 	'"[i]Don\'t let the [color=red]bastards[/color] grind you down.[/i]" [color=green]-Margaret Atwood[/color]',
-	'"[i]Deep in your [color=red]wounds[/color] are [color=green]seeds[/color], waiting to grow [color=purple]beautiful[/color] [color=pink]flowers[/color].[/i]" [color=orange]-Niti Majethia[/color]'
+	'"[i]Deep in your [color=red]wounds[/color] are [color=green]seeds[/color], waiting to grow [color=purple]beautiful[/color] [color=pink]flowers[/color].[/i]" [color=orange]-Niti Majethia[/color]',
+	'"[i][color=gold]Belief[/color] creates the actual [color=red]fact[/color].[/i]" [color=orange]-William James[/color]',
+	'"[i]It is [color=black]during our darkest moments[/color] that we must [color=cyan]focus to see the light[/color].[/i]" [color=gold]-Aristotle[/color]',
+	'"[i]Real [color=orange]change[/color], enduring [color=orange]change[/color], happens one step at a time.[/i]" [color=red]-Ruth Bader Ginsburg[/color]',
+	'"[i]When it comes to [color=green]luck[/color], you [color=gold]make your own[/color].[/i]" [rainbow]-Bruce Springsteen[/rainbow]',
+	'"[i]We generate [color=red]fears[/color] while we sit. We [color=gold]overcome[/color] them by [color=orange]action[/color].[/i]" [color=red]-Dr. Henry Link[/color]'
 ]
 
 var last_motd_index: int = -1
