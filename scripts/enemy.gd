@@ -12,6 +12,11 @@ var tracks_followed: int = 0
 @export var shotgun_ammo_scene: PackedScene
 @onready var enemy_hurt_noise: AudioStreamPlayer3D = $enemy_hurt_noise
 
+# --- NEW: MOUTH ANIMATION VARIABLES ---
+@export var body_mesh: MeshInstance3D
+var mouth_blend_idx: int = -1
+var mouth_time: float = 0.0
+
 # --- NEW: UNIQUE CLONE VOICES ---
 var base_pitch_multiplier: float = 1.0
 
@@ -132,6 +137,9 @@ func _ready():
 	add_to_group("enemy") 
 	speed = base_speed 
 	
+	if body_mesh:
+		mouth_blend_idx = body_mesh.find_blend_shape_by_name("Mouth Open")
+	
 	if current_wave_size == 1:
 		base_pitch_multiplier = 1.0
 	else:
@@ -184,6 +192,28 @@ func _ready():
 func _on_nav_map_changed(_map_rid):
 	nav_map_ready = true
 
+func _process(delta: float) -> void:
+	if disabled or is_ragdolled: 
+		return
+		
+	# Make sure we actually found the mesh and the blend shape
+	if body_mesh != null and mouth_blend_idx != -1:
+		
+		if is_speaking():
+			# Increase the timer (Change the '20.0' to make him flap his mouth faster or slower)
+			mouth_time += delta * 20.0 
+			
+			# sin() naturally bounces between -1.0 and 1.0 based on the time!
+			var mouth_val = sin(mouth_time)
+			body_mesh.set_blend_shape_value(mouth_blend_idx, mouth_val)
+			
+		else:
+			# Smoothly snap the mouth back to 0.0 when he stops talking
+			mouth_time = 0.0
+			var current_val = body_mesh.get_blend_shape_value(mouth_blend_idx)
+			body_mesh.set_blend_shape_value(mouth_blend_idx, lerp(current_val, 0.0, delta * 15.0))
+
+
 func _physics_process(delta):
 	if disabled: return
 	
@@ -191,6 +221,7 @@ func _physics_process(delta):
 	if global_position.y < -15.0 and not is_ragdolled:
 		take_damage(current_health)
 		return
+
 
 	if is_ragdolled:
 		if ragdoll_spine:
@@ -562,6 +593,11 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 		if not is_chasing:
 			sight_burst_timer = 2.0 
 			
+		# --- THE FIX: Break the intro lock if he spots the player! ---
+		if is_intro_playing and ready_or_not and ready_or_not.playing:
+			ready_or_not.stop()
+			is_intro_playing = false
+			
 		if player_is_hidden and not has_acknowledged_hiding:
 			play_voiceline_from_node(hiding_voicelines)
 			has_acknowledged_hiding = true
@@ -582,21 +618,16 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 		investigation_timer = investigation_time 
 		
 		# --- THE SPICE: THE PREDATOR INTERCEPT ---
-		# Get the player's flat velocity
 		var player_vel = Vector3(player.velocity.x, 0, player.velocity.z)
 		
-		# If Gordon is sprinting, aim for where he will be in 0.6 seconds!
 		if player_vel.length() > 4.0: 
 			var intercept_pos = player.global_position + (player_vel * 0.6)
-			
-			# Ask the nav map to clamp the intercept point so the enemy doesn't try to run into a wall
 			var map = nav_agent.get_navigation_map()
 			if map.is_valid():
 				current_target_pos = NavigationServer3D.map_get_closest_point(map, intercept_pos)
 			else:
 				current_target_pos = player.global_position
 		else:
-			# If Gordon is sneaking, standing still, or walking slow, just run straight at him
 			current_target_pos = player.global_position
 			
 		nav_agent.set_target_position(current_target_pos)
@@ -615,14 +646,10 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 			var closest_footprint = null
 			var closest_dist = 6.0 
 			
-			# --- THE SPICE: FRUSTRATION METER ---
-			# If I've followed 5 footprints and still haven't seen Gordon, it's a trick! 
-			# Ignore the trail and do a wide sweep.
 			if tracks_followed >= 5:
 				found_trail = false
-				tracks_followed = 0 # Reset the frustration meter
+				tracks_followed = 0 
 			else:
-				# Scan the floor for Gordon's tracks!
 				for print in get_tree().get_nodes_in_group("player_footprints"):
 					if is_instance_valid(print):
 						var d = global_position.distance_to(print.global_position)
@@ -632,13 +659,12 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 							
 			if closest_footprint:
 				found_trail = true
-				tracks_followed += 1 # Add frustration!
+				tracks_followed += 1 
 				current_target_pos = closest_footprint.global_position
 				nav_agent.set_target_position(current_target_pos)
 				closest_footprint.queue_free()
 				
 			if not found_trail:
-				# Sweep the area!
 				var forward_bias = player_travel_dir if player_travel_dir.length_squared() > 0.01 else -global_transform.basis.z
 				var random_dir = (Vector3(randf_range(-0.6, 0.6), 0, randf_range(-0.6, 0.6)) + (forward_bias * 1.5)).normalized()
 				var local_sweep_point = global_position + (random_dir * randf_range(4.0, 8.0))
@@ -659,7 +685,6 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 			if active_voiceline == null or not active_voiceline.playing:
 				play_voiceline_from_node(chasing_voicelines)
 			chase_voiceline_timer = randf_range(chase_voiceline_min_interval, chase_voiceline_max_interval)
-
 func calculate_patrol_route() -> void:
 	if not nav_map_ready: return
 	var target_center = global_position
@@ -1073,6 +1098,16 @@ func spawn_revenge_enemies() -> void:
 			var new_enemy = main_scene.request_enemy()
 			new_enemy.wake_up_from_pool(new_wave_size, self.beans_collected, final_pos)
 
+func is_speaking() -> bool:
+	if is_intro_playing and ready_or_not and ready_or_not.playing: 
+		return true
+	if active_voiceline and active_voiceline.playing: 
+		return true
+	if allsevenbeans_voiceline and allsevenbeans_voiceline.playing: 
+		return true
+	if kick_voiceline and kick_voiceline.playing:
+		return true
+	return false
 
 # --- THE AUDIO LOCK SYSTEM ---
 func start_the_hunt_intro() -> void:

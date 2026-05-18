@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://8vsgrhac485i"
 path.s3tc="res://.godot/imported/rock_cliff.png-a6698333ac5af8bf890ae3f4e7248fed.s3tc.ctex"
+path.etc2="res://.godot/imported/rock_cliff.png-a6698333ac5af8bf890ae3f4e7248fed.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://rock_cliff.png"
-dest_files=["res://.godot/imported/rock_cliff.png-a6698333ac5af8bf890ae3f4e7248fed.s3tc.ctex"]
+dest_files=["res://.godot/imported/rock_cliff.png-a6698333ac5af8bf890ae3f4e7248fed.s3tc.ctex", "res://.godot/imported/rock_cliff.png-a6698333ac5af8bf890ae3f4e7248fed.etc2.ctex"]
 
 [params]
 

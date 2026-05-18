@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ckpwvjjnkl4vx"
 path.s3tc="res://.godot/imported/goblin.png-8d6bfde9f8785176b1602ab96871d43f.s3tc.ctex"
+path.etc2="res://.godot/imported/goblin.png-8d6bfde9f8785176b1602ab96871d43f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://goblin.png"
-dest_files=["res://.godot/imported/goblin.png-8d6bfde9f8785176b1602ab96871d43f.s3tc.ctex"]
+dest_files=["res://.godot/imported/goblin.png-8d6bfde9f8785176b1602ab96871d43f.s3tc.ctex", "res://.godot/imported/goblin.png-8d6bfde9f8785176b1602ab96871d43f.etc2.ctex"]
 
 [params]
 

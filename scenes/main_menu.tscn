@@ -53,7 +53,14 @@ hue_variation_max = 0.54999995
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ajci"]
 shader = ExtResource("2_rcqid")
+shader_parameter/color_depth = 48
 shader_parameter/spread = 0.02
+shader_parameter/aberration_amount = 1.0
+shader_parameter/vignette_size = 1.0
+shader_parameter/vignette_opacity = 0.3
+shader_parameter/shadow_tint = Color(0.02, 0.05, 0.1, 1)
+shader_parameter/shadow_lift = 0.2
+shader_parameter/highlight_glow = 0.8
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wu84c"]
 shader = ExtResource("2_bqqt6")
@@ -85,7 +92,6 @@ amount = 6
 process_material = SubResource("ParticleProcessMaterial_rtw2f")
 
 [node name="DitherShader" type="ColorRect" parent="." unique_id=1580449548]
-visible = false
 material = SubResource("ShaderMaterial_1ajci")
 anchors_preset = 15
 anchor_right = 1.0
@@ -626,7 +632,7 @@ offset_top = 307.0
 offset_right = 461.0
 offset_bottom = 382.0
 bbcode_enabled = true
-text = "[color=black]\"[/color][color=cyan][i]Don[color=black]\\'[/color]t you know[color=black]?[/color] She[color=black]\\'[/color]s been here all along[color=black],[/color] in a [color=pink]d[/color][color=white]r[/color][color=pink]e[/color][color=white]a[/color][color=pink]m[/color][color=black],[/color] she belongs in a [color=pink]d[/color][color=white]r[/color][color=pink]e[/color][color=white]a[/color][color=pink]m[/color][/i][/color][color=black].\"[/color] [color=brown]-Alex G[/color]"
+text = "\"[i][color=FCEA0E]Once you choose hope, anything\\'s possible.[/color][/i]\" -[color=#0160AC]Christopher[/color] [color=E60026]Reeve[/color]"
 horizontal_alignment = 1
 
 [node name="menu_noises" type="Control" parent="." unique_id=377298535]
@@ -758,6 +764,7 @@ mouse_default_cursor_shape = 2
 text = "Your Stash"
 
 [node name="shop_panel" type="ColorRect" parent="." unique_id=777782643]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

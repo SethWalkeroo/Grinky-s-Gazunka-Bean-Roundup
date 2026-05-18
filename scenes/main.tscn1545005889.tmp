@@ -17,7 +17,6 @@
 [ext_resource type="Script" uid="uid://bbwbutuqesrx4" path="res://scripts/minimap_cam.gd" id="13_trceg"]
 [ext_resource type="PackedScene" uid="uid://dgx61roj54ff3" path="res://scenes/table.tscn" id="14_a8y0u"]
 [ext_resource type="AudioStream" uid="uid://qtqiopm4nu4l" path="res://audio/floor_creak.wav" id="17_muem4"]
-[ext_resource type="AudioStream" uid="uid://nidjuj6htay6" path="res://audio/mission_intro_sound.wav" id="18_dp3eg"]
 
 [sub_resource type="Environment" id="Environment_o6xl0"]
 background_energy_multiplier = 0.0
@@ -292,6 +291,8 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 1
 projection = 1
 size = 50.0
 script = ExtResource("13_trceg")
+pulse_interval = 2.0
+fade_speed = 2.0
 
 [node name="floor_creak_sounds" type="Node3D" parent="." unique_id=571564170]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.141111, 0, 15.074257)
@@ -322,11 +323,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.319864, 0, 48.82242)
 stream = ExtResource("17_muem4")
 volume_db = -40.0
 unit_size = 4.05
-bus = &"effects"
-
-[node name="start_round_music" type="AudioStreamPlayer" parent="." unique_id=1789766499]
-stream = ExtResource("18_dp3eg")
-volume_db = -39.907
 bus = &"effects"
 
 [connection signal="enemy_dead" from="NavigationRegion3D/Enemy" to="." method="_on_enemy_enemy_dead"]

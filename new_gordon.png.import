@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://h84t8cg4b2w2"
 path.s3tc="res://.godot/imported/new_gordon.png-ec3c456449cc2a7e8936e3c29672ca48.s3tc.ctex"
+path.etc2="res://.godot/imported/new_gordon.png-ec3c456449cc2a7e8936e3c29672ca48.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://new_gordon.png"
-dest_files=["res://.godot/imported/new_gordon.png-ec3c456449cc2a7e8936e3c29672ca48.s3tc.ctex"]
+dest_files=["res://.godot/imported/new_gordon.png-ec3c456449cc2a7e8936e3c29672ca48.s3tc.ctex", "res://.godot/imported/new_gordon.png-ec3c456449cc2a7e8936e3c29672ca48.etc2.ctex"]
 
 [params]
 

@@ -22,7 +22,6 @@
 [ext_resource type="AudioStream" uid="uid://c36u4e1xaheyq" path="res://audio/im_gonna_eat_you.wav" id="16_ile5s"]
 [ext_resource type="AudioStream" uid="uid://bomtoo5cliqsw" path="res://audio/nice_hiding_spot.wav" id="17_shcg2"]
 [ext_resource type="AudioStream" uid="uid://d4gmx6ge7jt13" path="res://audio/enemy_audio/enemy_death_noise.wav" id="21_rogs8"]
-[ext_resource type="Texture2D" uid="uid://h84t8cg4b2w2" path="res://new_gordon.png" id="22_i4rgx"]
 [ext_resource type="AudioStream" uid="uid://bewtxiowj8jds" path="res://audio/barefoot.wav" id="22_wrm80"]
 [ext_resource type="AudioStream" uid="uid://y6tioj0fva6s" path="res://audio/enemy_audio/ready_or_not_here_I_come.wav" id="24_wjec0"]
 
@@ -42,7 +41,6 @@ stereo = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wjec0"]
 albedo_color = Color(1, 0.74185026, 0.5966903, 1)
-albedo_texture = ExtResource("22_i4rgx")
 metallic = 1.0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_knu3m"]
@@ -5267,8 +5265,8 @@ debug_path_custom_color = Color(1, 0, 0.082829, 1)
 
 [node name="enemy_footsteps" type="AudioStreamPlayer3D" parent="." unique_id=415056176]
 stream = ExtResource("4_5uy6h")
-volume_db = -30.566
-unit_size = 7.77
+volume_db = -25.0
+unit_size = 7.78
 pitch_scale = 0.53
 bus = &"effects"
 script = ExtResource("5_i4rgx")
@@ -5276,7 +5274,6 @@ script = ExtResource("5_i4rgx")
 [node name="kick" type="AudioStreamPlayer3D" parent="." unique_id=1513190005]
 stream = ExtResource("5_c4w8v")
 volume_db = -43.37
-unit_size = 7.77
 
 [node name="DebugMarker" type="MeshInstance3D" parent="." unique_id=1481513622]
 visible = false
@@ -5289,28 +5286,24 @@ surface_material_override/0 = SubResource("StandardMaterial3D_c4w8v")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.000873e-08, 3.1187658, -0.33561754)
 stream = SubResource("AudioStreamWAV_5uy6h")
 volume_db = -25.0
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="elfflesh" type="AudioStreamPlayer3D" parent="random_voicelines" unique_id=57748392]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9513793e-08, 3.1206439, -0.33146572)
 stream = ExtResource("6_md484")
 volume_db = -30.422
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="you_can_run" type="AudioStreamPlayer3D" parent="random_voicelines" unique_id=1831020754]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9513793e-08, 3.1206439, -0.33146572)
 stream = ExtResource("7_g0wcc")
 volume_db = -27.235
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="i_sure_hope" type="AudioStreamPlayer3D" parent="random_voicelines" unique_id=1572284259]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9513793e-08, 3.1206439, -0.33146572)
 stream = ExtResource("7_1x4g4")
 volume_db = -27.235
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="voiceline_timer" type="Timer" parent="." unique_id=1563209444]
@@ -5323,7 +5316,6 @@ autostart = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.549195e-08, 3.107088, -0.29772806)
 stream = ExtResource("6_xwavj")
 volume_db = -27.397
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="lost_track_voicelines" type="Node3D" parent="." unique_id=456989667]
@@ -5332,28 +5324,24 @@ bus = &"game_voicelines"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0579067e-08, 3.12711, -0.3404019)
 stream = ExtResource("7_nenq2")
 volume_db = -25.205
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="hmm" type="AudioStreamPlayer3D" parent="lost_track_voicelines" unique_id=1063653305]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5593587e-08, 3.1452136, -0.29858065)
 stream = ExtResource("9_w8i8w")
 volume_db = -30.588
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="run_off_to" type="AudioStreamPlayer3D" parent="lost_track_voicelines" unique_id=534329071]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4768598e-08, 3.1329832, -0.37554622)
 stream = ExtResource("11_2pwtc")
 volume_db = -28.411
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="allsevenbeans_voiceline" type="AudioStreamPlayer3D" parent="." unique_id=406514905]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.169891e-08, 3.1195436, -0.34979582)
 stream = ExtResource("9_ipns3")
 volume_db = -30.82
-unit_size = 7.77
 pitch_scale = 0.7
 bus = &"effects"
 script = ExtResource("5_i4rgx")
@@ -5370,13 +5358,11 @@ light_color = Color(0.87109375, 0.6614753, 0, 1)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3700965e-08, 3.1399667, -0.36659026)
 stream = ExtResource("10_8qclf")
 volume_db = -27.059
-unit_size = 7.77
 
 [node name="I_hear_you" type="AudioStreamPlayer3D" parent="hear_player_voicelines" unique_id=794496811]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.218458e-08, 3.1379147, -0.35386992)
 stream = ExtResource("13_s1ycm")
 volume_db = -27.35
-unit_size = 7.77
 
 [node name="IconComponent" parent="." unique_id=798463184 instance=ExtResource("12_otmr2")]
 map_icon = ExtResource("14_g0wcc")
@@ -5386,12 +5372,10 @@ map_icon = ExtResource("14_g0wcc")
 [node name="im_comin_forya" type="AudioStreamPlayer3D" parent="chasing_voicelines" unique_id=490288571]
 stream = ExtResource("14_j0cyh")
 volume_db = -30.114
-unit_size = 7.77
 
 [node name="im_gonna_eat_you" type="AudioStreamPlayer3D" parent="chasing_voicelines" unique_id=1593060321]
 stream = ExtResource("16_ile5s")
 volume_db = -30.114
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="hiding_voicelines" type="Node3D" parent="." unique_id=1162014323]
@@ -5399,7 +5383,6 @@ bus = &"game_voicelines"
 [node name="nice_hiding_spot" type="AudioStreamPlayer3D" parent="hiding_voicelines" unique_id=514933416]
 stream = ExtResource("17_shcg2")
 volume_db = -28.571
-unit_size = 7.77
 
 [node name="footprint_raycast" type="RayCast3D" parent="." unique_id=2015431107]
 target_position = Vector3(0, -2, 0)
@@ -5593,11 +5576,11 @@ skin = SubResource("Skin_esing")
 skeleton = NodePath("..")
 blend_shapes/MouthOpen = 1.0
 blend_shapes/Angry = 1.0
-blend_shapes/FAT = 0.54902
-blend_shapes/Boobs = -0.1111
-blend_shapes/Pregnant = 0.0597
-blend_shapes/Head = 0.33333
-blend_shapes/Forehead = -1.0
+blend_shapes/FAT = 0.69001
+blend_shapes/Boobs = 0.22428
+blend_shapes/Pregnant = 1.0
+blend_shapes/Head = 1.0
+blend_shapes/Forehead = 1.0
 
 [node name="PhysicalBoneSimulator3D" type="PhysicalBoneSimulator3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D" unique_id=1262855781 groups=["flesh"]]
 
@@ -5992,12 +5975,12 @@ transform = Transform3D(0.010000073, -1.906301e-09, 4.831236e-09, 5.005859e-09, 
 shape = SubResource("CapsuleShape3D_6awcb")
 
 [node name="Physical Bone mixamorig_Head" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1708109777 groups=["flesh"]]
-transform = Transform3D(-51.590622, -1.326065, -13.457092, 0.14516945, -53.127518, 4.678661, -13.52149, 4.489152, 51.395145, 0.97474426, -5.5257735, -166.48218)
+transform = Transform3D(-51.590622, -1.326065, -13.457092, 0.14516945, -53.127518, 4.678661, -13.52149, 4.489152, 51.395145, 0.19326985, -5.5257688, -166.48218)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02102091, 0.0015062913, 0.18642218)
-body_offset = Transform3D(-53.333324, 0.0014031976, -0.00057286024, 0.0009128973, 13.071789, -51.70663, -0.0012236685, -51.706623, -13.071788, 1.1212196, 9.619553, 2.514782)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.006847, 0.001142066, 0.18272516)
+body_offset = Transform3D(-53.333324, 0.0014031976, -0.00057286024, 0.0009128973, 13.071789, -51.70663, -0.0012236685, -51.706623, -13.071788, 0.36527634, 9.4331665, 2.4476051)
 mass = 5.0
 linear_damp = 2.0
 bone_name = "mixamorig_Head"
@@ -6772,12 +6755,12 @@ transform = Transform3D(0.010000104, 4.5101842e-09, -3.0195224e-10, 3.783498e-10
 shape = SubResource("CapsuleShape3D_thsr5")
 
 [node name="Physical Bone mixamorig_LeftToeBase" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=377021156 groups=["flesh"]]
-transform = Transform3D(-52.994904, -0.21600316, -5.9947963, 5.990171, 0.93331105, -52.987648, 0.31950957, -53.324726, -0.90312815, 13.753361, 5.7625055, -0.8755306)
+transform = Transform3D(-52.994904, -0.21600316, -5.9947963, 5.990171, 0.93331105, -52.987648, 0.31950957, -53.324726, -0.90312815, 13.753361, 5.7625055, -0.8960008)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0002612165, 0.0015543324, 0.04898378)
-body_offset = Transform3D(53.333538, 0.00071403384, 0.0032353401, 0.0032901764, 0.0011008382, -53.33335, -0.00074759126, 53.33334, 0.0011065006, 0.013772011, 2.6124682, -0.08295214)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00025892214, 0.0011705778, 0.04897728)
+body_offset = Transform3D(53.333538, 0.00071403384, 0.0032353401, 0.0032901764, 0.0011008382, -53.33335, -0.00074759126, 53.33334, 0.0011065006, 0.0136499405, 2.612122, -0.062485218)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftToeBase"
@@ -7170,23 +7153,19 @@ libraries/ = SubResource("AnimationLibrary_2tuss")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.291416e-08, 3.081475, -0.27610397)
 stream = ExtResource("21_rogs8")
 volume_db = 16.583
-unit_size = 7.77
 bus = &"game_voicelines"
 
 [node name="ragdoll_impact_sound" type="AudioStreamPlayer3D" parent="." unique_id=1859727033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3459258, 0)
 stream = ExtResource("22_wrm80")
-unit_size = 7.77
 bus = &"effects"
 
 [node name="enemy_hurt_noise" type="AudioStreamPlayer3D" parent="." unique_id=1200530606]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.978436e-08, 3.0864108, -0.3337354)
 stream = SubResource("AudioStreamWAV_wrm80")
 volume_db = -1.558
-unit_size = 7.77
 
 [node name="ready_or_not" type="AudioStreamPlayer3D" parent="." unique_id=1243677185]
 stream = ExtResource("24_wjec0")
-unit_size = 7.77
 
 [connection signal="timeout" from="voiceline_timer" to="." method="_on_timer_timeout"]

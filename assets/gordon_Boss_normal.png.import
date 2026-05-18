@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cwswl724iaafl"
 path.s3tc="res://.godot/imported/gordon_Boss_normal.png-75438c0851fe3b734e097cece11887ef.s3tc.ctex"
+path.etc2="res://.godot/imported/gordon_Boss_normal.png-75438c0851fe3b734e097cece11887ef.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/gordon_Boss_normal.png"
-dest_files=["res://.godot/imported/gordon_Boss_normal.png-75438c0851fe3b734e097cece11887ef.s3tc.ctex"]
+dest_files=["res://.godot/imported/gordon_Boss_normal.png-75438c0851fe3b734e097cece11887ef.s3tc.ctex", "res://.godot/imported/gordon_Boss_normal.png-75438c0851fe3b734e097cece11887ef.etc2.ctex"]
 
 [params]
 

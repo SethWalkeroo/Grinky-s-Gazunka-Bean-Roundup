@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dyrxcau2cespm"
 path.s3tc="res://.godot/imported/foliage_foliage.png-8891252c050a823e023506af69cb40be.s3tc.ctex"
+path.etc2="res://.godot/imported/foliage_foliage.png-8891252c050a823e023506af69cb40be.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://heaven_assets/foliage_foliage.png"
-dest_files=["res://.godot/imported/foliage_foliage.png-8891252c050a823e023506af69cb40be.s3tc.ctex"]
+dest_files=["res://.godot/imported/foliage_foliage.png-8891252c050a823e023506af69cb40be.s3tc.ctex", "res://.godot/imported/foliage_foliage.png-8891252c050a823e023506af69cb40be.etc2.ctex"]
 
 [params]
 

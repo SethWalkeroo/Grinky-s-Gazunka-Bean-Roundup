@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://rvgfe4dh3mrj"
 path.s3tc="res://.godot/imported/shotgun_ammo.png-7c4c4281cdb4ecee14231cb5a730c97b.s3tc.ctex"
+path.etc2="res://.godot/imported/shotgun_ammo.png-7c4c4281cdb4ecee14231cb5a730c97b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://icons/shotgun_ammo.png"
-dest_files=["res://.godot/imported/shotgun_ammo.png-7c4c4281cdb4ecee14231cb5a730c97b.s3tc.ctex"]
+dest_files=["res://.godot/imported/shotgun_ammo.png-7c4c4281cdb4ecee14231cb5a730c97b.s3tc.ctex", "res://.godot/imported/shotgun_ammo.png-7c4c4281cdb4ecee14231cb5a730c97b.etc2.ctex"]
 
 [params]
 

@@ -20,15 +20,16 @@
 [ext_resource type="Shader" uid="uid://drtxmx7yahnwh" path="res://shaders/nightvision.gdshader" id="13_wqfne"]
 [ext_resource type="AudioStream" uid="uid://byq7c0tos8qcj" path="res://audio/ymmy_gazunka_bean.wav" id="14_l71n6"]
 [ext_resource type="AudioStream" uid="uid://cqq2fuk0uym7p" path="res://audio/flashlight_crank_sound.wav" id="14_md1ol"]
+[ext_resource type="Shader" uid="uid://b22ys3o215xmt" path="res://shaders/player.gdshader" id="15_hax0n"]
 [ext_resource type="Shader" uid="uid://bejbbr0hi2qun" path="res://shaders/underwater.gdshader" id="15_jc3p3"]
 [ext_resource type="AudioStream" uid="uid://0bm3t6gs3thi" path="res://audio/ripe_gazunka_bean.wav" id="15_ke2ow"]
 [ext_resource type="AudioStream" uid="uid://cks72bjuhemok" path="res://audio/SNAP.wav" id="15_oprun"]
 [ext_resource type="PackedScene" uid="uid://b0tr43lxl3yaa" path="res://scenes/icon_component.tscn" id="17_qfm1y"]
-[ext_resource type="Texture2D" uid="uid://ckpwvjjnkl4vx" path="res://goblin.png" id="18_fulsm"]
 [ext_resource type="AudioStream" uid="uid://cwuny5y8oy6mh" path="res://audio/get_out.wav" id="19_4r5pv"]
 [ext_resource type="AudioStream" uid="uid://62q8l13ooxl1" path="res://audio/I_need_to_collect.wav" id="19_60mlk"]
 [ext_resource type="AudioStream" uid="uid://db4jjmn168ke5" path="res://audio/shhh.wav" id="21_i4ail"]
 [ext_resource type="AudioStream" uid="uid://da1ellfxvfr0" path="res://audio/out_of_breath.wav" id="23_4ni07"]
+[ext_resource type="Texture2D" uid="uid://ceycyvhb21sbu" path="res://grinkarrow.png" id="26_jc3p3"]
 [ext_resource type="AudioStream" uid="uid://dllqftmrvthhi" path="res://audio/slide_sound_final.wav" id="26_ujl30"]
 [ext_resource type="AudioStream" uid="uid://cumbh0dda0wf7" path="res://audio/heartbeat.wav" id="27_31cv2"]
 [ext_resource type="AudioStream" uid="uid://l61dxwl6tgex" path="res://audio/nightvision.wav" id="31_wnwbv"]
@@ -168,21 +169,16 @@ _data = {
 &"landing": SubResource("Animation_tbgi4")
 }
 
-[sub_resource type="Gradient" id="Gradient_fulsm"]
-interpolation_mode = 1
-offsets = PackedFloat32Array(0, 0.5687204)
-colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_4r5pv"]
-gradient = SubResource("Gradient_fulsm")
-width = 100
-height = 100
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_t4otl"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_oprun"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_j2b1d"]
+shader = ExtResource("15_hax0n")
+shader_parameter/color_depth = 48
+shader_parameter/spread = 0.0530000025175
+shader_parameter/aberration_amount = 1.0
+shader_parameter/vignette_size = 1.0
+shader_parameter/vignette_opacity = 0.3
+shader_parameter/shadow_tint = Color(0.02, 0.05, 0.1, 1)
+shader_parameter/shadow_lift = 0.2
+shader_parameter/highlight_glow = 0.8
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_31cv2"]
 shader = ExtResource("6_ujl30")
@@ -199,6 +195,22 @@ shader_parameter/vignette_color = Color(0.05, 0, 0.05, 1)
 shader_parameter/desaturation = 0.314000014915
 shader_parameter/pulse_speed = 4.0
 shader_parameter/pulse_intensity = 0.15
+
+[sub_resource type="Gradient" id="Gradient_fulsm"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.5687204)
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4r5pv"]
+gradient = SubResource("Gradient_fulsm")
+width = 100
+height = 100
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_t4otl"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_oprun"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_oprun"]
 shader = ExtResource("3_f1ej7")
@@ -258,6 +270,10 @@ transform = Transform3D(-1, 0, -8.940697e-08, 0, 1, 0, 8.940697e-08, 0, -1, 0, 0
 collision_layer = 3
 collision_mask = 3
 script = ExtResource("1_tuyoq")
+walking_speed = 4.333
+sprinting_speed = 7.333
+crouching_speed = 3.333
+stamina_drain_sprint = 0.2
 
 [node name="standing_collision_shape" type="CollisionShape3D" parent="." unique_id=659871979]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -333,6 +349,33 @@ bus = &"game_voicelines"
 script = ExtResource("3_a8ls1")
 minimap_rect = NodePath("circle_clip/minimap_rect")
 
+[node name="DitherShader" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=280500034]
+material = SubResource("ShaderMaterial_j2b1d")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SpeedLines" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=434578485]
+material = SubResource("ShaderMaterial_31cv2")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ExhaustionEffect" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=962910863]
+material = SubResource("ShaderMaterial_pf23h")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="circle_clip" type="TextureRect" parent="neck/head/eyes/CanvasLayer" unique_id=140204631]
 visible = false
 clip_children = 2
@@ -354,138 +397,6 @@ offset_right = 113.0
 offset_bottom = 100.0
 size_flags_vertical = 8
 texture = SubResource("PlaceholderTexture2D_oprun")
-
-[node name="Hotbar" type="HBoxContainer" parent="neck/head/eyes/CanvasLayer" unique_id=1659858700]
-visible = false
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -72.0
-offset_top = 7.777
-offset_right = 214.0
-offset_bottom = 71.777
-grow_horizontal = 2
-scale = Vector2(0.5, 0.5)
-size_flags_vertical = 0
-theme_override_constants/separation = 10
-
-[node name="slot0" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=594876167]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-color = Color(0, 0, 0, 0.22352941)
-script = ExtResource("10_ujl30")
-
-[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot0" unique_id=1699683249]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot0" unique_id=382443673]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -23.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-
-[node name="slot1" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1252260056]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-color = Color(0, 0, 0, 0.22352941)
-script = ExtResource("10_ujl30")
-
-[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot1" unique_id=2084481830]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot1" unique_id=277748272]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -23.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-
-[node name="slot2" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1228693769]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-color = Color(0, 0, 0, 0.22352941)
-script = ExtResource("10_ujl30")
-
-[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot2" unique_id=1980343808]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot2" unique_id=1287601186]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -23.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-
-[node name="slot3" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1164002941]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-color = Color(0, 0, 0, 0.22352941)
-script = ExtResource("10_ujl30")
-
-[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot3" unique_id=1623851034]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot3" unique_id=1823997941]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -23.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-
-[node name="SpeedLines" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=434578485]
-material = SubResource("ShaderMaterial_31cv2")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="ExhaustionEffect" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=962910863]
-material = SubResource("ShaderMaterial_pf23h")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 
 [node name="win_label" type="Label" parent="neck/head/eyes/CanvasLayer" unique_id=2120576221]
 visible = false
@@ -979,6 +890,120 @@ modulate = Color(0, 0.9641509, 1, 1)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Restore Default Bindings"
+
+[node name="Hotbar" type="HBoxContainer" parent="neck/head/eyes/CanvasLayer" unique_id=1659858700]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -72.0
+offset_top = 7.777
+offset_right = 214.0
+offset_bottom = 71.777
+grow_horizontal = 2
+scale = Vector2(0.5, 0.5)
+size_flags_vertical = 0
+theme_override_constants/separation = 10
+
+[node name="slot0" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=594876167]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot0" unique_id=1699683249]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot0" unique_id=382443673]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot1" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1252260056]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot1" unique_id=2084481830]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot1" unique_id=277748272]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot2" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1228693769]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot2" unique_id=1980343808]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot2" unique_id=1287601186]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="slot3" type="ColorRect" parent="neck/head/eyes/CanvasLayer/Hotbar" unique_id=1164002941]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+color = Color(0, 0, 0, 0.22352941)
+script = ExtResource("10_ujl30")
+
+[node name="Icon" type="TextureRect" parent="neck/head/eyes/CanvasLayer/Hotbar/slot3" unique_id=1623851034]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="QuantityLabel" type="Label" parent="neck/head/eyes/CanvasLayer/Hotbar/slot3" unique_id=1823997941]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="inventory_menu" type="ColorRect" parent="neck/head/eyes/CanvasLayer" unique_id=2006503517]
 anchors_preset = 15
@@ -1556,6 +1581,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="object_grabber_shapecast" type="ShapeCast3D" parent="neck/head/eyes" unique_id=1856526472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118158e-08, -0.09398723, -0.25857222)
@@ -1627,7 +1653,7 @@ stream = ExtResource("15_oprun")
 volume_db = -36.706
 
 [node name="IconComponent" parent="." unique_id=798463184 instance=ExtResource("17_qfm1y")]
-map_icon = ExtResource("18_fulsm")
+map_icon = ExtResource("26_jc3p3")
 
 [node name="exit_warning_voiceline" type="AudioStreamPlayer3D" parent="." unique_id=360936002]
 stream = ExtResource("19_60mlk")
@@ -1681,6 +1707,7 @@ bus = &"game_voicelines"
 
 [node name="smart_blue_light" type="OmniLight3D" parent="." unique_id=1477532454]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6494908, 0)
+visible = false
 light_color = Color(0, 0.21600267, 0.2890625, 1)
 light_energy = 0.333
 light_indirect_energy = 0.0

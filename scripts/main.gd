@@ -9,6 +9,7 @@ extends Node3D
 @onready var wall_torches: Node3D = $wall_torches
 @onready var gazunka_beans: Node3D = $Gazunka_Beans
 @onready var navigation_region_3d: NavigationRegion3D = $NavigationRegion3D
+@onready var start_round_music: AudioStreamPlayer = $start_round_music
 
 
 @onready var floor_creak_sounds: Node3D = $floor_creak_sounds
@@ -53,6 +54,7 @@ func _ready() -> void:
 	if world_environment and world_environment.environment:
 		world_environment.environment.fog_light_color = Color('ffefc5')
 	
+	start_round_music.play()
 
 # --- NEW: PRE-SPAWN HORDES ---
 func setup_enemy_pool() -> void:
@@ -254,7 +256,7 @@ func handle_dynamic_music(delta: float) -> void:
 
 func _on_player_bean_collected():
 	if player.bean_count >= 7:
-		show_exit_warning("THE MAZE IS CORRUPTED! RUN!")
+		show_exit_warning("Hurry, return to the entrance!")
 		game_music_1.stop()
 		
 		# 1. Kill the Torches
@@ -272,9 +274,7 @@ func _on_player_bean_collected():
 			exit_door.get_node("light").light_color = Color.GREEN
 			exit_door.get_node("light").light_energy = 5.0 
 			
-		# 3. Trigger the Player's Adrenaline!
-		if player.has_method("trigger_panic_attack"):
-			player.trigger_panic_attack()
+
 
 func _on_exit_door_body_entered(body: Node3D) -> void:
 	if body == player:

@@ -2074,11 +2074,116 @@ _data = {
 &"shove": SubResource("Animation_gxm3o")
 }
 
+[sub_resource type="Animation" id="Animation_joagq"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("hands/right_hand:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(2.3493538, -7.742323, -9.745151)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("hands/right_hand/ring_0:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("hands/right_hand/ring_0/ring_1:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("hands/right_hand/ring_0/ring_1/ring_2:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_mj6v3"]
+resource_name = "flip_bird"
+length = 0.33
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("hands/right_hand:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.325),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(2.3493538, -7.742323, -9.745151), Vector3(2.3493538, -2.6832035, -9.745151)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("hands/right_hand/ring_0:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.325),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-1.5952309, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("hands/right_hand/ring_0/ring_1:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.325),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-1.5952309, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("hands/right_hand/ring_0/ring_1/ring_2:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.325),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-1.5952309, 0, 0), Vector3(0, 0, 0)]
+}
+
 [sub_resource type="Animation" id="Animation_qfgrs"]
 resource_name = "idle"
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_8wutx"]
 _data = {
+&"RESET": SubResource("Animation_joagq"),
+&"flip_bird": SubResource("Animation_mj6v3"),
 &"idle": SubResource("Animation_qfgrs")
 }
 
@@ -2710,7 +2815,7 @@ mesh = SubResource("ArrayMesh_uitm0")
 transform = Transform3D(0.011479671, -0.046169415, -0.013625793, 0.04802569, 0.011941217, 3.956969e-09, 0.0032878364, -0.013223175, 0.047575187, 0.038326554, -0.1894558, -0.7575833)
 
 [node name="hand" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand" unique_id=492938704]
-transform = Transform3D(0.5161151, -0.84312385, -0.1508706, 0.8534382, 0.5211398, 0.0072013387, 0.07255355, -0.13247623, 0.9885209, 0.54206514, -0.69232106, 0.4850521)
+transform = Transform3D(0.5161151, -0.8431238, -0.15087059, 0.8534382, 0.5211398, 0.007201338, 0.07255355, -0.13247621, 0.98852086, 0.54206514, -0.69232106, 0.4850521)
 layers = 2
 material_override = ExtResource("2_prr7q")
 mesh = SubResource("ArrayMesh_s20c1")
@@ -2723,7 +2828,7 @@ mesh = SubResource("ArrayMesh_m4lkb")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="index_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=105184758]
-transform = Transform3D(0.8319568, -0.55075926, -0.06717327, 0.53819126, 0.8304912, -0.1436466, 0.13490167, 0.08335573, 0.98734576, 0.6355164, -2.861023e-06, -1.8432941)
+transform = Transform3D(0.8319568, -0.55075926, -0.06717327, 0.53819126, 0.8304912, -0.14364658, 0.13490167, 0.08335573, 0.9873457, 0.6355164, -2.861023e-06, -1.8432941)
 layers = 2
 mesh = SubResource("ArrayMesh_06fy6")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2741,19 +2846,19 @@ mesh = SubResource("ArrayMesh_q3unt")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_0" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand" unique_id=1400321696]
-transform = Transform3D(0.99556214, 0.041010786, -0.08468614, -0.051888157, 0.99008536, -0.13052616, 0.07849351, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
+transform = Transform3D(0.9955621, 0.041010786, -0.08468614, -0.051888157, 0.99008536, -0.13052616, 0.07849351, 0.13434121, 0.9878211, 0.21942282, -1.9073486e-06, -1.9636631)
 layers = 2
 mesh = SubResource("ArrayMesh_urq86")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_1" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0" unique_id=1942702148]
-transform = Transform3D(0.9817579, -0.06894442, 0.1771904, 0.08969942, 0.98965955, -0.11192257, -0.16764194, 0.12577493, 0.97779036, 0, -9.536743e-07, -0.5954528)
+transform = Transform3D(0.9817578, -0.06894442, 0.17719038, 0.08969941, 0.9896595, -0.11192256, -0.16764194, 0.12577492, 0.9777903, 0, -9.536743e-07, -0.5954528)
 layers = 2
 mesh = SubResource("ArrayMesh_5pyow")
 surface_material_override/0 = ExtResource("2_prr7q")
 
 [node name="middle_2" type="MeshInstance3D" parent="shotgun_rig/shotgun/left_hand/hand/middle_0/middle_1" unique_id=1221415525]
-transform = Transform3D(0.9881547, 0.069582805, -0.13677295, -0.031522755, 0.9643221, 0.26285014, 0.15018277, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
+transform = Transform3D(0.98815465, 0.069582805, -0.13677295, -0.03152275, 0.9643221, 0.26285014, 0.15018275, -0.2554254, 0.9550936, 3.8146973e-06, -9.536743e-07, -0.5765743)
 layers = 2
 mesh = SubResource("ArrayMesh_db5fc")
 surface_material_override/0 = ExtResource("2_prr7q")
@@ -2982,7 +3087,7 @@ libraries/ = SubResource("AnimationLibrary_8wutx")
 transform = Transform3D(0.049487974, 0, 0, 0, 0.04948798, 0, 0, 0, 0.049487986, 1.4731504e-08, -0.02904208, -0.16850877)
 
 [node name="right_hand" type="MeshInstance3D" parent="just_hands_rig/hands" unique_id=1950095586]
-transform = Transform3D(0.026116835, 0.98304594, 0.18148926, -0.9996295, 0.027056271, -0.0027020257, -0.007566639, -0.18135162, 0.9833892, 2.3493538, -2.6483705, -9.745151)
+transform = Transform3D(-0.9996294, 0.027056314, -0.0027020278, 0.0045797373, 0.069580704, -0.9975655, -0.026802456, -0.9972094, -0.06967891, 2.3493538, -7.742323, -9.745151)
 layers = 2
 mesh = SubResource("ArrayMesh_gxm3o")
 
@@ -2992,47 +3097,47 @@ layers = 2
 mesh = SubResource("ArrayMesh_54l2t")
 
 [node name="index_0" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand" unique_id=2127958012]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6355153, 0, -1.8432965)
+transform = Transform3D(1, 0, 0, 0, 0.36487675, 0.93105584, 0, -0.93105584, 0.36487675, 0.6355153, 0, -1.8432965)
 layers = 2
 mesh = SubResource("ArrayMesh_wimeo")
 
 [node name="index_1" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/index_0" unique_id=313739577]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5205416)
+transform = Transform3D(1, 0, 0, 0, 0.36487675, 0.93105584, 0, -0.93105584, 0.36487675, 0, 0, -0.5205416)
 layers = 2
 mesh = SubResource("ArrayMesh_gqsfo")
 
 [node name="index_2" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/index_0/index_1" unique_id=860806029]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.49683595)
+transform = Transform3D(1, 0, 0, 0, 0.36487675, 0.93105584, 0, -0.93105584, 0.36487675, 0, 0, -0.49683595)
 layers = 2
 mesh = SubResource("ArrayMesh_if2ic")
 
 [node name="middle_0" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand" unique_id=23000203]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.21942228, 0, -1.963667)
+transform = Transform3D(1, 0, 0, 0, 0.17364822, 0.9848077, 0, -0.9848077, 0.17364822, 0.21942228, 0, -1.963667)
 layers = 2
 mesh = SubResource("ArrayMesh_ieen1")
 
 [node name="middle_1" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/middle_0" unique_id=501364697]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.59544945)
+transform = Transform3D(1, 0, 0, 0, 0.17364822, 0.9848077, 0, -0.9848077, 0.17364822, 0, 0, -0.59544945)
 layers = 2
 mesh = SubResource("ArrayMesh_soukf")
 
 [node name="middle_2" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/middle_0/middle_1" unique_id=330183934]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5765768)
+transform = Transform3D(1, 0, 0, 0, 0.17364822, 0.9848077, 0, -0.9848077, 0.17364822, 0, 0, -0.5765768)
 layers = 2
 mesh = SubResource("ArrayMesh_stpmv")
 
 [node name="pinky_0" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand" unique_id=738072792]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6369156, 0, -1.8759395)
+transform = Transform3D(0.98061466, -0.19296928, 0.0340257, 0, 0.17364822, 0.9848077, -0.19594614, -0.9657169, 0.17028199, -0.6369156, 0, -1.8759395)
 layers = 2
 mesh = SubResource("ArrayMesh_px6wf")
 
 [node name="pinky_1" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/pinky_0" unique_id=782366132]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5086312)
+transform = Transform3D(0.98061466, -0.19296928, 0.0340257, 0, 0.17364822, 0.9848077, -0.19594614, -0.9657169, 0.17028199, 0, 0, -0.5086312)
 layers = 2
 mesh = SubResource("ArrayMesh_nwirr")
 
 [node name="pinky_2" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/pinky_0/pinky_1" unique_id=1111202175]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.48415732)
+transform = Transform3D(0.98061466, -0.19296928, 0.0340257, 0, 0.17364822, 0.9848077, -0.19594614, -0.9657169, 0.17028199, 0, 0, -0.48415732)
 layers = 2
 mesh = SubResource("ArrayMesh_sxdbo")
 
@@ -3052,22 +3157,22 @@ layers = 2
 mesh = SubResource("ArrayMesh_snacl")
 
 [node name="thumb_0" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand" unique_id=913856943]
-transform = Transform3D(-1.1366999, 0.070416756, -0.08079286, -0.08030997, -0.93341225, -0.0842794, -0.08285109, -0.061318435, 1.1901553, -0.58879375, -0.090771675, -0.60446835)
+transform = Transform3D(-1.1366999, 0.07041672, -0.08079279, -0.08031003, -0.93341225, -0.08427961, -0.08285109, -0.061318435, 1.1901553, -0.58879375, -0.090771675, -0.60446835)
 layers = 2
 mesh = SubResource("ArrayMesh_imu1e")
 
 [node name="thumb_1" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/thumb_0" unique_id=7024167]
-transform = Transform3D(0.9348243, 0.058221735, 0.35030514, -0.041169934, 0.99758524, -0.055935442, -0.35271594, 0.037867762, 0.9349639, 0.41884792, 0, -0.54147434)
+transform = Transform3D(0.9348242, 0.058221728, 0.35030523, -0.04116993, 0.9975852, -0.05593544, -0.35271597, 0.03786777, 0.9349638, 0.41884792, 0, -0.54147434)
 layers = 2
 mesh = SubResource("ArrayMesh_37vwp")
 
 [node name="thumb_2" type="MeshInstance3D" parent="just_hands_rig/hands/right_hand/thumb_0/thumb_1" unique_id=1742376343]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28644383, 0, -0.39743483)
+transform = Transform3D(0.55289793, 0.040412452, 0.83226836, 0.025531128, 0.9975326, -0.06539819, -0.83285767, 0.05740727, 0.5505019, 0.28644383, 0, -0.3974347)
 layers = 2
 mesh = SubResource("ArrayMesh_i2s5s")
 
 [node name="left_hand" type="MeshInstance3D" parent="just_hands_rig/hands" unique_id=465355891]
-transform = Transform3D(-0.018725846, -0.9493558, -0.31364453, 0.9998045, -0.019720968, 8.740575e-08, -0.006185463, -0.31358352, 0.94954044, -2.5351534, -2.5876243, -9.745151)
+transform = Transform3D(-0.018725846, -0.9493558, -0.31364453, 0.99980444, -0.019720968, 8.740575e-08, -0.006185463, -0.31358352, 0.94954044, -2.5351534, -6.9341826, -9.745151)
 layers = 2
 mesh = SubResource("ArrayMesh_gxm3o")
 

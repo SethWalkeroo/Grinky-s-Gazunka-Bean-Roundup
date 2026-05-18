@@ -168,7 +168,30 @@ var motds = [
 	'"[i]Can you [color=cyan]imagine[/color] what I would do if I could do [color=gold]all I can[/color]?[/i]" [color=red]-Sun Tzu[/color]',
 	'"[i]One man with [color=gold]courage[/color] makes a [color=red]majority[/color].[/i]" [color=orange]-Andrew Jackson[/color]',
 	'"[i][color=yellow]Every moment is a fresh beginning[/color].[/i]" [color=cyan]-T.S. Eliot[/color]',
-	'"[i]He who fears he will suffer, already suffers because he fears.[/i]" [color=red]-Michel De Montaigne[/color]'
+	'"[i]He who fears he will suffer, already suffers because he fears.[/i]" [color=red]-Michel De Montaigne[/color]',
+	'"[i]The journey of a [color=red]thousand miles[/color] begins with [color=cyan]one step[/color].[/i]" [color=red]-Lao Tzu[/color]',
+	'"[i][color=cyan]Dream[/color] [color=orange]big[/color] and [color=red]dare[/color] to [color=red]fail[/color].[/i]" [color=cyan]-Norman Vaughan[/color]',
+	'"[i]What you do [color=gold]speaks[/color] so [color=orange]loudly[/color] that [color=red]I cannot hear what you say[/color].[/i]" -Ralph [color=red]Waldo[/color] Emerson',
+	'"[i]Keep your face to the [color=yellow]sunshine[/color] and you can never see the [color=black]shadow[/color].[/i]" [rainbow]-Helen Keller[/rainbow]',
+	'"[i]Make each day your [rainbow]masterpiece[/rainbow].[/i]" [color=brown]-John Wooden[/color]',
+	'"[i][color=FCEA0E]Once you choose hope, anything\'s possible.[/color][/i]" -[color=#0160AC]Christopher[/color] [color=E60026]Reeve[/color]',
+	'"[i][color=gold]Believe[/color] and act as if it were [color=red]impossible[/color] to [color=red]fail[/color].[/i]" [color=orange]-Charles kettering[/color]',
+	'"[i]Every [color=E3002B]strike[/color] brings me [color=E3002B]closer[/color] to the next [color=E3002B]home run[/color].[/i]" [color=142448]-Babe Ruth[/color]',
+	'"[i]A [color=red]year from now[/color] you may wish you had [color=gold]started today[/color].[/i]" -Karen Lamb',
+	'"[i]there are no [color=red]traffic jams[/color] long the [color=gold]extra mile[/color].[/i]" [color=green]-Roger Staubach[/color]',
+	'"[i]To avoid [color=red]critcism[/color], do [color=red]nothing[/color], say [color=red]nothing[/color], be [color=red]nothing[/color].[/i]" [color=orange]-Elbert Hubbard[/color]',
+	'"[i]The [color=orange]harder[/color] I work, the [color=green]luckier[/color] I get.[/i]" [color=gray]-Gary Player[/color]',
+	'"[i]Never let your [color=cyan]memories[/color] be greater than your [color=cyan]dreams[/color].[/i]" [color=orange]-Doug Ivester[/color]',
+	'"[i]Don\'t count the days, [color=purple]make the days count[/color].[/i]" [color=orange]-Muhammad Ali[/color]',
+	'"[i]Don\'t spend time beating on a [color=brown]wall[/color], [color=cyan]hoping[/color] to transform it into a [color=gold]door[/color].[/i]" [color=brown]-Coco Chanel[/color]',
+	'"[i][color=green]Optimism[/color] is the one [color=cyan]quality[/color] more associated with [color=green]success[/color] and [color=yellow]happiness[/color] than any other.[/i]" [rainbow]-Brian Tracy[/rainbow]',
+	'"[i]If you have everything under [color=orange]control[/color], you\'re not moving [color=red]fast[/color] enough.[/i]" [rainbow]-Mario Andretti[/rainbow]',
+	'"[i]If you aren\'t going [color=203731]all the way[/color], why go at all?[/i]" -[color=203731]Joe[/color] Namath',
+	'"[i]Don\'t wish it were [color=cyan]easier[/color], wish [color=red]you were better[/color].[/i]" [color=cyan]-Jim Rohn[/color]',
+	'"[i]What the mind of man can [color=cyan]conceive and believe[/color], it can [color=gold]achieve[/color].[/i]" [rainbow]-Napoleon Hill[/rainbow]',
+	'"[i][color=gold]Opportunities[/color] don\'t [color=orange]happen[/color], you [rainbow]create[/rainbow] them.[/i]" [color=yellow]-Chris Grosser[/color]',
+	'"[i]Don\'t let the [color=red]bastards[/color] grind you down.[/i]" [color=green]-Margaret Atwood[/color]',
+	'"[i]Deep in your [color=red]wounds[/color] are [color=green]seeds[/color], waiting to grow [color=purple]beautiful[/color] [color=pink]flowers[/color].[/i]" [color=orange]-Niti Majethia[/color]'
 ]
 
 var last_motd_index: int = -1

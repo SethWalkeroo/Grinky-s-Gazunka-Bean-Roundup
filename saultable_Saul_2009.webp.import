@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccnl4gbonomdn"
 path.s3tc="res://.godot/imported/saultable_Saul_2009.webp-f4e7a099624a30ddb61fe7a265d21dc9.s3tc.ctex"
+path.etc2="res://.godot/imported/saultable_Saul_2009.webp-f4e7a099624a30ddb61fe7a265d21dc9.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://saultable_Saul_2009.webp"
-dest_files=["res://.godot/imported/saultable_Saul_2009.webp-f4e7a099624a30ddb61fe7a265d21dc9.s3tc.ctex"]
+dest_files=["res://.godot/imported/saultable_Saul_2009.webp-f4e7a099624a30ddb61fe7a265d21dc9.s3tc.ctex", "res://.godot/imported/saultable_Saul_2009.webp-f4e7a099624a30ddb61fe7a265d21dc9.etc2.ctex"]
 
 [params]
 

@@ -205,9 +205,12 @@ var is_left_foot: bool = true
 
 var exit_door: Area3D = null
 var gazunka_beans: Node3D = null
+@onready var icon_component: Node3D = $IconComponent
 
 
 func _ready() -> void:
+	icon_component.get_node('icon_sprite').pixel_size = 0.0003
+	
 	if compass_arrow:
 		compass_arrow.visible = false
 	gui.setup(self)
