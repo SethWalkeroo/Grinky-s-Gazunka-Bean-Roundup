@@ -160,7 +160,7 @@ draw_pass_1 = SubResource("QuadMesh_xugk2")
 
 [node name="fire_noise" type="AudioStreamPlayer3D" parent="." index="4" unique_id=1048979612]
 stream = ExtResource("5_m6xh0")
-volume_db = -5.714
+volume_db = -7.77
 autoplay = true
 
 [node name="fire_light" type="OmniLight3D" parent="." index="5" unique_id=1018765914]

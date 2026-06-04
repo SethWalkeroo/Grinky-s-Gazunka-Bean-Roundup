@@ -35,17 +35,16 @@ shape = SubResource("ConcavePolygonShape3D_02ppr")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.020496368, 1.5292423, -0.03918457)
 shape = SubResource("BoxShape3D_02ppr")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="." index="2" unique_id=15224328]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.64369845, 0)
-visible = false
-light_color = Color(1, 0.97273326, 0.6575843, 1)
-light_energy = 0.506
-light_indirect_energy = 0.0
-omni_range = 7.937
-
-[node name="GPUParticlesCollisionBox3D" type="GPUParticlesCollisionBox3D" parent="." index="3" unique_id=459342042]
+[node name="GPUParticlesCollisionBox3D" type="GPUParticlesCollisionBox3D" parent="." index="2" unique_id=459342042]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0071411133, 2.8445272, -0.014343262)
 size = Vector3(8.029175, 0.5849256, 4.0145264)
+
+[node name="table_light" type="OmniLight3D" parent="." index="3" unique_id=637440795]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.79216576, 0)
+light_color = Color(0.016269695, 0.55859375, 0, 1)
+light_energy = 0.05
+omni_range = 6.286
+omni_attenuation = 1.917
 
 [connection signal="body_entered" from="hiding_area" to="." method="_on_hiding_area_body_entered"]
 [connection signal="body_exited" from="hiding_area" to="." method="_on_hiding_area_body_exited"]

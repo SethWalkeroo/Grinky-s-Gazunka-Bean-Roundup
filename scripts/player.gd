@@ -1,6 +1,13 @@
 extends CharacterBody3D
 class_name Player
 
+@onready var death_noises: Node3D = $death_noises
+@onready var hit_noises: Node3D = $hit_noises
+
+#zooming
+@export var zoom_fov = 40.0
+var default_base_fov = 77.7
+var is_zooming = false
 
 # --- WATER PHYSICS ---
 @export var ocean_base_height: float = 0.0 # Set this to the exact Y position of your Ocean node!
@@ -201,15 +208,25 @@ var is_left_foot: bool = true
 @onready var eyes: Node3D = $neck/head/eyes
 @onready var animation_player: AnimationPlayer = $neck/head/eyes/AnimationPlayer
 @onready var start_voiceline: AudioStreamPlayer3D = $neck/head/eyes/test_voiceline
-@onready var footsteps: AudioStreamPlayer3D = $footsteps
+
+#footstep audio
+@onready var footsteps: AudioStreamPlayer3D = $footstep_audio/footsteps
+@onready var grass_footsteps: AudioStreamPlayer3D = $footstep_audio/grass_footsteps
 
 var exit_door: Area3D = null
 var gazunka_beans: Node3D = null
 @onready var icon_component: Node3D = $IconComponent
 
+# --- OPTIMIZATION CACHE ---
+var player_rid: RID 
+var self_exclude_array: Array[RID]
 
 func _ready() -> void:
 	icon_component.get_node('icon_sprite').pixel_size = 0.0003
+	
+	# Cache our RID heavily used in raycasts
+	player_rid = self.get_rid()
+	self_exclude_array = [player_rid]
 	
 	if compass_arrow:
 		compass_arrow.visible = false
@@ -256,16 +273,14 @@ func setup_heaven() -> void:
 	else:
 		if gui.win_label: gui.win_label.visible = false
 
-
 func setup_level() -> void:
 	# Wait exactly one frame so the torches have time to set up their @onready variables!
 	await get_tree().process_frame
 	
 	# --- THE FIX: RESET LIGHTING BEFORE THE DICE ROLL ---
-	# Find the environment and force it back to default settings, 
-	# curing the map of any previous blackouts!
+	# Find the environment and force it back to default settings, curing the map of any previous blackouts!
 	var environments = get_tree().current_scene.find_children("*", "WorldEnvironment", true, false)
-# --- THE NEW WEB / COMPATIBILITY CHECK ---
+	# --- THE NEW WEB / COMPATIBILITY CHECK ---
 	if environments.size() > 0:
 		var world_env = environments[0]
 		# DESKTOP MODE: Ensure normal AAA lighting is reset
@@ -275,7 +290,7 @@ func setup_level() -> void:
 			world_env.environment.fog_light_energy = 0.015
 			world_env.environment.fog_light_color = Color('ffefc5')
 
-# --- LIGHT SOURCE CHECK ---
+	# --- LIGHT SOURCE CHECK ---
 	var has_light = get_total_item_count("flashlight") > 0 or get_total_item_count("nightvision") > 0
 
 	# --- THE BLACKOUT EVENT ---
@@ -298,8 +313,6 @@ func setup_level() -> void:
 				world_env.environment.background_energy_multiplier = 0.0
 				world_env.environment.fog_light_energy = 0
 				
-	# ... (Keep the rest of your setup_level code exactly the same below this) ...
-				
 	exit_door = get_node_or_null("../exit_door")
 	gazunka_beans = get_node_or_null("../Gazunka_Beans")
 	if gui.win_label: gui.win_label.visible = false
@@ -317,9 +330,6 @@ func setup_level() -> void:
 	for i in range(AudioServer.get_bus_effect_count(voice_bus)):
 		if AudioServer.get_bus_effect(voice_bus, i) is AudioEffectReverb:
 			AudioServer.set_bus_effect_enabled(voice_bus, i, true)
-	
-
-		
 
 func upload_new_best_score():
 	var sw_result = await SilentWolf.Scores.get_scores(100, "main").sw_get_scores_complete
@@ -359,6 +369,12 @@ func check_global_record(base_report: String):
 		gui.play_win_intro(final_report)
 
 func _input(event: InputEvent) -> void:
+	
+	if event.is_action_pressed('zoom') and not dead and not paused and not inventory_open and not grabbed_object:
+		is_zooming = true
+	elif event.is_action_released('zoom'):
+		is_zooming = false
+	
 	if event.is_action_pressed("screenshot"):
 		GlobalStats.play_click()
 		await get_tree().process_frame
@@ -369,7 +385,7 @@ func _input(event: InputEvent) -> void:
 		gui.show_screenshot_notification(filename)
 		print("Screenshot saved to: ", ProjectSettings.globalize_path(filename))
 		
-# --- FREEZE INPUTS WHILE CRANKING & ALLOW EXIT ---
+	# --- FREEZE INPUTS WHILE CRANKING & ALLOW EXIT ---
 	if is_cranking:
 		if event.is_action_pressed("flashlight") or event.is_action_pressed("reload") or (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT):
 			stop_crank_minigame()
@@ -411,7 +427,7 @@ func _input(event: InputEvent) -> void:
 			else:
 				start_crank_minigame()
 	
-# --- NIGHT VISION (REQUIRES EQUIPPED TO FACE) ---
+	# --- NIGHT VISION (REQUIRES EQUIPPED TO FACE) ---
 	if event.is_action_pressed("nightvision") and not dead and not paused:
 		
 		# THE FIX: Check the dedicated equipment slot instead of the whole inventory!
@@ -441,17 +457,13 @@ func _input(event: InputEvent) -> void:
 			# Play click if the slot is empty!
 			shotgun_audio.get_node('click').play()
 			
-
 	if gui.handle_input(event):
 		get_viewport().set_input_as_handled()
 		return
 		
-	
 	if event.is_action_pressed('beansense') and bean_sense_cooldown <= 0.0 and not dead:
 		trigger_bean_sense()
 	
-
-
 	if event.is_action_pressed('pause') and !paused and !dead:
 		if inventory_open: toggle_inventory()
 		GlobalStats.play_click()
@@ -497,7 +509,7 @@ func _input(event: InputEvent) -> void:
 					if (collided is RigidBody3D or collided is PhysicalBone3D) and !grabbed_object:
 						var space_state = get_world_3d().direct_space_state
 						var query = PhysicsRayQueryParameters3D.create(eyes.global_position, collided.global_position)
-						query.exclude = [self.get_rid(), collided.get_rid()]
+						query.exclude = [player_rid, collided.get_rid()]
 						query.collision_mask = 1 
 						var hit_wall = space_state.intersect_ray(query)
 						if not hit_wall:
@@ -541,7 +553,6 @@ func toggle_inventory() -> void:
 	# Tell the GUI script to show/hide the menus
 	gui.toggle_inventory(inventory_open)
 
-
 func unpause_game() -> void:
 	GlobalStats.play_click()
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -568,11 +579,11 @@ func fire_shotgun() -> void:
 		trigger_screen_shake(0.2, "shotgun")
 		
 		# Tell every enemy on the map to investigate this loud boom!
-		var shotgun_loudness = 50.0 # How far the sound travels in meters. Adjust to your liking!
+		var shotgun_loudness_sq = 50.0 * 50.0 # Squared distance for optimization
 		for enemy in get_tree().get_nodes_in_group("enemy"):
 			if is_instance_valid(enemy) and enemy.has_method("investigate_sound"):
-				enemy.investigate_sound(global_position, shotgun_loudness)
-		
+				if global_position.distance_squared_to(enemy.global_position) <= shotgun_loudness_sq:
+					enemy.investigate_sound(global_position, 50.0)
 		
 		var knockback_dir = camera_3d.global_transform.basis.z.normalized()
 		knockback_dir += Vector3(0, 0.2, 0) 
@@ -584,11 +595,15 @@ func fire_shotgun() -> void:
 		var spread_amount = 0.08 
 		var range_distance = 50.0 
 		
-		var shot_excludes = [self.get_rid()]
+		var shot_excludes = [player_rid]
 		if is_instance_valid(gazunka_beans):
 			for bean in gazunka_beans.get_children():
 				if is_instance_valid(bean) and bean is CollisionObject3D:
 					shot_excludes.append(bean.get_rid())
+					
+		# OPTIMIZATION: Create parameters ONCE, only update the end point inside the loop
+		var query = PhysicsRayQueryParameters3D.create(origin, origin) 
+		query.exclude = shot_excludes 
 		
 		for i in range(pellets):
 			var spread_offset = Vector3(
@@ -599,8 +614,9 @@ func fire_shotgun() -> void:
 			
 			var pellet_direction = (-camera_3d.global_transform.basis.z + spread_offset).normalized()
 			var end_point = origin + (pellet_direction * range_distance)
-			var query = PhysicsRayQueryParameters3D.create(origin, end_point)
-			query.exclude = shot_excludes 
+			
+			# Reuse the physics query object
+			query.to = end_point 
 			var result = space_state.intersect_ray(query)
 			
 			if result and result.collider is Enemy:
@@ -671,7 +687,7 @@ func fire_shotgun() -> void:
 					var push_dir = -camera_3d.global_transform.basis.z.normalized()
 					result.collider.apply_impulse(push_dir * 50.0, result.position - result.collider.global_position)
 
-	# --- THE ASYNC FIX ---
+		# --- THE ASYNC FIX ---
 		# 1. Instantly unchamber the gun the moment the shell is fired
 		is_chambered = false
 
@@ -838,7 +854,7 @@ func handle_bean_pickup(collided):
 func _physics_process(delta: float) -> void:
 	$neck/head/eyes/Camera3D/SubViewportContainer/SubViewport/view_model_camera.global_transform = camera_3d.global_transform
 	
-# --- BEAN SENSE COOLDOWN ---
+	# --- BEAN SENSE COOLDOWN ---
 	if bean_sense_cooldown > 0.0:
 		bean_sense_cooldown -= delta
 		# Send the sweeping UI the current time, and the max time (5 seconds)
@@ -865,28 +881,6 @@ func _physics_process(delta: float) -> void:
 			timer.stop()
 		return
 
-	# --- THE NEW WATER CHECK (NO COLLISION BOX NEEDED!) ---
-	if not in_heaven: 
-		is_underwater = false # Safety check so we don't swim in the maze
-	else:
-		# 1. Physics Check: Is Gordon's body in the water?
-		water_surface_height = get_dynamic_water_height(global_position)
-		if global_position.y < water_surface_height:
-			is_underwater = true
-		else:
-			is_underwater = false
-			
-		# 2. Visual Check: Is the Camera Lens underwater?
-		var overlay = gui.get_node_or_null("UnderwaterOverlay")
-		if overlay:
-			# Calculate the wave height specifically at the camera's location!
-			var camera_wave_height = get_dynamic_water_height(camera_3d.global_position)
-			
-			if camera_3d.global_position.y < camera_wave_height:
-				overlay.visible = true
-			else:
-				overlay.visible = false
-
 	update_crosshair(delta)
 	
 	if timer_started:
@@ -900,7 +894,7 @@ func _physics_process(delta: float) -> void:
 	handle_grabbed_object(delta)
 	check_bean_proximity()
 	
-# --- THE VICTORY COMPASS ---
+	# --- THE VICTORY COMPASS ---
 	# THE FIX: Added "and not dead" so it doesn't pop back up while you are dying!
 	if bean_count >= 7 and is_instance_valid(exit_door) and compass_arrow and not dead:
 		if not compass_arrow.visible:
@@ -915,6 +909,7 @@ func _physics_process(delta: float) -> void:
 		var arrow_pos = compass_arrow.global_position
 		var look_pos = Vector3(target_pos.x, arrow_pos.y, target_pos.z) 
 		
+		# Optimization: Squared distance logic check
 		if arrow_pos.distance_squared_to(look_pos) > 0.01:
 			var target_transform = compass_arrow.global_transform.looking_at(look_pos, Vector3.UP)
 			compass_arrow.global_transform = compass_arrow.global_transform.interpolate_with(target_transform, delta * 8.0)
@@ -958,7 +953,6 @@ func _physics_process(delta: float) -> void:
 	# Passive recharge has been DELETED.
 	gui.update_flashlight_battery(flashlight_battery, flashlight_active)
 	
-	
 	gui.update_exhaustion(speed_boost_timer, is_exhausted, delta)
 	
 	var enemy_dist = 999.0
@@ -971,24 +965,23 @@ func update_crosshair(delta: float) -> void:
 	
 	var is_interactable = false
 	var is_enemy = false
+	var space_state = get_world_3d().direct_space_state
+	var origin = camera_3d.global_position
 	
 	if object_grabber_shapecast.is_colliding():
 		for i in object_grabber_shapecast.get_collision_count():
 			var collided = object_grabber_shapecast.get_collider(i)
 			if collided is RigidBody3D:
-				var new_space_state = get_world_3d().direct_space_state
-				var obj_query = PhysicsRayQueryParameters3D.create(camera_3d.global_position, collided.global_position)
-				obj_query.exclude = [self.get_rid(), collided.get_rid()]
+				var obj_query = PhysicsRayQueryParameters3D.create(origin, collided.global_position)
+				obj_query.exclude = [player_rid, collided.get_rid()]
 				obj_query.collision_mask = 1 
-				if not new_space_state.intersect_ray(obj_query):
+				if not space_state.intersect_ray(obj_query):
 					is_interactable = true
-					break
+					break # Stop processing raycasts once we found a valid interactable object
 				
-	var space_state = get_world_3d().direct_space_state
-	var origin = camera_3d.global_position
 	var end_point = origin + (-camera_3d.global_transform.basis.z * 50.0) 
 	var query = PhysicsRayQueryParameters3D.create(origin, end_point)
-	query.exclude = [self.get_rid()]
+	query.exclude = self_exclude_array
 	var result = space_state.intersect_ray(query)
 	if result and (result.collider is Enemy or result.collider.is_in_group("flesh")): is_enemy = true
 			
@@ -1061,18 +1054,15 @@ func perform_shove() -> void:
 	trigger_screen_shake(0.15)
 	velocity += camera_3d.global_transform.basis.z.normalized() * 3.0 # Pushes the player backward slightly
 
-	var shove_range = 3.5
+	var shove_range_sq = 3.5 * 3.5 # Optimized squared check
 	var forward_dir = -camera_3d.global_transform.basis.z.normalized()
 	
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if is_instance_valid(enemy):
-			var distance = global_position.distance_to(enemy.global_position)
-			
-			if distance <= shove_range:
+			if global_position.distance_squared_to(enemy.global_position) <= shove_range_sq:
 				var dir_to_enemy = global_position.direction_to(enemy.global_position).normalized()
 				
 				if dir_to_enemy.dot(forward_dir) > 0.5:
-					
 					# --- THE RAGDOLL REACTION ---
 					if enemy.is_ragdolled:
 						# Kick the corpse!
@@ -1171,10 +1161,18 @@ func handle_movement(delta: float) -> void:
 			current_speed = lerp(current_speed, target_walk, delta * lerp_speed)
 			walking = true; sprinting = false; crouching = false
 
-	var target_fov = 75.0
-	if is_sliding: target_fov = 85.0
+	# --- DYNAMIC FOV MATH ---
+	var target_fov = default_base_fov
+	
+	if is_zooming:
+		target_fov = zoom_fov
+	elif is_sliding: 
+		target_fov = 85.0
+		
 	target_fov += panic_fov_modifier
-	camera_3d.fov = lerp(camera_3d.fov, target_fov, delta * 6.0)
+	
+	var current_lerp_speed = 12.0 if is_zooming else 6.0
+	camera_3d.fov = lerp(camera_3d.fov, target_fov, delta * current_lerp_speed)
 
 	# --- WATER PHYSICS & GRAVITY ---
 	if jump_cooldown > 0: jump_cooldown -= delta
@@ -1184,9 +1182,9 @@ func handle_movement(delta: float) -> void:
 	var cam_swim_dir = Vector3.ZERO 
 
 	if is_underwater:
-		var current_wave_height = get_dynamic_water_height(global_position)
+		# Use cached dynamic height here instead of recalculating 
 		var player_eye_height = global_position.y + 1.2
-		var depth = current_wave_height - player_eye_height # Use the wave height!
+		var depth = water_surface_height - player_eye_height 
 		if depth > 0.0: # Submerged
 			if sprinting and input_dir != Vector2.ZERO:
 				cam_swim_dir = (camera_3d.global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
@@ -1203,7 +1201,7 @@ func handle_movement(delta: float) -> void:
 			velocity.y = sin(bobbing_timer) * 0.8
 			
 			if not Input.is_action_pressed("jump") and not Input.is_action_pressed("crouch") and not sprinting:
-				var target_y = current_wave_height - 1.2 # Lock to the moving wave!
+				var target_y = water_surface_height - 1.2 # Lock to the moving wave!
 				global_position.y = lerp(global_position.y, target_y, delta * 4.0)
 			
 			# Allow jumping OUT of the water
@@ -1220,8 +1218,11 @@ func handle_movement(delta: float) -> void:
 			if is_exhausted and not in_heaven:
 				if !out_of_breath_sound.playing: out_of_breath_sound.play()
 			else:
-				if not in_heaven: gui.stamina_bar.value -= 5
-				velocity.y = jump_velocity
+				if not in_heaven:
+					gui.stamina_bar.value -= 5
+					velocity.y = jump_velocity
+				if in_heaven:
+					velocity.y = jump_velocity + 2
 				is_sliding = false; free_looking = false
 				bhop_jump_buffer = 0.0; jump_cooldown = 0.25
 				jump_sound.play()
@@ -1353,7 +1354,7 @@ func handle_camera_and_bobbing(delta: float) -> void:
 		var ray_start = head.global_position
 		var ray_end = ray_start + (head.global_transform.basis.x * target_lean)
 		var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
-		var excludes = [self.get_rid()]
+		var excludes = [player_rid]
 		if is_instance_valid(grabbed_object) and grabbed_object is CollisionObject3D: excludes.append(grabbed_object.get_rid())
 		query.exclude = excludes
 		var result = space_state.intersect_ray(query)
@@ -1424,21 +1425,25 @@ func handle_grabbed_object(delta: float) -> void:
 
 func check_bean_proximity():
 	if gazunka_beans:
+		var grab_dist_sq = 1.5 * 1.5
 		for bean in gazunka_beans.get_children():
 			if is_instance_valid(bean) and not bean.is_queued_for_deletion():
-				if global_position.distance_to(bean.global_position) < 1.5: try_grabbing(bean)
+				if global_position.distance_squared_to(bean.global_position) < grab_dist_sq: 
+					try_grabbing(bean)
 
 func hit():
 	if !dead:
 		current_health -= 1
 		regen_timer = time_before_regen 
 		if current_health > 0:
+			play_random_noise(hit_noises)
 			trigger_screen_shake(0.4, "damage")
 			if heartbeat_sound and not heartbeat_sound.playing:
 				heartbeat_sound.play()
 		else:
 			dead = true
-			
+			is_zooming = false
+			play_random_noise(death_noises)
 			# --- THE FIX: INSTANTLY HIDE THE WEAPON ---
 			# We force the slot to -1 and hide the model so it doesn't get stuck if you die mid-reload!
 			active_slot_index = -1
@@ -1503,6 +1508,9 @@ func trigger_screen_shake(intensity: float = 0.1, shake_type: String = "default"
 		tween.parallel().tween_property(camera_3d, "v_offset", 0.0, 0.1)
 		
 func show_death_ui():
+	if out_of_breath_sound.playing: out_of_breath_sound.stop()
+	if night_vision_active:
+		turn_off_nightvision()
 	wipe_inventory_on_death()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	gui.show_death_screen()
@@ -1531,6 +1539,12 @@ func play_random_bean_voiceline():
 				random_line.play()
 	else:
 		all_seven_beans_voiceline.play()
+
+func play_random_noise(group):
+	var noises = group.get_children()
+	if noises.size() > 0:
+		var random_noise = noises.pick_random()
+		random_noise.play()
 
 func has_loot_to_lose() -> bool:
 	if bean_count > 0: return true
@@ -1743,8 +1757,7 @@ func reward_kill() -> void:
 func spawn_floating_text(pos: Vector3, msg: String = "+1 Gazunka Bean!", color: Color = Color(0.955, 1.0, 0.043, 1.0)):
 	var popup = Label3D.new()
 	popup.text = msg
-	popup.pixel_size = 0.005;
-	popup.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	popup.pixel_size = 0.005; popup.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	popup.modulate = color; 
 	popup.scale = Vector3.ZERO
 	get_tree().current_scene.add_child(popup); 
@@ -1757,25 +1770,24 @@ func spawn_floating_text(pos: Vector3, msg: String = "+1 Gazunka Bean!", color: 
 	tween.parallel().tween_property(popup, "modulate:a", 0.0, 1.2).set_delay(0.5)
 	tween.tween_callback(popup.queue_free)
 
-
 func trigger_bean_sense() -> void:
 	# 1. Find all the beans currently in the level
 	var active_beans = []
 	for bean in get_tree().get_nodes_in_group("beans"):
-		if is_instance_valid(bean) and not bean.is_queued_for_deletion() and bean.is_inside_tree():
+		if is_instance_valid(bean) and bean.is_inside_tree() and not bean.is_queued_for_deletion():
 			if "visible" in bean and bean.visible == false: continue 
 			active_beans.append(bean)
 			
 	if active_beans.size() == 0: return # No beans left!
 	
-	# 2. Find the absolute closest one
+	# 2. Find the absolute closest one using SQUARED distance (Much Faster!)
 	var closest_bean = null
-	var closest_dist = INF
+	var closest_dist_sq = INF
 	
 	for bean in active_beans:
-		var dist = global_position.distance_squared_to(bean.global_position)
-		if dist < closest_dist:
-			closest_dist = dist
+		var dist_sq = global_position.distance_squared_to(bean.global_position)
+		if dist_sq < closest_dist_sq:
+			closest_dist_sq = dist_sq
 			closest_bean = bean
 			
 	if closest_bean:
@@ -1805,7 +1817,6 @@ func trigger_bean_sense() -> void:
 				
 			# Give the wisp the path and let it fly!
 			wisp.path = elevated_path
-
 
 # Returns true if we successfully picked it up, false if the inventory is full
 func collect_item(item_name: String, amount: int) -> bool:
@@ -1938,7 +1949,6 @@ func add_flashlight_battery(amount: float) -> void:
 	# Update the UI bar
 	gui.update_flashlight_battery(flashlight_battery, flashlight_active)
 
-
 # --- HOTBAR & INVENTORY SYNCING ---
 func sync_inventory_arrays() -> void:
 	# 1. Remember what we were holding BEFORE the inventory changed
@@ -1975,11 +1985,15 @@ func sync_inventory_arrays() -> void:
 			
 	# 4. Safety Check 2: The Player's Face (NVGs)
 	if gui.nvg_slot and gui.nvg_slot.item_name != "nightvision" and night_vision_active:
-		night_vision_active = false
-		if nv_light: nv_light.visible = false
-		var nv_overlay = gui.get_node_or_null("night_vision_overlay")
-		if nv_overlay: nv_overlay.visible = false
-		if nv_off_sound: nv_off_sound.play()
+		turn_off_nightvision()
+
+
+func turn_off_nightvision():
+	night_vision_active = false
+	if nv_light: nv_light.visible = false
+	var nv_overlay = gui.get_node_or_null("night_vision_overlay")
+	if nv_overlay: nv_overlay.visible = false
+	if nv_off_sound: nv_off_sound.play()
 
 # --- SHIFT-CLICK FAST TRANSFER (IN-GAME) ---
 func shift_transfer_item(source_slot: Control) -> void:
@@ -2050,7 +2064,6 @@ func shift_transfer_item(source_slot: Control) -> void:
 		# Tell the player to check their hands and face to see if anything changed!
 		sync_inventory_arrays()
 
-
 # --- DRAG & DROP RELOAD ---
 func force_drag_reload(target_slot_index: int) -> void:
 	if is_reloading or is_cranking or dead: return
@@ -2072,7 +2085,6 @@ func force_drag_reload(target_slot_index: int) -> void:
 	# safely in the backpack for this reload function to naturally consume.
 	if shotgun_ammo < 4:
 		reload_shotgun()
-
 
 # --- THE 7-BEAN CLIMAX ---
 func trigger_panic_attack() -> void:
@@ -2096,7 +2108,6 @@ func trigger_panic_attack() -> void:
 	panic_tween.parallel().tween_property(camera_3d, "rotation_degrees:z", 2.0, 0.6)
 	panic_tween.chain().tween_property(camera_3d, "rotation_degrees:z", -2.0, 0.6)
 
-
 # --- DYNAMIC WAVE SYNC ---
 func get_dynamic_water_height(target_pos: Vector3) -> float:
 	var time = Time.get_ticks_msec() / 1000.0
@@ -2110,7 +2121,6 @@ func get_dynamic_water_height(target_pos: Vector3) -> float:
 	var wave_offset = sin(target_pos.x * wave_frequency + time * wave_speed) * cos(target_pos.z * wave_frequency + time * wave_speed) * wave_height
 	
 	return ocean_base_height + wave_offset
-
 
 # --- GUI PROXY CALLBACKS (Preserves Editor Links!) ---
 func _on_button_pressed(): gui._on_button_pressed()

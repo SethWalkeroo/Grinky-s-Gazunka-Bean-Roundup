@@ -5,7 +5,7 @@ uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
 
 uniform float noise_amount = 0.08;
 uniform float brightness_multiplier = 2.5; // Cranks up the exposure
-uniform vec4 nv_color : source_color = vec4(0.1, 0.95, 0.2, 1.0); // Classic Phosphor Green
+uniform vec4 nv_color : source_color = vec4(0.55, 0.15, 0.95, 1.0); // Updated to a vibrant purple
 
 // Generates TV static
 float random(vec2 uv) {
@@ -21,7 +21,7 @@ void fragment() {
     // 2. Artificially blow out the exposure to mimic light-gathering tubes
     lum *= brightness_multiplier;
 
-    // 3. Tint it green
+    // 3. Tint it purple
     vec3 final_color = nv_color.rgb * lum;
 
     // 4. Add film grain/static that constantly shifts with TIME

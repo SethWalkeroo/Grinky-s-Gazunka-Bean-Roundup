@@ -1,8 +1,6 @@
 [gd_scene format=4 uid="uid://cd4e6lfjkdno5"]
 
 [ext_resource type="Script" uid="uid://cass3q1q4pwdv" path="res://scripts/enemy.gd" id="1_7p1mj"]
-[ext_resource type="PackedScene" uid="uid://dwrs38siedacn" path="res://scenes/shotgun_ammo.tscn" id="2_6awcb"]
-[ext_resource type="PackedScene" uid="uid://btw7836ri18nk" path="res://scenes/enemy_footprints.tscn" id="2_shcg2"]
 [ext_resource type="AudioStream" uid="uid://b5fk37kty28t5" path="res://audio/footstep.wav" id="4_5uy6h"]
 [ext_resource type="AudioStream" uid="uid://bb5puy8mjg5bf" path="res://audio/byeah.wav" id="5_c4w8v"]
 [ext_resource type="Script" uid="uid://bgshtqavc3esg" path="res://scripts/muffle.gd" id="5_i4rgx"]
@@ -13,15 +11,19 @@
 [ext_resource type="AudioStream" uid="uid://cgxw2d2akbbg6" path="res://audio/musthavebeenthewind.wav" id="7_nenq2"]
 [ext_resource type="AudioStream" uid="uid://dik2h3x2m7jt7" path="res://audio/allseven.wav" id="9_ipns3"]
 [ext_resource type="AudioStream" uid="uid://w0hd0hhf4ymp" path="res://audio/hmm.wav" id="9_w8i8w"]
+[ext_resource type="AudioStream" uid="uid://m2xm6yffv46v" path="res://audio/enemy_audio/Isuredolovemygazunkabeans.wav" id="10_1f82d"]
 [ext_resource type="AudioStream" uid="uid://bn16va88e24q0" path="res://audio/what_was_that.wav" id="10_8qclf"]
 [ext_resource type="AudioStream" uid="uid://c660onjoxtepe" path="res://audio/run_off_to.wav" id="11_2pwtc"]
+[ext_resource type="AudioStream" uid="uid://cefiobo8bs66t" path="res://audio/enemy_audio/aha.wav" id="11_qaulx"]
 [ext_resource type="PackedScene" uid="uid://b0tr43lxl3yaa" path="res://scenes/icon_component.tscn" id="12_otmr2"]
 [ext_resource type="AudioStream" uid="uid://d25irp1avashf" path="res://audio/I_hear_you.wav" id="13_s1ycm"]
+[ext_resource type="AudioStream" uid="uid://1bptckln7fyw" path="res://audio/enemy_audio/nowwheredyourunoffto.wav" id="14_2mchx"]
 [ext_resource type="Texture2D" uid="uid://b3jb77auc1ntb" path="res://red_tri.png" id="14_g0wcc"]
 [ext_resource type="AudioStream" uid="uid://xtbmctrjfhqb" path="res://audio/im_comin_forya.wav" id="14_j0cyh"]
 [ext_resource type="AudioStream" uid="uid://c36u4e1xaheyq" path="res://audio/im_gonna_eat_you.wav" id="16_ile5s"]
 [ext_resource type="AudioStream" uid="uid://bomtoo5cliqsw" path="res://audio/nice_hiding_spot.wav" id="17_shcg2"]
 [ext_resource type="AudioStream" uid="uid://d4gmx6ge7jt13" path="res://audio/enemy_audio/enemy_death_noise.wav" id="21_rogs8"]
+[ext_resource type="AudioStream" uid="uid://co1nrgvdr3eoe" path="res://audio/enemy_audio/Imcominforya.wav" id="21_t3vcr"]
 [ext_resource type="Texture2D" uid="uid://h84t8cg4b2w2" path="res://new_gordon.png" id="22_i4rgx"]
 [ext_resource type="AudioStream" uid="uid://bewtxiowj8jds" path="res://audio/barefoot.wav" id="22_wrm80"]
 [ext_resource type="AudioStream" uid="uid://y6tioj0fva6s" path="res://audio/enemy_audio/ready_or_not_here_I_come.wav" id="24_wjec0"]
@@ -5254,9 +5256,6 @@ transform = Transform3D(1, 0, 1.1920929e-07, 0, 1, 0, -1.1920929e-07, 0, 1, 0, 0
 collision_layer = 2051
 collision_mask = 3
 script = ExtResource("1_7p1mj")
-shotgun_ammo_scene = ExtResource("2_6awcb")
-footprint_scene = ExtResource("2_shcg2")
-investigation_time = 10.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1221727212 groups=["flesh"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6275826, 0)
@@ -5268,7 +5267,7 @@ debug_path_custom_color = Color(1, 0, 0.082829, 1)
 [node name="enemy_footsteps" type="AudioStreamPlayer3D" parent="." unique_id=415056176]
 stream = ExtResource("4_5uy6h")
 volume_db = -30.566
-unit_size = 7.77
+unit_size = 9.99
 pitch_scale = 0.53
 bus = &"effects"
 script = ExtResource("5_i4rgx")
@@ -5276,7 +5275,7 @@ script = ExtResource("5_i4rgx")
 [node name="kick" type="AudioStreamPlayer3D" parent="." unique_id=1513190005]
 stream = ExtResource("5_c4w8v")
 volume_db = -43.37
-unit_size = 7.77
+unit_size = 9.99
 
 [node name="DebugMarker" type="MeshInstance3D" parent="." unique_id=1481513622]
 visible = false
@@ -5289,28 +5288,35 @@ surface_material_override/0 = SubResource("StandardMaterial3D_c4w8v")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.000873e-08, 3.1187658, -0.33561754)
 stream = SubResource("AudioStreamWAV_5uy6h")
 volume_db = -25.0
-unit_size = 7.77
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="elfflesh" type="AudioStreamPlayer3D" parent="random_voicelines" unique_id=57748392]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9513793e-08, 3.1206439, -0.33146572)
 stream = ExtResource("6_md484")
 volume_db = -30.422
-unit_size = 7.77
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="you_can_run" type="AudioStreamPlayer3D" parent="random_voicelines" unique_id=1831020754]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9513793e-08, 3.1206439, -0.33146572)
 stream = ExtResource("7_g0wcc")
 volume_db = -27.235
-unit_size = 7.77
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="i_sure_hope" type="AudioStreamPlayer3D" parent="random_voicelines" unique_id=1572284259]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9513793e-08, 3.1206439, -0.33146572)
 stream = ExtResource("7_1x4g4")
 volume_db = -27.235
-unit_size = 7.77
+unit_size = 9.99
+bus = &"game_voicelines"
+
+[node name="isuredolovemy" type="AudioStreamPlayer3D" parent="random_voicelines" unique_id=1547614695]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9513793e-08, 3.1206439, -0.33146572)
+stream = ExtResource("10_1f82d")
+volume_db = -27.235
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="voiceline_timer" type="Timer" parent="." unique_id=1563209444]
@@ -5323,7 +5329,14 @@ autostart = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.549195e-08, 3.107088, -0.29772806)
 stream = ExtResource("6_xwavj")
 volume_db = -27.397
-unit_size = 7.77
+unit_size = 9.99
+bus = &"game_voicelines"
+
+[node name="aha" type="AudioStreamPlayer3D" parent="player_seen_voicelines" unique_id=1868365522]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.549195e-08, 3.107088, -0.29772806)
+stream = ExtResource("11_qaulx")
+volume_db = -27.397
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="lost_track_voicelines" type="Node3D" parent="." unique_id=456989667]
@@ -5332,21 +5345,28 @@ bus = &"game_voicelines"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0579067e-08, 3.12711, -0.3404019)
 stream = ExtResource("7_nenq2")
 volume_db = -25.205
-unit_size = 7.77
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="hmm" type="AudioStreamPlayer3D" parent="lost_track_voicelines" unique_id=1063653305]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5593587e-08, 3.1452136, -0.29858065)
 stream = ExtResource("9_w8i8w")
 volume_db = -30.588
-unit_size = 7.77
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="run_off_to" type="AudioStreamPlayer3D" parent="lost_track_voicelines" unique_id=534329071]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4768598e-08, 3.1329832, -0.37554622)
 stream = ExtResource("11_2pwtc")
 volume_db = -28.411
-unit_size = 7.77
+unit_size = 9.99
+bus = &"game_voicelines"
+
+[node name="run_off_to2" type="AudioStreamPlayer3D" parent="lost_track_voicelines" unique_id=919449921]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4768598e-08, 3.1329832, -0.37554622)
+stream = ExtResource("14_2mchx")
+volume_db = -28.411
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="allsevenbeans_voiceline" type="AudioStreamPlayer3D" parent="." unique_id=406514905]
@@ -5370,13 +5390,13 @@ light_color = Color(0.87109375, 0.6614753, 0, 1)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3700965e-08, 3.1399667, -0.36659026)
 stream = ExtResource("10_8qclf")
 volume_db = -27.059
-unit_size = 7.77
+unit_size = 9.99
 
 [node name="I_hear_you" type="AudioStreamPlayer3D" parent="hear_player_voicelines" unique_id=794496811]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.218458e-08, 3.1379147, -0.35386992)
 stream = ExtResource("13_s1ycm")
 volume_db = -27.35
-unit_size = 7.77
+unit_size = 9.99
 
 [node name="IconComponent" parent="." unique_id=798463184 instance=ExtResource("12_otmr2")]
 map_icon = ExtResource("14_g0wcc")
@@ -5386,12 +5406,17 @@ map_icon = ExtResource("14_g0wcc")
 [node name="im_comin_forya" type="AudioStreamPlayer3D" parent="chasing_voicelines" unique_id=490288571]
 stream = ExtResource("14_j0cyh")
 volume_db = -30.114
-unit_size = 7.77
+unit_size = 9.99
+
+[node name="im_comin_forya2" type="AudioStreamPlayer3D" parent="chasing_voicelines" unique_id=671908369]
+stream = ExtResource("21_t3vcr")
+volume_db = -30.114
+unit_size = 9.99
 
 [node name="im_gonna_eat_you" type="AudioStreamPlayer3D" parent="chasing_voicelines" unique_id=1593060321]
 stream = ExtResource("16_ile5s")
 volume_db = -30.114
-unit_size = 7.77
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="hiding_voicelines" type="Node3D" parent="." unique_id=1162014323]
@@ -5399,7 +5424,7 @@ bus = &"game_voicelines"
 [node name="nice_hiding_spot" type="AudioStreamPlayer3D" parent="hiding_voicelines" unique_id=514933416]
 stream = ExtResource("17_shcg2")
 volume_db = -28.571
-unit_size = 7.77
+unit_size = 9.99
 
 [node name="footprint_raycast" type="RayCast3D" parent="." unique_id=2015431107]
 target_position = Vector3(0, -2, 0)
@@ -5992,12 +6017,12 @@ transform = Transform3D(0.010000073, -1.906301e-09, 4.831236e-09, 5.005859e-09, 
 shape = SubResource("CapsuleShape3D_6awcb")
 
 [node name="Physical Bone mixamorig_Head" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1708109777 groups=["flesh"]]
-transform = Transform3D(-51.590622, -1.326065, -13.457092, 0.14516945, -53.127518, 4.678661, -13.52149, 4.489152, 51.395145, 0.97474426, -5.5257735, -166.48218)
+transform = Transform3D(-51.590622, -1.326065, -13.457093, 0.14516945, -53.127518, 4.678661, -13.52149, 4.489152, 51.39515, 0.97474426, -5.5257735, -166.48218)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02102091, 0.0015062913, 0.18642218)
-body_offset = Transform3D(-53.333324, 0.0014031976, -0.00057286024, 0.0009128973, 13.071789, -51.70663, -0.0012236685, -51.706623, -13.071788, 1.1212196, 9.619553, 2.514782)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021020902, 0.0015063062, 0.18642218)
+body_offset = Transform3D(-53.333324, 0.0014031976, -0.0005747676, 0.0009128973, 13.071789, -51.706627, -0.0012236685, -51.706623, -13.071784, 1.1212196, 9.619553, 2.514782)
 mass = 5.0
 linear_damp = 2.0
 bone_name = "mixamorig_Head"
@@ -6226,12 +6251,12 @@ transform = Transform3D(0.010000122, -9.731593e-10, -1.1350494e-09, 6.9849193e-1
 shape = SubResource("CapsuleShape3D_2mchx")
 
 [node name="Physical Bone mixamorig_LeftForeArm" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=890897672 groups=["flesh"]]
-transform = Transform3D(6.1810346, -49.84455, -17.937653, -52.447853, -3.2192855, -9.127063, 7.4472756, 18.697617, -49.39009, 25.902166, -3.7012954, -102.78225)
+transform = Transform3D(6.1810346, -49.84455, -17.937653, -52.447853, -3.2192855, -9.127064, 7.4472756, 18.697617, -49.39009, 25.902166, -3.7012954, -102.78225)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014362168, -0.000581305, 0.21983638)
-body_offset = Transform3D(53.331734, 0.0907917, -0.40679455, -0.4066429, -0.0938853, -53.331696, -0.09149718, 53.33318, -0.093188524, 0.012885094, 11.724777, 0.051620483)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014362168, -0.0005813128, 0.21983638)
+body_offset = Transform3D(53.331734, 0.0907917, -0.40679455, -0.4066429, -0.0938853, -53.331696, -0.09149718, 53.33318, -0.09318662, 0.012885094, 11.724777, 0.051620483)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftForeArm"
@@ -6538,12 +6563,12 @@ transform = Transform3D(0.010000007, -2.3283064e-10, -1.6298145e-09, 4.656613e-1
 shape = SubResource("CapsuleShape3D_lioqc")
 
 [node name="Physical Bone mixamorig_LeftUpLeg" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=2041733578 groups=["flesh"]]
-transform = Transform3D(-51.443996, 13.01021, -5.356637, 13.208511, 51.652958, -1.396942, 4.847093, -2.674078, -53.045254, 7.7168903, 0.07365942, -74.83334)
+transform = Transform3D(-51.443996, 13.010209, -5.356637, 13.208511, 51.652954, -1.3969419, 4.847093, -2.6740777, -53.045254, 7.7168903, 0.07365942, -74.83334)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0003674475, -0.00044605244, 0.42617217)
-body_offset = Transform3D(53.333538, -0.0049438477, -0.00097584724, -0.0009753108, -0.0010163784, -53.33333, 0.0049409866, 53.333332, -0.0010216236, 0.020010948, 22.72918, 0.024226665)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00036744727, -0.00044605142, 0.42617214)
+body_offset = Transform3D(53.333538, -0.0049448013, -0.00097587705, -0.0009753108, -0.0010163784, -53.33333, 0.0049409866, 53.333336, -0.0010217428, 0.020010948, 22.72918, 0.024226665)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftUpLeg"
@@ -6694,12 +6719,12 @@ transform = Transform3D(0.010000009, 2.561137e-09, 2.910383e-09, -1.1641532e-09,
 shape = SubResource("CapsuleShape3D_lsnsy")
 
 [node name="Physical Bone mixamorig_LeftFoot" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=361854891 groups=["flesh"]]
-transform = Transform3D(-53.11161, 0.28267378, -4.84985, 3.929313, 33.80942, -41.06005, 2.8568256, -41.246666, -33.689697, 12.846541, -2.024509, -5.242908)
+transform = Transform3D(-53.11161, 0.28267378, -4.84985, 3.929313, 33.80942, -41.06005, 2.8568256, -41.246666, -33.689693, 12.846541, -2.024509, -5.242908)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00028308874, 0.00011824845, 0.12613928)
-body_offset = Transform3D(53.333527, -0.0014679432, 0.0024776459, 0.002542019, 0.034555435, -53.333332, 0.0014979839, 53.33333, 0.034540176, 0.014785767, 6.727424, -0.0106630325)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0002830904, 0.000118230404, 0.12613928)
+body_offset = Transform3D(53.333527, -0.0014679432, 0.0024783611, 0.002542019, 0.034555435, -53.333324, 0.0014979839, 53.33333, 0.034547806, 0.014785767, 6.727424, -0.0106630325)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftFoot"
@@ -6772,12 +6797,12 @@ transform = Transform3D(0.010000104, 4.5101842e-09, -3.0195224e-10, 3.783498e-10
 shape = SubResource("CapsuleShape3D_thsr5")
 
 [node name="Physical Bone mixamorig_LeftToeBase" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=377021156 groups=["flesh"]]
-transform = Transform3D(-52.994904, -0.21600316, -5.9947963, 5.990171, 0.93331105, -52.987648, 0.31950957, -53.324726, -0.90312815, 13.753361, 5.7625055, -0.8755306)
+transform = Transform3D(-52.994904, -0.21600316, -5.9947963, 5.990171, 0.93331105, -52.987648, 0.31950957, -53.324726, -0.90312815, 13.753361, 5.762506, -0.8411977)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0002612165, 0.0015543324, 0.04898378)
-body_offset = Transform3D(53.333538, 0.00071403384, 0.0032353401, 0.0032901764, 0.0011008382, -53.33335, -0.00074759126, 53.33334, 0.0011065006, 0.013772011, 2.6124682, -0.08295214)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00026507027, 0.0021979695, 0.048994683)
+body_offset = Transform3D(53.333538, 0.00071403384, 0.0032353401, 0.0032901764, 0.0011008382, -53.33335, -0.00074759126, 53.33334, 0.0011065006, 0.013977051, 2.613049, -0.11727947)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_LeftToeBase"
@@ -6928,12 +6953,12 @@ transform = Transform3D(0.01, -3.3469405e-10, -1.1175871e-08, 2.910383e-10, 3.49
 shape = SubResource("CapsuleShape3D_2sbpf")
 
 [node name="Physical Bone mixamorig_RightLeg" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=1214519006 groups=["flesh"]]
-transform = Transform3D(-51.72043, -12.800144, 2.3659363, -12.121719, 50.893948, 10.35925, -4.7439704, 9.508232, -52.26406, -17.99515, -3.5159864, -30.99955)
+transform = Transform3D(-51.72043, -12.800144, 2.3659363, -12.121719, 50.893948, 10.359251, -4.7439704, 9.508232, -52.264065, -17.99515, -3.5159864, -30.99955)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0002823119, 0.00013419714, 0.41165057)
-body_offset = Transform3D(53.3342, -0.0039100647, -0.0006248951, -0.000672102, 0.0017080307, -53.333336, 0.004172325, 53.33336, 0.0017118454, -0.014799118, 21.954699, -0.007863045)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00028231373, 0.00013419714, 0.41165057)
+body_offset = Transform3D(53.3342, -0.0039100647, -0.0006251335, -0.000672102, 0.0017080307, -53.333332, 0.004172325, 53.33336, 0.0017118454, -0.014799118, 21.954699, -0.007863045)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightLeg"
@@ -7084,12 +7109,12 @@ transform = Transform3D(0.009999989, 2.3283064e-10, 0, -3.0267984e-09, -1.862645
 shape = SubResource("CapsuleShape3D_605iw")
 
 [node name="Physical Bone mixamorig_RightToeBase" type="PhysicalBone3D" parent="rembotgames_feb_npc/NPC_MAN_FAT/Skeleton3D/PhysicalBoneSimulator3D" unique_id=256760285 groups=["flesh"]]
-transform = Transform3D(-53.146095, -0.02803493, 4.464983, -4.4632115, 1.8726677, -53.113247, -0.12885757, -53.300438, -1.8684394, -19.962292, 4.7499614, -0.6782539)
+transform = Transform3D(-53.146095, -0.028034933, 4.464983, -4.4632115, 1.8726676, -53.113247, -0.12885757, -53.300434, -1.8684393, -19.962292, 4.7499614, -0.6782539)
 collision_layer = 8
 collision_mask = 9
 joint_type = 5
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0002472475, -3.3068696e-05, 0.048925564)
-body_offset = Transform3D(53.334225, -0.0005402416, 0.021532536, 0.021543503, 0.002044201, -53.333344, 0.0006894618, 53.333347, 0.0020570755, -0.014240265, 2.6093588, 0.0016628504)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0002472475, -3.3068805e-05, 0.048925567)
+body_offset = Transform3D(53.334225, -0.0005402267, 0.021532536, 0.021543503, 0.0020440817, -53.333344, 0.0006894618, 53.333355, 0.0020571947, -0.014240265, 2.6093588, 0.0016628504)
 mass = 3.0
 linear_damp = 2.0
 bone_name = "mixamorig_RightToeBase"
@@ -7170,23 +7195,31 @@ libraries/ = SubResource("AnimationLibrary_2tuss")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.291416e-08, 3.081475, -0.27610397)
 stream = ExtResource("21_rogs8")
 volume_db = 16.583
-unit_size = 7.77
+unit_size = 9.99
 bus = &"game_voicelines"
 
 [node name="ragdoll_impact_sound" type="AudioStreamPlayer3D" parent="." unique_id=1859727033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3459258, 0)
 stream = ExtResource("22_wrm80")
-unit_size = 7.77
+unit_size = 9.99
 bus = &"effects"
 
 [node name="enemy_hurt_noise" type="AudioStreamPlayer3D" parent="." unique_id=1200530606]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.978436e-08, 3.0864108, -0.3337354)
 stream = SubResource("AudioStreamWAV_wrm80")
 volume_db = -1.558
-unit_size = 7.77
+unit_size = 9.99
 
 [node name="ready_or_not" type="AudioStreamPlayer3D" parent="." unique_id=1243677185]
 stream = ExtResource("24_wjec0")
-unit_size = 7.77
+unit_size = 9.99
+
+[node name="enemy_light" type="OmniLight3D" parent="." unique_id=925687664]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5690097e-07, 2.2740297, -1.3161807)
+light_color = Color(1, 0.09638554, 0, 1)
+light_energy = 0.777
+shadow_bias = 0.0
+omni_range = 3.333
+omni_attenuation = 4.444
 
 [connection signal="timeout" from="voiceline_timer" to="." method="_on_timer_timeout"]

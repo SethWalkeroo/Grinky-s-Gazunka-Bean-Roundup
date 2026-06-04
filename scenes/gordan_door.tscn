@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c38fopnhn8ep2"]
 
-[ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="1_j3yyj"]
 [ext_resource type="Script" uid="uid://b22cm0y3d7731" path="res://scripts/gordan_door.gd" id="1_ujt5t"]
+[ext_resource type="Texture2D" uid="uid://bg7irm3cb8j1x" path="res://doorwip_texture-wooden-boards-have-metal-frames.jpg" id="2_j3yyj"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_k4sej"]
 size = Vector3(3.055191, 2.414795, 0.5215454)
@@ -10,7 +10,7 @@ size = Vector3(3.055191, 2.414795, 0.5215454)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ysx5l"]
 albedo_color = Color(0.21484375, 0.10988885, 0, 1)
-albedo_texture = ExtResource("1_j3yyj")
+albedo_texture = ExtResource("2_j3yyj")
 
 [node name="door" type="StaticBody3D" unique_id=23201105 groups=["wood"]]
 collision_layer = 13

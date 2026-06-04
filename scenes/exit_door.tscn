@@ -1,21 +1,36 @@
 [gd_scene format=3 uid="uid://dflwsyrxdx1ii"]
 
 [ext_resource type="Script" uid="uid://uo2y815q4ic3" path="res://scripts/exit_door.gd" id="1_sojrm"]
-[ext_resource type="Texture2D" uid="uid://d4k4adsaxdcji" path="res://assets/assets/textures/woodfloor.jpg" id="1_syxuu"]
+[ext_resource type="Texture2D" uid="uid://bg7irm3cb8j1x" path="res://doorwip_texture-wooden-boards-have-metal-frames.jpg" id="2_sojrm"]
 [ext_resource type="AudioStream" uid="uid://bmkiw6p6xo7le" path="res://audio/open_door.wav" id="2_yk4m6"]
 [ext_resource type="PackedScene" uid="uid://b0tr43lxl3yaa" path="res://scenes/icon_component.tscn" id="3_6m21m"]
 [ext_resource type="Texture2D" uid="uid://bhjgy4kathwjg" path="res://exit_icon.png" id="4_sojrm"]
+[ext_resource type="Texture2D" uid="uid://dr5mgecvu8ent" path="res://exit.jpg" id="6_yvv6m"]
+[ext_resource type="Script" uid="uid://bchmfwifqhnas" path="res://scripts/exit_sign.gd" id="7_ne0bh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_m23ym"]
 size = Vector3(3.50177, 4.005829, 0.78271484)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yk4m6"]
-albedo_texture = ExtResource("1_syxuu")
+albedo_texture = ExtResource("2_sojrm")
+albedo_texture_force_srgb = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_m23ym"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_syxuu"]
 size = Vector3(3.4274902, 3.9038086, 0.63194275)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yvv6m"]
+albedo_texture = ExtResource("6_yvv6m")
+albedo_texture_force_srgb = true
+metallic = 0.12
+metallic_specular = 0.42
+clearcoat_enabled = true
+uv1_scale = Vector3(2.305, 2.305, 2.305)
+uv1_offset = Vector3(1.1, -0.055, 0)
+uv1_triplanar_sharpness = 0.40612623
+
+[sub_resource type="BoxMesh" id="BoxMesh_ne0bh"]
 
 [node name="exit_door" type="Area3D" unique_id=1886768539]
 script = ExtResource("1_sojrm")
@@ -29,11 +44,12 @@ material_override = SubResource("StandardMaterial3D_yk4m6")
 mesh = SubResource("BoxMesh_m23ym")
 
 [node name="light" type="OmniLight3D" parent="." unique_id=291940332]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26985502, 0.9002377)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.609109, 0.9002377)
 light_color = Color(1, 0, 0.20651436, 1)
-light_energy = 0.18
+light_energy = 0.127
 light_indirect_energy = 0.0
 light_volumetric_fog_energy = 0.0
+light_size = 0.637
 light_specular = 0.0
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=947635985]
@@ -51,3 +67,9 @@ bus = &"effects"
 
 [node name="IconComponent" parent="." unique_id=798463184 instance=ExtResource("3_6m21m")]
 map_icon = ExtResource("4_sojrm")
+
+[node name="exit_sign" type="MeshInstance3D" parent="." unique_id=1533583623]
+transform = Transform3D(0.97725743, 0, 0, 0, 0.613899, 0, 0, 0, 0.17135921, 0, 1.5333014, 0.2728014)
+material_override = SubResource("StandardMaterial3D_yvv6m")
+mesh = SubResource("BoxMesh_ne0bh")
+script = ExtResource("7_ne0bh")

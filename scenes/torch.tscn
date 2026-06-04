@@ -128,6 +128,7 @@ script = ExtResource("1_r3k50")
 [node name="fire" type="GPUParticles3D" parent="." unique_id=75582458]
 transform = Transform3D(0.99999994, -5.215952e-10, 0, -8.310508e-11, 0.99999994, 0, 0, -2.3283064e-10, 0.9999999, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_gybtl")
+transparency = 0.27
 visibility_range_end = 50.0
 visibility_range_end_margin = 2.0
 visibility_range_fade_mode = 1
@@ -159,7 +160,7 @@ transform = Transform3D(0.998364, -0.011688584, 0.0010923943, -0.014690911, -0.7
 layers = 4
 radius = 0.063
 height = 0.797
-sides = 7
+sides = 5
 material = SubResource("StandardMaterial3D_8ldo8")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=150583471]

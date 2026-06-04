@@ -274,6 +274,10 @@ func _on_player_bean_collected():
 			exit_door.get_node("light").light_color = Color.GREEN
 			exit_door.get_node("light").light_energy = 5.0 
 			
+			var exit_mesh = exit_door.get_node("exit_sign")
+			var material = exit_mesh.get_active_material(0).duplicate()
+			exit_mesh.set_surface_override_material(0, material)
+			material.albedo_color = Color(0.054, 0.777, 0.0, 1.0) # Sets it to Red
 
 
 func _on_exit_door_body_entered(body: Node3D) -> void:

@@ -34,8 +34,16 @@ material = SubResource("StandardMaterial3D_6ppwc")
 size = Vector3(0.05, 0.05, 0.05)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m3ktk"]
-shading_mode = 0
+diffuse_mode = 3
 albedo_texture = ExtResource("1_ijm6s")
+rim_enabled = true
+rim = 0.3
+rim_tint = 0.0
+clearcoat_enabled = true
+anisotropy = -1.0
+heightmap_enabled = true
+heightmap_scale = -16.0
+heightmap_flip_binormal = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vs7v5"]
 shading_mode = 0
@@ -124,3 +132,8 @@ bus = &"effects"
 
 [node name="IconComponent" parent="." unique_id=798463184 instance=ExtResource("4_m3ktk")]
 map_icon = ExtResource("1_ijm6s")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1339510702]
+light_color = Color(1, 0.9099488, 0, 1)
+omni_range = 1.173
+omni_attenuation = -1.202

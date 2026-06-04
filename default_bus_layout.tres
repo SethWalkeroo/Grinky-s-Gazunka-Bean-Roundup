@@ -28,7 +28,11 @@ band_db/31_hz = -60.0
 band_db/62_hz = -60.0
 band_db/125_hz = -60.0
 band_db/250_hz = -60.0
-band_db/500_hz = -45.2
+band_db/500_hz = -60.0
+
+[sub_resource type="AudioEffectStereoEnhance" id="AudioEffectStereoEnhance_j3pel"]
+resource_name = "StereoEnhance"
+time_pullout_ms = 7.77
 
 [sub_resource type="AudioEffectEQ" id="AudioEffectEQ_j3pel"]
 resource_name = "EQ"
@@ -75,7 +79,9 @@ bus/5/bypass_fx = false
 bus/5/volume_db = 0.0
 bus/5/send = &"Master"
 bus/5/effect/0/effect = SubResource("AudioEffectEQ10_j3pel")
-bus/5/effect/0/enabled = false
+bus/5/effect/0/enabled = true
+bus/5/effect/1/effect = SubResource("AudioEffectStereoEnhance_j3pel")
+bus/5/effect/1/enabled = true
 bus/6/name = &"ambient_noise"
 bus/6/solo = false
 bus/6/mute = false
