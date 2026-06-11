@@ -25,6 +25,7 @@
 [ext_resource type="Script" uid="uid://ljh6db0sou04" path="res://scripts/motd_button.gd" id="21_1acrt"]
 [ext_resource type="AudioStream" uid="uid://dwxshwq8f2wav" path="res://audio/shotgun_audio/shotgun_pump.wav" id="22_svtp6"]
 [ext_resource type="AudioStream" uid="uid://l61dxwl6tgex" path="res://audio/nightvision.wav" id="25_3wgol"]
+[ext_resource type="AudioStream" uid="uid://j6pciwikr41v" path="res://audio/error_sound.wav" id="26_1acrt"]
 
 [sub_resource type="Gradient" id="Gradient_flqon"]
 offsets = PackedFloat32Array(0, 0.41970804, 0.6678832, 1)
@@ -428,6 +429,31 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 button_pressed = true
 
+[node name="HBoxContainer5" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=1099344034]
+layout_mode = 2
+
+[node name="Label" type="RichTextLabel" parent="video_settings/VBoxContainer/HBoxContainer5" unique_id=2032758834]
+custom_minimum_size = Vector2(200, 25)
+layout_mode = 2
+text = "Mouse Sensitivity:"
+
+[node name="sens_slider" type="HSlider" parent="video_settings/VBoxContainer/HBoxContainer5" unique_id=2114352731]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+min_value = 0.01
+max_value = 7.77
+step = 0.01
+value = 0.11
+
+[node name="sens_label" type="Label" parent="video_settings/VBoxContainer/HBoxContainer5/sens_slider" unique_id=2097839574]
+modulate = Color(1, 0.5764706, 0.019607844, 1)
+custom_minimum_size = Vector2(150, 15)
+layout_mode = 0
+offset_left = -29.32
+offset_right = 120.68
+offset_bottom = 23.0
+
 [node name="HBoxContainer3" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=1320879083]
 layout_mode = 2
 
@@ -438,6 +464,7 @@ text = "Display Mode: "
 
 [node name="DisplayOptionButton" type="OptionButton" parent="video_settings/VBoxContainer/HBoxContainer3" unique_id=2078594534]
 layout_mode = 2
+mouse_default_cursor_shape = 2
 item_count = 3
 popup/item_0/text = "Windowed"
 popup/item_0/id = 0
@@ -764,7 +791,6 @@ mouse_default_cursor_shape = 2
 text = "Your Stash"
 
 [node name="shop_panel" type="ColorRect" parent="." unique_id=777782643]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -895,11 +921,12 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -78.0
-offset_top = 11.0
-offset_right = 97.5
-offset_bottom = 62.0
+offset_left = -213.405
+offset_top = 44.45
+offset_right = -41.36499
+offset_bottom = 80.8499
 grow_horizontal = 2
+rotation = -0.2443461
 bbcode_enabled = true
 
 [node name="stash_panel" type="ColorRect" parent="." unique_id=263047847]
@@ -2331,6 +2358,10 @@ stream = ExtResource("25_3wgol")
 volume_db = -38.381
 bus = &"effects"
 
+[node name="error_sound" type="AudioStreamPlayer" parent="." unique_id=1820052898]
+stream = ExtResource("26_1acrt")
+volume_db = -40.197
+
 [connection signal="pressed" from="ProfilePanel/CreateButton" to="." method="_on_create_button_pressed"]
 [connection signal="pressed" from="MenuButtons/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuButtons/SettingsButton" to="." method="_on_settings_button_pressed"]
@@ -2342,10 +2373,12 @@ bus = &"effects"
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer3/effects_slider" to="." method="_on_effects_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer4/voicelines_slider" to="." method="_on_voicelines_slider_value_changed"]
 [connection signal="value_changed" from="settings_panel/VBoxContainer/HBoxContainer5/ambient_noise_slider" to="." method="_on_ambient_noise_slider_value_changed"]
-[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
+[connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="video_settings/VBoxContainer/HBoxContainer2/hotbar_checkbox" to="." method="_on_hotbar_checkbox_pressed"]
 [connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
+[connection signal="drag_ended" from="video_settings/VBoxContainer/HBoxContainer5/sens_slider" to="." method="_on_sens_slider_drag_ended"]
+[connection signal="value_changed" from="video_settings/VBoxContainer/HBoxContainer5/sens_slider" to="." method="_on_sens_slider_value_changed"]
 [connection signal="item_selected" from="video_settings/VBoxContainer/HBoxContainer3/DisplayOptionButton" to="." method="_on_display_option_button_item_selected"]
 [connection signal="pressed" from="video_settings/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="controls_settings/ScrollContainer/GridContainer/save_settings" to="." method="_on_save_settings_pressed"]

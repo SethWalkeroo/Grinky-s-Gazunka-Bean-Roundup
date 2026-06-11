@@ -28,10 +28,40 @@ func _ready() -> void:
 	
 	# Prevent the raycast from hitting the torch's own collision body!
 	raycast.add_exception(self)
+	
+	# --- RANDOM COLOR GENERATION ---
+	# Color.from_hsv(hue, saturation, value) ensures we get vivid, bright colors 
+	# instead of muddy grays that random RGB values often produce.
+	var random_hue: float = randf() # Random float between 0.0 and 1.0
+	var flame_color: Color = Color.from_hsv(random_hue, 0.9, 1.0)
+	
+	# 1. Apply to the light
+	if light:
+		light.light_color = flame_color
+		
+	# 2. Apply to the fire particles
+	if fire:
+		# Duplicate the process material so torches don't share the same color
+		if fire.process_material:
+			fire.process_material = fire.process_material.duplicate()
+			if fire.process_material is ParticleProcessMaterial:
+				fire.process_material.color = flame_color
+				
+		# Just in case you are overriding the material directly on the mesh/geometry:
+		if fire.material_override:
+			fire.material_override = fire.material_override.duplicate()
+			if fire.material_override is BaseMaterial3D:
+				fire.material_override.albedo_color = flame_color
+
+	# 3. Apply to sparks (Optional, but looks much cleaner if they match!)
+	if sparks:
+		if sparks.process_material:
+			sparks.process_material = sparks.process_material.duplicate()
+			if sparks.process_material is ParticleProcessMaterial:
+				sparks.process_material.color = flame_color
 
 
 func _physics_process(delta: float) -> void:	
-	
 	if is_extinguished: return
 	
 	time_alive += delta
@@ -65,7 +95,6 @@ func _physics_process(delta: float) -> void:
 			return
 	else:
 		# --- GOAL 2: AAA PROCEDURAL FLICKER ---
-		# We combine 3 different sine waves running at different speeds to create a naturally breathing flame
 		var organic_flicker = (sin(time_alive * 12.0) * 0.05) + (sin(time_alive * 25.0) * 0.03) + (sin(time_alive * 7.0) * 0.08)
 		
 		# Add a randomized "wind gust" micro-stutter (8% chance every frame)
@@ -93,13 +122,12 @@ func _on_timer_timeout() -> void:
 
 
 func _on_body_entered(_body: Node) -> void:
-	# Check if the sound is already playing so it doesn't overlap weirdly
 	if not collision_noise.playing:
-		# Optional: Only play if the impact is hard enough
 		if linear_velocity.length() > 2.0:
 			collision_noise.pitch_scale = randf_range(0.8, 1.2) 
 			collision_noise.play()
 			get_tree().call_group("enemy", "investigate_sound", global_position, 20.0)
+
 
 # --- THE EXTINGUISH PROTOCOL ---
 func extinguish_torch() -> void:

@@ -295,6 +295,16 @@ func _physics_process(delta):
 		return
 
 	if is_attacking:
+		# Apply gravity and friction so they don't freeze in mid-air
+		if not is_on_floor():
+			velocity.y -= 9.8 * delta
+		else:
+			velocity.y = -2.0
+			
+		# Bleed off the lunge velocity smoothly so they slide to a halt during the windup
+		velocity.x = move_toward(velocity.x, 0.0, 15.0 * delta)
+		velocity.z = move_toward(velocity.z, 0.0, 15.0 * delta)
+		move_and_slide()
 		return
 	
 	if target_in_range():
@@ -616,8 +626,10 @@ func update_ai_state(sees_player: bool, has_arrived: bool, delta: float) -> void
 		investigation_timer = investigation_time 
 		
 		var player_vel = Vector3(player.velocity.x, 0, player.velocity.z)
+		var to_enemy_dir = player.global_position.direction_to(global_position)
 		
-		if player_vel.length_squared() > 16.0: 
+		# Prevent predicting movement behind the enemy when the player charges straight at them
+		if player_vel.length_squared() > 16.0 and player_vel.normalized().dot(to_enemy_dir) < 0.3: 
 			var intercept_pos = player.global_position + (player_vel * 0.6)
 			var map = nav_agent.get_navigation_map()
 			if map.is_valid():
@@ -867,6 +879,11 @@ func hit_player():
 	look_pos.y = global_position.y
 	look_at(look_pos, Vector3.UP)
 	
+	# --- THE FIX 1: THE ATTACK LUNGE ---
+	# Propel the enemy forward so they close the gap while winding up!
+	var lunge_dir = -global_transform.basis.z.normalized()
+	velocity = lunge_dir * (speed * 1.8) # Adjust 1.8 up or down to change how far they slide
+	
 	if kick_voiceline: kick_voiceline.play()
 	
 	# Force restart the animation so ghost punches don't happen
@@ -882,18 +899,28 @@ func hit_player():
 		is_chasing = true
 		return
 		
-	if player and not ("dead" in player and player.dead) and player.has_method("hit"): 
-		player.hit()
-		
-		if "dead" in player and not player.dead:
-			await get_tree().create_timer(0.6).timeout
+	# --- THE FIX 2: EXTENDED HITBOX ---
+	# A punch extends their arm, so we check if the player is within 1.5x the normal attack range
+	var extended_range = attack_range * 1.5
+	var dist_sq = global_position.distance_squared_to(player.global_position)
+	var vertical_dist = abs(global_position.y - player.global_position.y)
+	
+	if dist_sq < (extended_range * extended_range) and vertical_dist <= 2.5:
+		if player and not ("dead" in player and player.dead) and player.has_method("hit"): 
+			player.hit()
 			
-		is_attacking = false 
-		if not is_ragdolled and not is_staggered:
-			is_chasing = true
-	else:
-		# Always ensure the attack boolean unlocks
-		is_attacking = false
+			if "dead" in player and not player.dead:
+				await get_tree().create_timer(0.6).timeout
+				
+			is_attacking = false 
+			if not is_ragdolled and not is_staggered:
+				is_chasing = true
+			return # Hit successful!
+			
+	# If they still missed (player successfully dodged out of the extended range)
+	is_attacking = false
+	if not is_ragdolled and not is_staggered:
+		is_chasing = true
 
 func _on_timer_timeout() -> void:
 	timer.stop()
@@ -973,7 +1000,9 @@ func can_see_player() -> bool:
 	
 	var angle = forward_flat.angle_to(to_player_flat)
 	if rad_to_deg(angle) > effective_fov / 2.0: 
-		return false
+		# Close-range FOV override so they don't lose you if you slide directly into their legs
+		if dist_sq > 12.0: 
+			return false
 		
 	if player_is_hidden and was_seeing_player:
 		return true

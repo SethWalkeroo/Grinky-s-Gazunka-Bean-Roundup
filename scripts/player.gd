@@ -1,6 +1,9 @@
 extends CharacterBody3D
 class_name Player
 
+@onready var sens_slider: HSlider = $neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer5/sens_slider
+@onready var sens_label: Label = $neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer5/sens_slider/sens_label
+
 @onready var death_noises: Node3D = $death_noises
 @onready var hit_noises: Node3D = $hit_noises
 
@@ -148,7 +151,7 @@ var dead: bool = false
 var in_heaven = false
 
 var current_speed: float = 5.0
-const default_mouse_sens: float = 0.4
+var default_mouse_sens: float = GlobalStats.mouse_sens / 4.0
 var direction: Vector3 = Vector3.ZERO
 var last_velocity: Vector3 = Vector3.ZERO
 var crouching_depth: float = -0.5
@@ -221,7 +224,19 @@ var gazunka_beans: Node3D = null
 var player_rid: RID 
 var self_exclude_array: Array[RID]
 
+
+# A quick helper function to update the text display
+func update_sens_label(val: float) -> void:
+	if sens_label:
+		# snaps the value to 1 decimal place so it looks clean (e.g. "Sens: 1.5")
+		sens_label.text = str(snapped(val, 0.1))
+
 func _ready() -> void:
+	
+	sens_slider.value = GlobalStats.mouse_sens
+	update_sens_label(GlobalStats.mouse_sens)
+	
+	
 	icon_component.get_node('icon_sprite').pixel_size = 0.0003
 	
 	# Cache our RID heavily used in raycasts
@@ -864,7 +879,7 @@ func _physics_process(delta: float) -> void:
 		# Tell the UI it's ready!
 		gui.update_wisp_cooldown(0.0, wisp_max_cooldown)
 
-	if not dead: 
+	if not dead and not paused: 
 		if current_health < max_health:
 			regen_timer -= delta
 			if regen_timer <= 0.0:
@@ -1163,15 +1178,19 @@ func handle_movement(delta: float) -> void:
 
 	# --- DYNAMIC FOV MATH ---
 	var target_fov = default_base_fov
+	var current_lerp_speed = 6.0
 	
 	if is_zooming:
 		target_fov = zoom_fov
+		current_lerp_speed = 12.0
 	elif is_sliding: 
 		target_fov = 85.0
-		
+	else:
+		# Pushes the FOV wider as you gain speed, giving a great sense of momentum
+		var flat_speed = Vector2(velocity.x, velocity.z).length()
+		target_fov += (flat_speed * 0.8) 
+
 	target_fov += panic_fov_modifier
-	
-	var current_lerp_speed = 12.0 if is_zooming else 6.0
 	camera_3d.fov = lerp(camera_3d.fov, target_fov, delta * current_lerp_speed)
 
 	# --- WATER PHYSICS & GRAVITY ---
@@ -1230,7 +1249,10 @@ func handle_movement(delta: float) -> void:
 
 	if is_on_floor() and last_velocity.y < -3.0 and not is_underwater:
 		animation_player.play('landing')
-		footsteps.play()
+		if not in_heaven:
+			footsteps.play()
+		else:
+			grass_footsteps.play()
 		spawn_landing_footprints()
 
 	var target_dir = Vector3.ZERO
@@ -1292,14 +1314,26 @@ func handle_movement(delta: float) -> void:
 		else:
 			if in_heaven and not is_on_floor() and not is_underwater: pass
 			else:
-				var decel = 15.0 * delta
-				if is_underwater: decel = 25.0 * delta # Stop much faster in water
-				elif crouching and is_on_floor(): decel = 40.0 * delta 
-				elif flat_vel.length() <= current_speed: 
-					if is_on_floor(): decel = current_speed
-					else: decel = 2.0 * delta
-				velocity.x = move_toward(velocity.x, 0, decel)
-				velocity.z = move_toward(velocity.z, 0, decel)
+				var flat_vel_length = flat_vel.length()
+				
+				if is_on_floor() and not is_underwater:
+					# Smooth interpolation for ground friction
+					var friction = 12.0
+					if crouching: friction = 20.0
+					
+					velocity.x = lerp(velocity.x, 0.0, friction * delta)
+					velocity.z = lerp(velocity.z, 0.0, friction * delta)
+					
+					# Hard stop when extremely slow to prevent infinite sliding drift
+					if flat_vel_length < 0.1:
+						velocity.x = 0.0
+						velocity.z = 0.0
+				else:
+					# Keep the linear deceleration for mid-air and water
+					var decel = 2.0 * delta
+					if is_underwater: decel = 25.0 * delta
+					velocity.x = move_toward(velocity.x, 0, decel)
+					velocity.z = move_toward(velocity.z, 0, decel)
 				
 	if is_sliding and is_on_floor() and not is_underwater:
 		if not slide_loop_sound.playing: slide_loop_sound.play()
@@ -1366,7 +1400,16 @@ func handle_camera_and_bobbing(delta: float) -> void:
 	current_lean_tilt = lerp(current_lean_tilt, actual_lean_input * deg_to_rad(lean_angle), delta * lean_speed)
 	
 	var target_freelook_tilt = -deg_to_rad(neck.rotation.y * free_look_angle_amt)
-	eyes.rotation.z = current_lean_tilt + target_freelook_tilt
+	
+	# --- NEW: STRAFE TILT ---
+	var target_strafe_tilt = 0.0
+	if not sliding and not free_looking and is_on_floor():
+		var input_dir := Input.get_vector("left", "right", "forward", "backward")
+		# Tilts the camera slightly in the direction you are moving
+		target_strafe_tilt = -input_dir.x * deg_to_rad(1.5) 
+
+	# Combine all three procedural rotations
+	eyes.rotation.z = current_lean_tilt + target_freelook_tilt + target_strafe_tilt
 
 	# 3. Slide timer check
 	if sliding:
@@ -1396,7 +1439,10 @@ func handle_camera_and_bobbing(delta: float) -> void:
 		
 		# Only play the heavy boot sounds if we aren't swimming!
 		if previous_eye_position < 0 and eyes.position.y > 0 and not is_underwater:
-			footsteps.play()
+			if in_heaven and grass_footsteps:
+				grass_footsteps.play()
+			else:
+				footsteps.play()
 			spawn_footprint()
 		previous_eye_position = eyes.position.y
 	else:
@@ -1779,7 +1825,7 @@ func trigger_bean_sense() -> void:
 			active_beans.append(bean)
 			
 	if active_beans.size() == 0: return # No beans left!
-	
+
 	# 2. Find the absolute closest one using SQUARED distance (Much Faster!)
 	var closest_bean = null
 	var closest_dist_sq = INF
@@ -2139,3 +2185,12 @@ func _on_video_button_pressed(): gui._on_video_button_pressed()
 func _on_check_box_toggled(toggled_on: bool): gui._on_check_box_toggled(toggled_on)
 func _on_resume_pressed(): gui._on_resume_pressed()
 func _on_hotbar_checkbox_toggled(toggled_on: bool): gui._on_hotbar_checkbox_toggled(toggled_on)
+
+func _on_sens_slider_drag_ended(value_changed: bool) -> void:
+	if value_changed:
+		GlobalStats.play_click()
+
+func _on_sens_slider_value_changed(value: float) -> void:
+	default_mouse_sens = value / 4.0
+	GlobalStats.mouse_sens = value
+	update_sens_label(value)

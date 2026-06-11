@@ -114,12 +114,12 @@ shader_parameter/atm_darkness = 0.5
 shader_parameter/atm_sun_intensity = 18.0
 shader_parameter/atm_day_tint = Color(0.807843, 0.909804, 1, 1)
 shader_parameter/atm_horizon_light_tint = Color(0.980392, 0.635294, 0.462745, 1)
-shader_parameter/atm_night_tint = Color(0.08568328, 0.10162463, 0.12752874, 0.50812316)
+shader_parameter/atm_night_tint = Color(0.003406733, 0.004040555, 0.005070492, 0.020202775)
 shader_parameter/atm_level_params = Vector3(1, 0, 0)
 shader_parameter/atm_thickness = 0.7
 shader_parameter/atm_beta_ray = Vector3(5.804544e-06, 1.3562913e-05, 3.311258e-05)
 shader_parameter/atm_beta_mie = Vector3(3.038e-08, 3.038e-08, 3.038e-08)
-shader_parameter/sun_light_color = Color(0.98, 0.523, 0.294, 1)
+shader_parameter/sun_light_color = Color(0.9911919, 0.7899265, 0.6890737, 1)
 shader_parameter/sun_disk_color = Color(0.996094, 0.541334, 0.140076, 1)
 shader_parameter/sun_disk_intensity = 30.0
 shader_parameter/sun_disk_size = 0.02
@@ -141,7 +141,7 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -5.893591894989076
+shader_parameter/star_rotation = -9.327626945000008
 shader_parameter/star_tilt = -1.2915436464758039
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("34_ipkb0")
@@ -157,8 +157,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.8107475, 0.8107475)
-shader_parameter/cirrus_position2 = Vector2(0.8107475, 0.8107475)
+shader_parameter/cirrus_position1 = Vector2(0.7997236, 0.7997236)
+shader_parameter/cirrus_position2 = Vector2(0.7997236, 0.7997236)
 shader_parameter/cirrus_texture = ExtResource("30_01rup")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -168,7 +168,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(49.215176, 49.215176)
+shader_parameter/cumulus_position = Vector2(3.9990766, 3.9990766)
 shader_parameter/cumulus_texture = ExtResource("31_8g5uk")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -178,7 +178,7 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(0, -0.42078838, 0.90715885, -0.99997824, 0.0059869047, 0.0027770437, -0.0065996214, -0.9071391, -0.42077923)
+shader_parameter/moon_matrix = Basis(-1.4901159e-08, 0.863517, -0.5043197, -0.60933876, 0.3998802, 0.6846913, 0.79291, 0.30730155, 0.52617437)
 
 [sub_resource type="Sky" id="Sky_bcqvh"]
 sky_material = SubResource("ShaderMaterial_p7nha")
@@ -187,8 +187,7 @@ sky_material = SubResource("ShaderMaterial_p7nha")
 background_mode = 2
 sky = SubResource("Sky_bcqvh")
 ambient_light_source = 3
-ambient_light_color = Color(0.35, 0.24823688, 0.21693996, 1)
-ambient_light_sky_contribution = 0.7
+ambient_light_color = Color(0.67490035, 0.53828365, 0.47005397, 1)
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -203,8 +202,8 @@ volumetric_fog_length = 12.8
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_by87i"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_bp0w1"]
-height = 1.7666016
-radius = 4.757324
+height = 6.913086
+radius = 13.383789
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gbqwe"]
 size = Vector3(1.2788086, 0.2211914, 1.2231445)
@@ -325,6 +324,9 @@ shader_parameter/flap_speed = 7.77
 shader_parameter/flap_strength = 0.5
 
 [sub_resource type="SphereMesh" id="SphereMesh_8g5uk"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ipkb0"]
+size = Vector3(44.972157, 0.29052734, 6.12146)
 
 [node name="heaven" type="Node3D" unique_id=160785422]
 script = ExtResource("1_uxtox")
@@ -777,37 +779,37 @@ metadata/_custom_type_script = "uid://c5541utl8wpif"
 environment = SubResource("Environment_nxiix")
 camera_attributes = SubResource("CameraAttributesPractical_by87i")
 script = ExtResource("36_j5lsf")
-current_time = 4.418033333358696
+current_time = 17.10608333336529
 minutes_per_day = 24.0
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1726463381]
-transform = Transform3D(-0.48394835, 0.18212783, 0.85593426, 0, 0.9781026, -0.20812313, -0.87509656, -0.100720845, -0.47335115, 0.85593426, -0.20812313, -0.47335115)
+transform = Transform3D(-0.3456743, 0.262549, -0.90087587, 0, 0.96005917, 0.27979723, 0.9383546, 0.09671871, -0.33186775, -0.90087587, 0.27979723, -0.33186775)
 layers = 3
-light_color = Color(0.98, 0.523, 0.294, 1)
-light_energy = 0.0
+light_color = Color(0.9911919, 0.7899265, 0.6890737, 1)
+shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=433551366]
-transform = Transform3D(0, -0.99997824, -0.006599621, -0.42078838, 0.0059869047, -0.90713906, 0.90715885, 0.0027770437, -0.4207792, -0.006599621, -0.90713906, -0.4207792)
+transform = Transform3D(0, -0.60933876, 0.79291004, 0.863517, 0.39988017, 0.30730158, -0.5043197, 0.6846913, 0.5261744, 0.79291, 0.30730155, 0.52617437)
 layers = 3
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 
 [node name="SkyDome" type="Node" parent="Sky3D" unique_id=1682473994]
 script = ExtResource("37_5dglg")
-sun_azimuth = -1.0656353
-sun_altitude = -1.780452
-moon_azimuth = -6.2675023
-moon_altitude = -2.7072315
+sun_azimuth = -5.0653462
+sun_altitude = -1.2872134
+moon_azimuth = -2.1566722
+moon_altitude = -1.2584403
 wind_direction = 2.35619451204804
 
 [node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=2110156679]
 script = ExtResource("38_qxbhr")
 dome_path = NodePath("../SkyDome")
 minutes_per_day = 24.0
-current_time = 4.418033333358696
-day = 20
+current_time = 17.10608333336529
+day = 26
 month = 6
 year = 2026
 
@@ -827,7 +829,7 @@ volume_db = -14.316
 [node name="saul_area" type="Area3D" parent="saultable3" unique_id=1534443322]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="saultable3/saul_area" unique_id=298608179]
-transform = Transform3D(0.793159, 0.025587354, -0.6084704, 0.6004351, 0.13427275, 0.7883213, 0.10186905, -0.9906078, 0.09113534, -1.1941257, 4.8890896, 0.45837313)
+transform = Transform3D(0.7931632, 0.02558735, -0.60844976, 0.6004306, 0.13427277, 0.7883298, 0.10186834, -0.9906078, 0.09113389, -0.053272903, 1.6412838, -4.209156)
 shape = SubResource("CylinderShape3D_bp0w1")
 
 [node name="birds" type="Node3D" parent="." unique_id=1984379611]
@@ -1210,7 +1212,7 @@ autoplay = true
 bus = &"ambient_noise"
 
 [node name="ocean" type="MeshInstance3D" parent="." unique_id=1958628379]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.467041, -6.231701, 0.5447998)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7798138, -6.2316856, 0.18418884)
 lod_bias = 0.1
 mesh = SubResource("PlaneMesh_8yo23")
 surface_material_override/0 = SubResource("ShaderMaterial_bcqvh")
@@ -1480,7 +1482,13 @@ bus = &"effects"
 light_color = Color(0.98039216, 0.2509804, 0.34901962, 1)
 omni_range = 1.348
 
-[connection signal="body_entered" from="saultable3/saul_area" to="." method="_on_area_3d_body_entered"]
+[node name="fath_walk" type="StaticBody3D" parent="." unique_id=802352277]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.534386, 38.318356, 216.84566)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="fath_walk" unique_id=396841509]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.01097, -0.9416466, 0.45761108)
+shape = SubResource("BoxShape3D_ipkb0")
+
 [connection signal="body_entered" from="saultable3/saul_area" to="." method="_on_saul_area_body_entered"]
 [connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_entered" from="ball2" to="ball2" method="_on_body_entered"]

@@ -3,12 +3,21 @@ extends CanvasLayer
 #heaven button
 @onready var heaven_button: Button = $heaven_button
 
+
+
+# mouse sense
+@onready var sens_slider: HSlider = $video_settings/VBoxContainer/HBoxContainer5/sens_slider
+@onready var sens_label: Label = $video_settings/VBoxContainer/HBoxContainer5/sens_slider/sens_label
+
+
+
 # --- SHOP & STASH NODES ---
 @onready var shop_panel: ColorRect = $shop_panel
 @onready var stash_panel: ColorRect = $stash_panel
 @onready var bean_shop_button: Button = $bean_shop_button
 @onready var stash_button: Button = $stash_button 
 @onready var bean_shop_display: RichTextLabel = $shop_panel/bean_shop_display
+
 
 # --- CRITICAL FIX: SWAPPED NODE PATHS ---
 @onready var stash_grid: GridContainer = $stash_panel/player_grid # This is your Stash UI
@@ -276,6 +285,13 @@ var voicelines_bus = AudioServer.get_bus_index("game_voicelines")
 var ambient_noise_bus = AudioServer.get_bus_index('ambient_noise')
 var sarah_bus = AudioServer.get_bus_index("sarah") 
 
+
+# A quick helper function to update the text display
+func update_sens_label(val: float) -> void:
+	if sens_label:
+		# snaps the value to 1 decimal place so it looks clean (e.g. "Sens: 1.5")
+		sens_label.text = str(snapped(val, 0.1))
+
 func _ready() -> void:
 	
 	master_slider.set_value_no_signal(GlobalStats.master_vol)
@@ -283,7 +299,10 @@ func _ready() -> void:
 	effects_slider.set_value_no_signal(GlobalStats.effects_vol)
 	voicelines_slider.set_value_no_signal(GlobalStats.voicelines_vol)
 	ambient_noise_slider.set_value_no_signal(GlobalStats.ambient_noise_vol)
+	sens_slider.set_value_no_signal(GlobalStats.mouse_sens)
+	update_sens_label(GlobalStats.mouse_sens)
 	
+
 	AudioServer.set_bus_volume_db(master_bus, linear_to_db(GlobalStats.master_vol))
 	AudioServer.set_bus_volume_db(menu_music_bus, linear_to_db(GlobalStats.menu_music_vol))
 	AudioServer.set_bus_volume_db(effects_bus, linear_to_db(GlobalStats.effects_vol))
@@ -854,11 +873,13 @@ func update_shop_display() -> void:
 	if stash_bean_display:
 		stash_bean_display.text = bean_text
 	update_bean_jar_display()
+	
+@onready var error_sound: AudioStreamPlayer = $error_sound
 
 func buy_item(item_name: String, price: int, quantity: int) -> void:
 	if GlobalStats.total_beans_collected < price:
 		print("Not enough beans!")
-		# Play buzzer/error sound here!
+		error_sound.play()
 		return
 		
 	if not can_fit_item(item_name, quantity):
@@ -1216,3 +1237,16 @@ func _on_display_option_button_item_selected(index: int) -> void:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		2: # Exclusive Fullscreen
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+
+
+func _on_sens_slider_value_changed(value: float) -> void:
+	# Update the singleton immediately
+	GlobalStats.mouse_sens = value
+	
+	# Update the label visually
+	update_sens_label(value)
+
+
+func _on_sens_slider_drag_ended(value_changed: bool) -> void:
+	if value_changed:
+		GlobalStats.play_click()

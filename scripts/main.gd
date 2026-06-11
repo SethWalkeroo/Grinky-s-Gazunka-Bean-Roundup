@@ -10,6 +10,7 @@ extends Node3D
 @onready var gazunka_beans: Node3D = $Gazunka_Beans
 @onready var navigation_region_3d: NavigationRegion3D = $NavigationRegion3D
 @onready var start_round_music: AudioStreamPlayer = $start_round_music
+@onready var exit_noise: AudioStreamPlayer3D = $exit_noise
 
 
 @onready var floor_creak_sounds: Node3D = $floor_creak_sounds
@@ -283,6 +284,7 @@ func _on_player_bean_collected():
 func _on_exit_door_body_entered(body: Node3D) -> void:
 	if body == player:
 		if player.bean_count >= 7:
+			exit_noise.play()
 			player.save_final_time() 
 			get_tree().call_deferred("change_scene_to_file", "res://scenes/heaven.tscn")
 		else:
