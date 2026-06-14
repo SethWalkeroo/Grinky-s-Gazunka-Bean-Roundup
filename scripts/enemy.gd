@@ -1151,3 +1151,8 @@ func start_the_hunt_intro() -> void:
 			
 func _on_intro_finished() -> void:
 	is_intro_playing = false
+
+
+func _on_torch_extinguish_area_body_entered(body: Node3D) -> void:
+	if body is Torch and is_chasing:
+		body.extinguish_torch()

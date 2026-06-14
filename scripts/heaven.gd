@@ -13,8 +13,7 @@ extends Node3D
 #saul audio
 @onready var saul_audio: AudioStreamPlayer3D = $saultable3/saul_audio
 var saul_audio_triggered = false
-var saul_audio_2_triggered = false
-@onready var saul_audio_2: AudioStreamPlayer3D = $saultable3/saul_audio2
+
 
 # --- GLOBAL BELL TRACKERS ---
 var bell_check_timer: float = 15.0 # Check every 15 seconds so we don't spam SilentWolf's servers
@@ -177,6 +176,3 @@ func _on_saul_area_body_entered(body: Node3D) -> void:
 	if body is Player and not saul_audio_triggered:
 		saul_audio.play()
 		saul_audio_triggered = true
-	elif body is Player and saul_audio_triggered and not saul_audio_2_triggered:
-		saul_audio_2.play()
-		saul_audio_2_triggered = true

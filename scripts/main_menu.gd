@@ -83,7 +83,7 @@ var menu_music_playback_position: float = 0.0
 const MAX_CHAR_LIMIT = 12
 const BANNED_WORDS = [
 	"nigger", "beaner", "gook", "chink", "nigga", "faggot", "fag", "nickgurs", "fuck", "shit", "bitch", "cunt",
-	"coon", "spook"
+	"coon", "spook", "zipperhead", "pussy", "cock"
 ]
 
 @onready var menu_background: TextureRect = $menu_background
@@ -94,7 +94,6 @@ var motds = [
 	'"[i]China number 1[/i]" [color=red]-China[/color] [color=yellow](probably)[/color]',
 	'"[i]The successful [color=orange]warrior[/color] is the average man, with [color=red]laser-like[/color] focus.[/i]" [rainbow]-Bruce Lee[/rainbow]',
 	'"[i]The [color=brown]root[/color] of suffering is [color=pink]attachment[/color].[/i]" [color=gold]-Buddha[/color]',
-	'"[i]All I was doing was trying to get home from work.[/i]" [rainbow]-Rosa Parks[/rainbow]',
 	'"[i]I [color=white]came[/color], I [color=cyan]saw[/color], I [color=gold]conquered[/color].[/i]" [color=red]-Julius Caesar[/color]',
 	'"[i]Good artists [color=orange]copy[/color], great artists [color=red]steal[/color].[/i]" [rainbow]-Pablo Picasso[/rainbow]',
 	'"[i]The only thing that [color=red]interferes[/color] with my learning is my education.[/i]" [rainbow]-Albert Einstein[/rainbow]',
@@ -205,7 +204,8 @@ var motds = [
 	'"[i]It is [color=black]during our darkest moments[/color] that we must [color=cyan]focus to see the light[/color].[/i]" [color=gold]-Aristotle[/color]',
 	'"[i]Real [color=orange]change[/color], enduring [color=orange]change[/color], happens one step at a time.[/i]" [color=red]-Ruth Bader Ginsburg[/color]',
 	'"[i]When it comes to [color=green]luck[/color], you [color=gold]make your own[/color].[/i]" [rainbow]-Bruce Springsteen[/rainbow]',
-	'"[i]We generate [color=red]fears[/color] while we sit. We [color=gold]overcome[/color] them by [color=orange]action[/color].[/i]" [color=red]-Dr. Henry Link[/color]'
+	'"[i]We generate [color=red]fears[/color] while we sit. We [color=gold]overcome[/color] them by [color=orange]action[/color].[/i]" [color=red]-Dr. Henry Link[/color]',
+	'"[i]Build your own [color=cyan]dreams[/color], or [color=red]someone else[/color] will hire you to [color=red]build theirs[/color].[/i]" -Farrah [color=gray]Gray[/color]',
 ]
 
 var last_motd_index: int = -1
@@ -242,6 +242,7 @@ const leaderboard_scene = preload("uid://byi13mqxxc8vm")
 @onready var minimap_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer/minimap_checkbox
 @onready var hotbar_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer2/hotbar_checkbox
 @onready var display_option_button: OptionButton = $video_settings/VBoxContainer/HBoxContainer3/DisplayOptionButton
+@onready var crosshair_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer4/crosshair_checkbox
 
 
 # --- CONTROLS REBINDING NODES & STATE ---
@@ -370,6 +371,7 @@ func _ready() -> void:
 	_init_background_vibe()
 	# set options buttons
 	minimap_checkbox.button_pressed = GlobalStats.minimap_on
+	crosshair_checkbox.button_pressed = GlobalStats._crosshair_on
 	hotbar_checkbox.button_pressed = GlobalStats.hotbar_on
 	display_option_button.selected = GlobalStats.display_mode
 	_on_display_option_button_item_selected(GlobalStats.display_mode)
@@ -1250,3 +1252,8 @@ func _on_sens_slider_value_changed(value: float) -> void:
 func _on_sens_slider_drag_ended(value_changed: bool) -> void:
 	if value_changed:
 		GlobalStats.play_click()
+
+
+func _on_crosshair_checkbox_toggled(toggled_on: bool) -> void:
+	GlobalStats._crosshair_on = toggled_on
+	GlobalStats.play_click()

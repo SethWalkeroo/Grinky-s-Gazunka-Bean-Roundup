@@ -413,6 +413,21 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 button_pressed = true
 
+[node name="HBoxContainer4" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=1645216523]
+layout_mode = 2
+
+[node name="crosshair_label" type="RichTextLabel" parent="video_settings/VBoxContainer/HBoxContainer4" unique_id=1564184221]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+bbcode_enabled = true
+text = "Crosshair visible: "
+fit_content = true
+scroll_active = false
+
+[node name="crosshair_checkbox" type="CheckBox" parent="video_settings/VBoxContainer/HBoxContainer4" unique_id=1034002563]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
 [node name="HBoxContainer" type="HBoxContainer" parent="video_settings/VBoxContainer" unique_id=20513621]
 layout_mode = 2
 
@@ -699,21 +714,25 @@ bus = &"game_voicelines"
 [node name="sound" type="AudioStreamPlayer" parent="menu_noises" unique_id=1707064571]
 stream = ExtResource("13_7b55j")
 volume_db = -36.789
+pitch_scale = 0.77
 bus = &"game_voicelines"
 
 [node name="video" type="AudioStreamPlayer" parent="menu_noises" unique_id=1645853467]
 stream = ExtResource("14_5pajh")
 volume_db = -36.082
+pitch_scale = 0.77
 bus = &"game_voicelines"
 
 [node name="controls" type="AudioStreamPlayer" parent="menu_noises" unique_id=1090739432]
 stream = ExtResource("15_j7ex8")
 volume_db = -36.082
+pitch_scale = 0.77
 bus = &"game_voicelines"
 
 [node name="leaderboard_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=215432220]
 stream = ExtResource("16_5pajh")
 volume_db = -36.082
+pitch_scale = 0.77
 bus = &"game_voicelines"
 
 [node name="test_ambient_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=283117483]
@@ -729,11 +748,13 @@ bus = &"effects"
 [node name="shop_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=233124425]
 stream = ExtResource("18_1dfpl")
 volume_db = 1.238
+pitch_scale = 0.77
 bus = &"game_voicelines"
 
 [node name="stash_noise" type="AudioStreamPlayer" parent="menu_noises" unique_id=1267404699]
 stream = ExtResource("19_qywvv")
 volume_db = -4.954
+pitch_scale = 0.77
 bus = &"game_voicelines"
 
 [node name="Button" type="Button" parent="." unique_id=1088281270]
@@ -2376,6 +2397,7 @@ volume_db = -40.197
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_settings_pressed"]
 [connection signal="pressed" from="settings_panel/VBoxContainer/save_settings" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="video_settings/VBoxContainer/HBoxContainer2/hotbar_checkbox" to="." method="_on_hotbar_checkbox_pressed"]
+[connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer4/crosshair_checkbox" to="." method="_on_crosshair_checkbox_toggled"]
 [connection signal="toggled" from="video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
 [connection signal="drag_ended" from="video_settings/VBoxContainer/HBoxContainer5/sens_slider" to="." method="_on_sens_slider_drag_ended"]
 [connection signal="value_changed" from="video_settings/VBoxContainer/HBoxContainer5/sens_slider" to="." method="_on_sens_slider_value_changed"]

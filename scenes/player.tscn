@@ -272,6 +272,7 @@ transform = Transform3D(-1, 0, -8.940697e-08, 0, 1, 0, 8.940697e-08, 0, -1, 0, 0
 collision_layer = 3
 collision_mask = 3
 script = ExtResource("1_tuyoq")
+slide_boost_multiplier = 0.777
 
 [node name="standing_collision_shape" type="CollisionShape3D" parent="." unique_id=659871979]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -722,6 +723,21 @@ scroll_active = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 button_pressed = true
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer" unique_id=643997007]
+layout_mode = 2
+
+[node name="crosshair_label" type="RichTextLabel" parent="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer4" unique_id=1557756385]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+bbcode_enabled = true
+text = "Crosshair visible: "
+fit_content = true
+scroll_active = false
+
+[node name="crosshair_checkbox" type="CheckBox" parent="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer4" unique_id=1645142282]
+layout_mode = 2
+mouse_default_cursor_shape = 2
 
 [node name="HBoxContainer5" type="HBoxContainer" parent="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer" unique_id=122967597]
 layout_mode = 2
@@ -1753,7 +1769,7 @@ volume_db = -29.217
 
 [node name="grass_footsteps" type="AudioStreamPlayer3D" parent="footstep_audio" unique_id=60962010]
 stream = ExtResource("39_cs1tg")
-volume_db = -32.393
+volume_db = -37.301
 
 [node name="footsteps" type="AudioStreamPlayer3D" parent="footstep_audio" unique_id=393599579]
 stream = ExtResource("4_3v2ag")
@@ -1775,6 +1791,7 @@ bus = &"effects"
 [connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer2/hotbar_checkbox" to="." method="_on_hotbar_checkbox_toggled"]
 [connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_check_box_toggled"]
 [connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer/minimap_checkbox" to="." method="_on_minimap_checkbox_toggled"]
+[connection signal="toggled" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer4/crosshair_checkbox" to="." method="_on_crosshair_checkbox_toggled"]
 [connection signal="drag_ended" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer5/sens_slider" to="." method="_on_sens_slider_drag_ended"]
 [connection signal="value_changed" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer5/sens_slider" to="." method="_on_sens_slider_value_changed"]
 [connection signal="item_selected" from="neck/head/eyes/CanvasLayer/video_settings/VBoxContainer/HBoxContainer3/DisplayOptionButton" to="neck/head/eyes/CanvasLayer" method="_on_display_option_button_item_selected"]

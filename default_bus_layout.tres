@@ -16,6 +16,10 @@ wet = 0.37
 resource_name = "LowPassFilter"
 cutoff_hz = 3500.0
 
+[sub_resource type="AudioEffectPitchShift" id="AudioEffectPitchShift_j3pel"]
+resource_name = "PitchShift"
+pitch_scale = 0.77
+
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_g28q7"]
 resource_name = "Reverb"
 room_size = 0.27
@@ -58,6 +62,8 @@ bus/2/volume_db = -32.023964
 bus/2/send = &"Master"
 bus/2/effect/0/effect = SubResource("AudioEffectReverb_j3pel")
 bus/2/effect/0/enabled = true
+bus/2/effect/1/effect = SubResource("AudioEffectPitchShift_j3pel")
+bus/2/effect/1/enabled = true
 bus/3/name = &"menu_music"
 bus/3/solo = false
 bus/3/mute = false

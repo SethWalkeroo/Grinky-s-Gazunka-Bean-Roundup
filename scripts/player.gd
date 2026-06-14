@@ -865,8 +865,16 @@ func handle_bean_pickup(collided):
 		if grabbed_object.has_meta("original_mask"): grabbed_object.collision_mask = grabbed_object.get_meta("original_mask")
 		remove_collision_exception_with(grabbed_object)
 		grabbed_object = null
+		
+
+@onready var crosshair: Control = $neck/head/eyes/CanvasLayer/crosshair
 
 func _physics_process(delta: float) -> void:
+	if !GlobalStats._crosshair_on:
+		crosshair.visible = false
+	else:
+		crosshair.visible = true
+	
 	$neck/head/eyes/Camera3D/SubViewportContainer/SubViewport/view_model_camera.global_transform = camera_3d.global_transform
 	
 	# --- BEAN SENSE COOLDOWN ---
@@ -1247,7 +1255,7 @@ func handle_movement(delta: float) -> void:
 				jump_sound.play()
 				animation_player.play('jumping')
 
-	if is_on_floor() and last_velocity.y < -3.0 and not is_underwater:
+	if is_on_floor() and last_velocity.y < -3.0 and not is_sliding:
 		animation_player.play('landing')
 		if not in_heaven:
 			footsteps.play()
@@ -1437,9 +1445,8 @@ func handle_camera_and_bobbing(delta: float) -> void:
 		eyes.position.y = lerp(eyes.position.y, head_bobbing_vector.y * (head_bobbing_current_intensity) / 2, delta * lerp_speed)
 		eyes.position.x = lerp(eyes.position.x, current_lean_offset + (head_bobbing_vector.x * (head_bobbing_current_intensity)), delta * lerp_speed)
 		
-		# Only play the heavy boot sounds if we aren't swimming!
-		if previous_eye_position < 0 and eyes.position.y > 0 and not is_underwater:
-			if in_heaven and grass_footsteps:
+		if previous_eye_position < 0 and eyes.position.y > 0 and not is_sliding:
+			if in_heaven:
 				grass_footsteps.play()
 			else:
 				footsteps.play()
@@ -2194,3 +2201,8 @@ func _on_sens_slider_value_changed(value: float) -> void:
 	default_mouse_sens = value / 4.0
 	GlobalStats.mouse_sens = value
 	update_sens_label(value)
+
+
+func _on_crosshair_checkbox_toggled(toggled_on: bool) -> void:
+	GlobalStats._crosshair_on = toggled_on
+	GlobalStats.play_click()

@@ -38,6 +38,7 @@ var crank_speed: float = 0.0
 @onready var minimap: TextureRect = $circle_clip
 @onready var wisp_cooldown: TextureProgressBar = $wisp_cooldown
 @onready var flashlight_battery_bar: ProgressBar = $flashlight_battery_bar
+@onready var crosshair_checkbox: CheckBox = $video_settings/VBoxContainer/HBoxContainer4/crosshair_checkbox
 
 # --- MENUS ---
 @onready var quit_confirm_panel: ColorRect = $quit_confirm_panel
@@ -105,6 +106,7 @@ func setup(p_player: CharacterBody3D):
 	
 	# hotbar and minimap settings
 	minimap_checkbox.button_pressed = GlobalStats.minimap_on
+	crosshair_checkbox.button_pressed = GlobalStats._crosshair_on
 	hotbar_checkbox.button_pressed = GlobalStats.hotbar_on
 	minimap.visible = GlobalStats.minimap_on
 	hotbar.visible = GlobalStats.hotbar_on
